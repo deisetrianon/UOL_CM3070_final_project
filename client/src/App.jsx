@@ -29,7 +29,7 @@ function App() {
       <div className="app">
         <nav className="poc-nav">
           <button className="back-btn" onClick={() => setShowFacialPOC(false)}>
-            ← Back to Home
+            ← Home
           </button>
           <span className="nav-title">Facial Analysis POC</span>
         </nav>
@@ -45,34 +45,16 @@ function App() {
       <header className="hero">
         <div className="hero-content animate-slide-up">
           <div className="logo">
-            <div className="logo-icon">
-              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="45" fill="url(#logoGrad)"/>
-                <path d="M30 50 Q50 30 70 50 Q50 70 30 50" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round"/>
-                <circle cx="50" cy="50" r="8" fill="white"/>
-                <defs>
-                  <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#6366f1"/>
-                    <stop offset="100%" stopColor="#8b5cf6"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
             <h1 className="logo-text">
-              <span className="text-gradient">Empathetic</span> Workspace
+              <span className="text-gradient">Empathetic Workspace</span> POC
             </h1>
           </div>
-          <p className="hero-description">
-            An emotion-aware adaptive email and task manager designed to reduce 
-            workplace stress and enhance your productivity through intelligent 
-            cognitive load management.
-          </p>
           <div className="status-card">
             <div className="status-header">
               <span className="status-icon">
                 {loading ? '⏳' : apiStatus?.status === 'ok' ? '✓' : '✗'}
               </span>
-              <span className="status-title">System Status</span>
+              <span className="status-title">API Status</span>
             </div>
             <div className="status-body">
               {loading ? (
@@ -114,19 +96,13 @@ function App() {
             </div>
           </div>
           <div className="poc-section">
-            <h3>🧪 Proof of Concept</h3>
+            <h3>Proof of Concept (POC)</h3>
             <button 
               className="poc-button"
               onClick={() => setShowFacialPOC(true)}
             >
               🎥 Test Facial Analysis (Azure Face API)
             </button>
-          </div>
-          <div className="tech-stack">
-            <span className="tech-badge">React</span>
-            <span className="tech-badge">Node.js</span>
-            <span className="tech-badge">Express</span>
-            <span className="tech-badge">MongoDB</span>
           </div>
         </div>
         <div className="hero-decoration">

@@ -12,6 +12,7 @@
   position: relative;
   overflow: hidden;
   padding: var(--spacing-xl);
+  background-color: var(--color-bg-primary);
 }
 
 .hero-content {
@@ -225,6 +226,7 @@
   flex: 1;
   padding: var(--spacing-xl);
   overflow-y: auto;
+  background-color: var(--color-bg-primary);
 }
 
 .tech-stack {
@@ -262,8 +264,8 @@
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.5;
+  filter: blur(100px);
+  opacity: 0.10;
 }
 
 .orb-1 {
@@ -294,7 +296,7 @@
   transform: translate(-50%, -50%);
   animation: breathe 6s ease-in-out infinite;
   animation-delay: 2s;
-  opacity: 0.3;
+  opacity: 0.1;
 }
 
 @media (max-width: 768px) {

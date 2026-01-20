@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    message: 'Empathetic Workspace API is running',
+    message: 'API is running',
     timestamp: new Date().toISOString()
   });
 });

@@ -4,7 +4,7 @@ import './WebcamCapture.css';
 /**
  * WebcamCapture Component
  * Captures webcam frames and sends them to the Azure Face API for analysis
- * This is a POC component for validating the facial analysis feature
+ * POC component for validating the facial analysis feature
  */
 function WebcamCapture() {
   const videoRef = useRef(null);
@@ -15,6 +15,7 @@ function WebcamCapture() {
   const [error, setError] = useState(null);
   const [lastResult, setLastResult] = useState(null);
   const [apiStatus, setApiStatus] = useState(null);
+  const [privacyMode, setPrivacyMode] = useState(true); 
 
   useEffect(() => {
     checkApiStatus();
@@ -35,13 +36,13 @@ function WebcamCapture() {
       setError(null);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          // Higher resolution for better face detection (Azure recommends up to 1920x1080)
+          // Higher resolution for better face detection: Azure recommends up to 1920x1080
           width: { ideal: 1280, min: 640 },
           height: { ideal: 720, min: 480 },
           facingMode: 'user',
-          // Request higher frame rate and auto-focus for clearer images
+          // Requesting higher frame rate and auto-focus for clearer images
           frameRate: { ideal: 30 },
-          // These constraints help reduce blur
+          // The following constraints help reduce blur
           autoGainControl: true,
           noiseSuppression: true
         },
@@ -54,7 +55,7 @@ function WebcamCapture() {
         
         const videoTrack = stream.getVideoTracks()[0];
         const settings = videoTrack.getSettings();
-        console.log('📹 Webcam settings:', {
+        console.log('Webcam settings:', {
           width: settings.width,
           height: settings.height,
           frameRate: settings.frameRate
@@ -95,20 +96,13 @@ function WebcamCapture() {
       // Set canvas size to match video (use actual video dimensions)
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-
-      // Draw current video frame to canvas with high quality settings
+      // Drawing current video frame to canvas with high quality settings
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = 'high';
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Convert to base64 JPEG with HIGH quality (0.95) to reduce blur
-      // Azure recommends clear images for best detection results
+      // Converting to base64 JPEG with HIGH quality (0.95) to reduce blur. Azure recommends clear images for best detection results
       const imageData = canvas.toDataURL('image/jpeg', 0.95);
-
-      console.log('📸 Capturing frame...');
-      console.log(`   Resolution: ${canvas.width}x${canvas.height}`);
-      console.log(`   Image size: ${Math.round(imageData.length / 1024)}KB`);
-      console.log('   💡 Tip: Stay still and ensure good lighting for best results');
 
       const response = await fetch('/api/facial-analysis/detect', {
         method: 'POST',
@@ -120,12 +114,9 @@ function WebcamCapture() {
 
       const result = await response.json();
 
-      console.log('🔍 Azure Face API Response:', result);
+      console.log('Azure Face API Response: ', result);
 
-      if (result.success) {
-        console.log('✅ Analysis successful!');
-        console.log(`   Faces detected: ${result.faceCount}`);
-        
+      if (result.success) {        
         if (result.analysis?.detected) {
           console.log('📊 Stress Indicators:', result.analysis.stressIndicators);
           console.log('🎯 Head Pose:', result.analysis.headPose);
@@ -135,12 +126,12 @@ function WebcamCapture() {
         
         setLastResult(result);
       } else {
-        console.error('❌ Analysis failed:', result.error);
+        console.error('Analysis failed:', result.error);
         setError(result.error);
       }
 
     } catch (err) {
-      console.error('❌ Request error:', err);
+      console.error('Request error:', err);
       setError(`Failed to analyze: ${err.message}`);
     } finally {
       setIsAnalyzing(false);
@@ -158,10 +149,9 @@ function WebcamCapture() {
       <div className="webcam-header">
         <h2>🎥 Facial Analysis POC</h2>
         <p className="webcam-subtitle">
-          Proof of concept for Azure Face API integration
+          POC using Azure Face API integration
         </p>
       </div>
-
       <div className={`api-status ${apiStatus?.success ? 'success' : 'error'}`}>
         <span className="status-dot"></span>
         <span>
@@ -170,148 +160,156 @@ function WebcamCapture() {
             : apiStatus?.error || 'Checking API status...'}
         </span>
       </div>
-
       {error && (
         <div className="error-banner">
           <span>⚠️</span>
           <span>{error}</span>
         </div>
       )}
-
-      {isStreaming && !isAnalyzing && (
-        <div className="capture-tips">
-          <span>💡</span>
-          <span>For best results: <strong>stay still</strong>, ensure <strong>good lighting</strong>, and face the camera directly</span>
-        </div>
-      )}
-
-      <div className="video-container">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className={isStreaming ? 'active' : ''}
-        />
-        {!isStreaming && (
-          <div className="video-placeholder">
-            <span className="placeholder-icon">📷</span>
-            <span>Camera not started</span>
+      <div className="main-content">
+        <div className="video-section">
+          <div className="privacy-toggle">
+            <label className="toggle-label">
+              <input
+                type="checkbox"
+                checked={privacyMode}
+                onChange={(e) => setPrivacyMode(e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+              <span className="toggle-text">
+                Privacy Mode
+              </span>
+            </label>
           </div>
-        )}
-        
-        {isAnalyzing && (
-          <div className="analyzing-overlay">
-            <div className="spinner"></div>
-            <span>Analyzing...</span>
+          <div className="video-container">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`${isStreaming ? 'active' : ''} ${privacyMode ? 'privacy-blur' : ''}`}
+            />
+            {!isStreaming && (
+              <div className="video-placeholder">
+                <span className="placeholder-icon">📷</span>
+                <span>Camera not started</span>
+              </div>
+            )}
+            {isStreaming && privacyMode && (
+              <div className="privacy-indicator">
+                <span>🔒 Privacy Mode Active</span>
+              </div>
+            )}
+            {isAnalyzing && (
+              <div className="analyzing-overlay">
+                <div className="spinner"></div>
+                <span>Analyzing...</span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
-
-      <div className="controls">
-        {!isStreaming ? (
-          <button 
-            className="btn btn-primary" 
-            onClick={startWebcam}
-            disabled={!apiStatus?.success}
-          >
-            🎥 Start Camera
-          </button>
-        ) : (
-          <>
-            <button 
-              className="btn btn-accent" 
-              onClick={captureAndAnalyze}
-              disabled={isAnalyzing}
-            >
-              {isAnalyzing ? '⏳ Analyzing...' : '📸 Capture & Analyze'}
-            </button>
-            <button 
-              className="btn btn-secondary" 
-              onClick={stopWebcam}
-              disabled={isAnalyzing}
-            >
-              ⏹️ Stop Camera
-            </button>
-          </>
-        )}
-      </div>
-
-      {lastResult && lastResult.success && (
-        <div className="results-panel">
-          <h3>📊 Last Analysis Result</h3>
-          
-          <div className="result-grid">
-            <div className="result-card">
-              <span className="result-label">Faces Detected</span>
-              <span className="result-value">{lastResult.faceCount}</span>
-            </div>
-
-            {lastResult.analysis?.detected && (
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
+          <div className="controls">
+            {!isStreaming ? (
+              <button 
+                className="btn btn-primary" 
+                onClick={startWebcam}
+                disabled={!apiStatus?.success}
+              >
+                START
+              </button>
+            ) : (
               <>
-                <div className="result-card">
-                  <span className="result-label">Head Pose</span>
-                  <span className="result-value small">
-                    Pitch: {lastResult.analysis.headPose.pitch.toFixed(1)}°<br/>
-                    Yaw: {lastResult.analysis.headPose.yaw.toFixed(1)}°<br/>
-                    Roll: {lastResult.analysis.headPose.roll.toFixed(1)}°
-                  </span>
-                </div>
-
-                <div className="result-card">
-                  <span className="result-label">Eye Aspect Ratio</span>
-                  <span className="result-value">
-                    {lastResult.analysis.eyeAspectRatio?.toFixed(2) || 'N/A'}
-                  </span>
-                </div>
-
-                <div className="result-card fatigue-card">
-                  <span className="result-label">Fatigue Score</span>
-                  <span className={`result-value ${
-                    lastResult.analysis.stressIndicators.fatigueLevel === 'high' ? 'error' :
-                    lastResult.analysis.stressIndicators.fatigueLevel === 'moderate' ? 'warning' : 'good'
-                  }`}>
-                    {lastResult.analysis.stressIndicators.fatigueScore}/100
-                    <span className="fatigue-level">
-                      ({lastResult.analysis.stressIndicators.fatigueLevel})
-                    </span>
-                  </span>
-                </div>
-
-                <div className="result-card">
-                  <span className="result-label">Distraction</span>
-                  <span className={`result-value ${lastResult.analysis.stressIndicators.possibleDistraction ? 'warning' : 'good'}`}>
-                    {lastResult.analysis.stressIndicators.possibleDistraction ? '⚠️ Looking away' : '✅ Focused'}
-                  </span>
-                </div>
+                <button 
+                  className="btn btn-accent" 
+                  onClick={captureAndAnalyze}
+                  disabled={isAnalyzing}
+                >
+                  {isAnalyzing ? '⏳ Analyzing...' : 'Capture & Analyze'}
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={stopWebcam}
+                  disabled={isAnalyzing}
+                >
+                  ⏹️ Stop Camera
+                </button>
               </>
             )}
           </div>
-
-          {lastResult.analysis?.stressIndicators?.fatigueReasons?.length > 0 && (
-            <div className="fatigue-reasons">
-              <h4>⚠️ Fatigue Indicators Detected:</h4>
-              <ul>
-                {lastResult.analysis.stressIndicators.fatigueReasons.map((reason, idx) => (
-                  <li key={idx}>{reason}</li>
-                ))}
-              </ul>
+        </div>
+        <div className="results-section">
+          {lastResult && lastResult.success ? (
+            <div className="results-panel">
+              <h3>📊 Analysis Result</h3>
+              <div className="result-grid">
+                <div className="result-card">
+                  <span className="result-label">Faces Detected</span>
+                  <span className="result-value">{lastResult.faceCount}</span>
+                </div>
+                {lastResult.analysis?.detected && (
+                  <>
+                    <div className="result-card">
+                      <span className="result-label">Head Pose</span>
+                      <span className="result-value small">
+                        Pitch: {lastResult.analysis.headPose.pitch.toFixed(1)}°<br/>
+                        Yaw: {lastResult.analysis.headPose.yaw.toFixed(1)}°<br/>
+                        Roll: {lastResult.analysis.headPose.roll.toFixed(1)}°
+                      </span>
+                    </div>
+                    <div className="result-card">
+                      <span className="result-label">Eye Aspect Ratio</span>
+                      <span className="result-value">
+                        {lastResult.analysis.eyeAspectRatio?.toFixed(2) || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="result-card fatigue-card">
+                      <span className="result-label">Fatigue Score</span>
+                      <span className={`result-value ${
+                        lastResult.analysis.stressIndicators.fatigueLevel === 'high' ? 'error' :
+                        lastResult.analysis.stressIndicators.fatigueLevel === 'moderate' ? 'warning' : 'good'
+                      }`}>
+                        {lastResult.analysis.stressIndicators.fatigueScore}/100
+                        <span className="fatigue-level">
+                          ({lastResult.analysis.stressIndicators.fatigueLevel})
+                        </span>
+                      </span>
+                    </div>
+                    <div className="result-card">
+                      <span className="result-label">Distraction</span>
+                      <span className={`result-value ${lastResult.analysis.stressIndicators.possibleDistraction ? 'warning' : 'good'}`}>
+                        {lastResult.analysis.stressIndicators.possibleDistraction ? '⚠️ Looking away' : '✅ Focused'}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+              {lastResult.analysis?.stressIndicators?.fatigueReasons?.length > 0 && (
+                <div className="fatigue-reasons">
+                  <h4>⚠️ Fatigue Indicators Detected:</h4>
+                  <ul>
+                    {lastResult.analysis.stressIndicators.fatigueReasons.map((reason, idx) => (
+                      <li key={idx}>{reason}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="results-panel results-placeholder">
+              <h3>Analysis Result</h3>
+              <div className="test-hints">
+                <h4>How to test fatigue detection:</h4>
+                <ul>
+                  <li><strong>Head drop:</strong> Tilt head down (pitch &lt; -7°)</li>
+                  <li><strong>Head tilt:</strong> Tilt head sideways (roll &gt; 15°)</li>
+                  <li><strong>Eyes closing:</strong> Squint or partially close eyes (EAR &lt; 0.28)</li>
+                  <li><strong>Distraction:</strong> Look left/right (yaw &gt; 20°)</li>
+                </ul>
+              </div>
             </div>
           )}
-
-          <div className="test-hints">
-            <h4>🧪 How to test fatigue detection:</h4>
-            <ul>
-              <li><strong>Head drop:</strong> Tilt head down (pitch &lt; -7°)</li>
-              <li><strong>Head tilt:</strong> Tilt head sideways (roll &gt; 15°)</li>
-              <li><strong>Eyes closing:</strong> Squint or partially close eyes (EAR &lt; 0.28)</li>
-              <li><strong>Distraction:</strong> Look left/right (yaw &gt; 20°)</li>
-            </ul>
-          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
