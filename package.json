@@ -1,0 +1,25 @@
+{
+  "name": "empathetic-workspace",
+  "version": "1.0.0",
+  "description": "Emotion-Aware Adaptive Email and Task Manager to Reduce Workplace Stress",
+  "private": true,
+  "scripts": {
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build": "npm run build --prefix client"
+  },
+  "keywords": [
+    "emotion-aware",
+    "stress-management",
+    "productivity",
+    "mern-stack",
+    "affective-computing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
