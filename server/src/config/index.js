@@ -5,9 +5,7 @@ import { existsSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
 const envPath = resolve(__dirname, '../../.env');
-
 
 if (existsSync(envPath)) {
   const result = dotenv.config({ path: envPath });

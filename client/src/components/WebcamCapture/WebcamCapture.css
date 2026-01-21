@@ -175,7 +175,6 @@
   opacity: 1;
 }
 
-/* Privacy Mode - Blur Effect */
 .video-container video.privacy-blur {
   filter: blur(20px);
 }

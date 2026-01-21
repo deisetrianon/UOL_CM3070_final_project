@@ -5,7 +5,6 @@
   background-color: var(--color-bg-primary);
 }
 
-/* Header */
 .home-header {
   display: flex;
   align-items: center;
@@ -208,14 +207,12 @@
   color: white;
 }
 
-/* Main Content */
 .home-content {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
-/* Sidebar */
 .sidebar {
   width: 200px;
   flex-shrink: 0;
@@ -284,7 +281,6 @@
   color: var(--color-text-muted);
 }
 
-/* Email List */
 .email-main {
   flex: 1;
   display: flex;
@@ -585,7 +581,6 @@
   white-space: nowrap;
 }
 
-/* Email View (Integrated) */
 .email-view {
   display: flex;
   flex-direction: column;
@@ -795,7 +790,6 @@
   overflow-wrap: break-word;
 }
 
-/* Style HTML email content */
 .email-body-html * {
   max-width: 100%;
 }
@@ -915,7 +909,6 @@
     display: none;
   }
   
-  /* Email view responsive styles */
   .email-view-content {
     margin: var(--spacing-sm);
     border-radius: var(--radius-md);

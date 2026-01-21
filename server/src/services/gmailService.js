@@ -1,9 +1,5 @@
 import { google } from 'googleapis';
 
-/**
- * Gmail Service
- * Handles all Gmail API interactions for fetching user emails
- */
 class GmailService {
   constructor() {
     this.oauth2Client = new google.auth.OAuth2(
@@ -28,10 +24,10 @@ class GmailService {
 
   /**
    * Fetch user's emails from Gmail
-   * @param {string} accessToken - User's access token
-   * @param {string} refreshToken - User's refresh token
-   * @param {Object} options - Fetch options
-   * @returns {Promise<Object>} - List of emails with metadata
+   * @param {string} accessToken
+   * @param {string} refreshToken
+   * @param {Object} options
+   * @returns {Promise<Object>}
    */
   async getEmails(accessToken, refreshToken, options = {}) {
     const {
@@ -46,7 +42,6 @@ class GmailService {
     const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
 
     try {
-      // First, get list of message IDs
       const listParams = {
         userId: 'me',
         maxResults,
@@ -66,7 +61,7 @@ class GmailService {
         };
       }
 
-      // Fetch full details for each message
+      // Fetching full details for each message
       const emailPromises = listResponse.data.messages.map(async (message) => {
         const fullMessage = await gmail.users.messages.get({
           userId: 'me',
@@ -88,7 +83,7 @@ class GmailService {
     } catch (error) {
       console.error('[Gmail] Error fetching emails:', error.message);
       
-      // Handle token expiry
+      // Handling token expiry
       if (error.code === 401 || error.message?.includes('invalid_grant')) {
         throw new Error('TOKEN_EXPIRED');
       }
@@ -99,10 +94,10 @@ class GmailService {
 
   /**
    * Get a single email with full body content
-   * @param {string} accessToken - User's access token
-   * @param {string} refreshToken - User's refresh token
-   * @param {string} messageId - Gmail message ID
-   * @returns {Promise<Object>} - Full email data
+   * @param {string} accessToken
+   * @param {string} refreshToken
+   * @param {string} messageId
+   * @returns {Promise<Object>}
    */
   async getEmail(accessToken, refreshToken, messageId) {
     this.setCredentials(accessToken, refreshToken);
@@ -125,9 +120,9 @@ class GmailService {
 
   /**
    * Get user's Gmail profile
-   * @param {string} accessToken - User's access token
-   * @param {string} refreshToken - User's refresh token
-   * @returns {Promise<Object>} - Gmail profile
+   * @param {string} accessToken
+   * @param {string} refreshToken
+   * @returns {Promise<Object>}
    */
   async getProfile(accessToken, refreshToken) {
     this.setCredentials(accessToken, refreshToken);
@@ -164,13 +159,13 @@ class GmailService {
       return header?.value || '';
     };
 
-    // Parse sender name and email
+    // Parsing sender name and email
     const fromHeader = getHeader('From');
     const fromMatch = fromHeader.match(/^(?:"?(.+?)"?\s*)?<?([^<>]+@[^<>]+)>?$/);
     const senderName = fromMatch?.[1]?.trim() || fromMatch?.[2] || fromHeader;
     const senderEmail = fromMatch?.[2] || fromHeader;
 
-    // Parse date
+    // Parsing date
     const dateStr = getHeader('Date');
     const date = dateStr ? new Date(dateStr) : new Date();
 
@@ -200,8 +195,6 @@ class GmailService {
    */
   parseFullEmail(message) {
     const metadata = this.parseEmailMetadata(message);
-    
-    // Extract body content
     let body = '';
     let bodyHtml = '';
 

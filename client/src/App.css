@@ -4,7 +4,6 @@
   flex-direction: column;
 }
 
-/* Global Loading Screen */
 .loading-screen {
   min-height: 100vh;
   display: flex;
@@ -36,7 +35,6 @@
   }
 }
 
-/* Text Utilities */
 .text-gradient {
   background: var(--color-accent-gradient);
   -webkit-background-clip: text;
@@ -44,7 +42,6 @@
   background-clip: text;
 }
 
-/* Animation Utilities */
 .animate-slide-up {
   animation: slideUp var(--transition-slow) ease forwards;
 }

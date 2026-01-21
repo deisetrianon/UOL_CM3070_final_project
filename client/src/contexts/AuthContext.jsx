@@ -12,7 +12,6 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Check authentication status on mount
   const checkAuth = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -45,13 +44,10 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, [checkAuth]);
 
-  // Login with Google
   const loginWithGoogle = useCallback(() => {
-    // Redirect to Google OAuth endpoint
     window.location.href = '/api/auth/google';
   }, []);
 
-  // Logout
   const logout = useCallback(async () => {
     try {
       setError(null);
@@ -94,9 +90,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-/**
- * Hook to use authentication context
- */
+// Hook to use authentication context
 export function useAuth() {
   const context = useContext(AuthContext);
   

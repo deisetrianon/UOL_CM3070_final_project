@@ -3,30 +3,25 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './Login.css';
 
-/**
- * Login Page
- * Displays Google Sign-In button for authentication
- */
 function Login() {
   const { isAuthenticated, isLoading, loginWithGoogle, error } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the intended destination or default to /home
+  // Getting the intended destination or default to /home
   const from = location.state?.from?.pathname || '/home';
 
-  // Redirect if already authenticated
+  // Redirecting if already authenticated
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate, from]);
 
-  // Check for auth error in URL
+  // Checking for auth error in URL
   const searchParams = new URLSearchParams(location.search);
   const authError = searchParams.get('error');
   
-  // Map error codes to user-friendly messages
   const getErrorMessage = (errorCode) => {
     const errorMessages = {
       'auth_failed': 'Authentication failed. Please try again.',
@@ -54,7 +49,6 @@ function Login() {
         <div className="orb orb-2"></div>
         <div className="orb orb-3"></div>
       </div>
-
       <div className="login-container animate-slide-up">
         <div className="login-header">
           <div className="login-logo">
@@ -63,21 +57,18 @@ function Login() {
             </h1>
           </div>
         </div>
-
         <div className="login-card">
           <h2>Welcome</h2>
           <p className="login-description">
             Sign in with your Google account to access your Gmail inbox 
             and start using our stress-aware productivity tools.
           </p>
-
           {(error || authError) && (
             <div className="login-error">
               <span>⚠️</span>
               <span>{error || getErrorMessage(authError)}</span>
             </div>
           )}
-
           <button 
             className="google-signin-btn"
             onClick={loginWithGoogle}
@@ -90,7 +81,6 @@ function Login() {
             </svg>
             <span>Sign in with Google</span>
           </button>
-
           <div className="login-features">
             <div className="feature">
               <span className="feature-icon">📧</span>
@@ -105,7 +95,6 @@ function Login() {
               <span>Read-only access</span>
             </div>
           </div>
-
           <p className="login-privacy">
             We only request read-only access to your emails. 
             Your data is never stored on our servers.

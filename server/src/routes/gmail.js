@@ -3,9 +3,7 @@ import gmailService from '../services/gmailService.js';
 
 const router = Router();
 
-/**
- * Middleware to check if user is authenticated
- */
+// Checking if user is authenticated
 const requireAuth = (req, res, next) => {
   if (!req.isAuthenticated() || !req.user) {
     return res.status(401).json({
@@ -121,8 +119,8 @@ router.get('/profile', requireAuth, async (req, res) => {
  * Fetch available Gmail labels
  */
 router.get('/labels', requireAuth, async (req, res) => {
-  // Return commonly used labels
-  // In a full implementation, this would fetch from Gmail API
+  // Returning commonly used labels
+  // (TODO: In a full implementation, this would fetch from Gmail API)
   res.json({
     success: true,
     labels: [

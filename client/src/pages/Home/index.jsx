@@ -3,10 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './Home.css';
 
-/**
- * Home Page
- * Displays user's Gmail inbox with email list
- */
 function Home() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -22,20 +18,20 @@ function Home() {
   const [avatarError, setAvatarError] = useState(false);
 
   const [nextPageToken, setNextPageToken] = useState(null);
-  const [pageTokenHistory, setPageTokenHistory] = useState([]); // Stack of previous page tokens
+  const [pageTokenHistory, setPageTokenHistory] = useState([]); 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalEstimate, setTotalEstimate] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeSearch, setActiveSearch] = useState(''); // Currently applied search
+  const [activeSearch, setActiveSearch] = useState(''); 
   const EMAILS_PER_PAGE = 20;
 
-  // Generate fallback avatar URL
+  // Generating fallback avatar URL
   const getFallbackAvatar = () => {
     const name = encodeURIComponent(user?.displayName || user?.email || 'User');
     return `https://ui-avatars.com/api/?name=${name}&background=4f46e5&color=fff&size=96`;
   };
 
-  // Fetch emails from Gmail with pagination and search support
+  // Fetching emails from Gmail with pagination and search support
   const fetchEmails = useCallback(async (label = 'INBOX', pageToken = null, query = '') => {
     try {
       setLoading(true);
@@ -60,7 +56,7 @@ function Home() {
         setNextPageToken(data.nextPageToken || null);
         setTotalEstimate(data.resultSizeEstimate || 0);
       } else if (response.status === 401) {
-        // Session expired, redirect to login
+        // Redirecting to login if session expired
         navigate('/login');
       } else {
         setError(data.error || 'Failed to fetch emails');
@@ -73,7 +69,7 @@ function Home() {
     }
   }, [navigate]);
 
-  // Fetch Gmail profile
+  // Fetching Gmail profile
   const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch('/api/gmail/profile', {
@@ -90,7 +86,6 @@ function Home() {
     }
   }, []);
 
-  // Fetch full email content
   const fetchFullEmail = useCallback(async (emailId) => {
     try {
       setLoadingEmail(true);
@@ -115,14 +110,13 @@ function Home() {
     }
   }, []);
 
-  // Handle email selection
   const handleSelectEmail = useCallback((email) => {
     setSelectedEmail(email);
     setFullEmailContent(null);
     fetchFullEmail(email.id);
   }, [fetchFullEmail]);
 
-  // Reset pagination when label changes
+  // Resetting pagination when label changes
   const handleLabelChange = (labelId) => {
     setActiveLabel(labelId);
     setNextPageToken(null);
@@ -130,11 +124,10 @@ function Home() {
     setCurrentPage(1);
     setSelectedEmail(null);
     setFullEmailContent(null);
-    // Keep the active search when changing labels
+    // Keeping the active search when changing labels
     fetchEmails(labelId, null, activeSearch);
   };
 
-  // Handle search
   const handleSearch = () => {
     const trimmedQuery = searchQuery.trim();
     setActiveSearch(trimmedQuery);
@@ -146,14 +139,12 @@ function Home() {
     fetchEmails(activeLabel, null, trimmedQuery);
   };
 
-  // Handle search input key press
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
   };
 
-  // Clear search
   const handleClearSearch = () => {
     setSearchQuery('');
     setActiveSearch('');
@@ -167,7 +158,6 @@ function Home() {
 
   const handleNextPage = () => {
     if (nextPageToken) {
-      // Save current state before moving forward
       setPageTokenHistory(prev => [...prev, { 
         token: pageTokenHistory.length === 0 ? null : pageTokenHistory[pageTokenHistory.length - 1]?.nextToken,
         nextToken: nextPageToken 
@@ -182,7 +172,7 @@ function Home() {
   const handlePrevPage = () => {
     if (pageTokenHistory.length > 0) {
       const newHistory = [...pageTokenHistory];
-      newHistory.pop(); // Remove current page from history
+      newHistory.pop();
       
       const prevToken = newHistory.length > 0 ? newHistory[newHistory.length - 1]?.nextToken : null;
       
@@ -202,14 +192,12 @@ function Home() {
     setFullEmailContent(null);
   };
 
-  // Initial load
   useEffect(() => {
     fetchEmails(activeLabel, null, '');
     fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle ESC key to go back to email list
+  // Handling ESC key to go back to email list
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && selectedEmail) {
@@ -222,7 +210,6 @@ function Home() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedEmail]);
 
-  // Handle logout
   const handleLogout = async () => {
     const success = await logout();
     if (success) {
@@ -230,7 +217,6 @@ function Home() {
     }
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -254,7 +240,6 @@ function Home() {
     }
   };
 
-  // Labels for sidebar
   const labels = [
     { id: 'INBOX', name: 'Inbox', icon: '📥' },
     { id: 'STARRED', name: 'Starred', icon: '⭐' },
@@ -263,20 +248,18 @@ function Home() {
     { id: 'DRAFT', name: 'Drafts', icon: '📝' }
   ];
 
-  // Calculate display range
+  // Calculating display range for pagination
   const startItem = (currentPage - 1) * EMAILS_PER_PAGE + 1;
   const endItem = startItem + emails.length - 1;
 
   return (
     <div className="home-page">
-      {/* Header */}
       <header className="home-header">
         <div className="header-left">
           <div className="header-logo">
             <span className="logo-title">Empathetic Workspace</span>
           </div>
         </div>
-
         <div className="header-center">
           <div className="search-bar">
             <span className="search-icon">🔍</span>
@@ -312,7 +295,6 @@ function Home() {
             </div>
           )}
         </div>
-
         <div className="header-right">
           <button 
             className="nav-btn"
@@ -321,7 +303,6 @@ function Home() {
           >
             🎥
           </button>
-          
           <div className="user-menu">
             <img 
               src={avatarError ? getFallbackAvatar() : (user?.picture || getFallbackAvatar())} 
@@ -340,10 +321,7 @@ function Home() {
           </div>
         </div>
       </header>
-
-      {/* Main Content */}
       <div className="home-content">
-        {/* Sidebar */}
         <aside className="sidebar">
           <nav className="sidebar-nav">
             {labels.map((label) => (
@@ -357,7 +335,6 @@ function Home() {
               </button>
             ))}
           </nav>
-
           {gmailProfile && (
             <div className="sidebar-stats">
               <p className="stat">
@@ -367,11 +344,8 @@ function Home() {
             </div>
           )}
         </aside>
-
-        {/* Main Content Area */}
         <main className="email-main">
           {selectedEmail ? (
-            /* Email View */
             <div className="email-view">
               <div className="email-view-header">
                 <button 
@@ -384,7 +358,6 @@ function Home() {
                   ← Back to {labels.find(l => l.id === activeLabel)?.name || 'Inbox'}
                 </button>
               </div>
-
               <div className="email-view-content">
                 <div className="email-view-title">
                   <h2>{selectedEmail.subject}</h2>
@@ -393,7 +366,6 @@ function Home() {
                     {selectedEmail.isStarred && <span className="label-badge starred">⭐ Starred</span>}
                   </div>
                 </div>
-
                 <div className="email-view-meta">
                   <div className="email-view-from">
                     <div className="sender-avatar-large">
@@ -422,7 +394,6 @@ function Home() {
                     </span>
                   </div>
                 </div>
-
                 <div className="email-view-body">
                   {loadingEmail ? (
                     <div className="email-loading">
@@ -447,7 +418,6 @@ function Home() {
               </div>
             </div>
           ) : (
-            /* Email List */
             <>
               <div className="email-header">
                 <h2>{labels.find(l => l.id === activeLabel)?.name || 'Inbox'}</h2>
@@ -456,8 +426,7 @@ function Home() {
                     <span className="pagination-info">
                       {startItem}-{endItem} of {totalEstimate > 0 ? `~${totalEstimate.toLocaleString()}` : 'many'}
                     </span>
-                  )}
-                  
+                  )}                 
                   <button 
                     className="pagination-btn"
                     onClick={handleFirstPage}
@@ -465,8 +434,7 @@ function Home() {
                     title="First page"
                   >
                     ⏮
-                  </button>
-                  
+                  </button>                
                   <button 
                     className="pagination-btn"
                     onClick={handlePrevPage}
@@ -474,12 +442,10 @@ function Home() {
                     title="Previous page"
                   >
                     ◀
-                  </button>
-                  
+                  </button>                
                   <span className="page-indicator">
                     Page {currentPage}
                   </span>
-                  
                   <button 
                     className="pagination-btn"
                     onClick={handleNextPage}
@@ -488,7 +454,6 @@ function Home() {
                   >
                     ▶
                   </button>
-                  
                   <button 
                     className="refresh-btn"
                     onClick={handleFirstPage}
@@ -499,7 +464,6 @@ function Home() {
                   </button>
                 </div>
               </div>
-
               {error && (
                 <div className="error-banner">
                   <span>⚠️</span>
@@ -507,7 +471,6 @@ function Home() {
                   <button onClick={() => fetchEmails(activeLabel)}>Retry</button>
                 </div>
               )}
-
               {loading ? (
                 <div className="loading-state">
                   <div className="loading-spinner"></div>
@@ -530,25 +493,22 @@ function Home() {
                       <div className="email-checkbox">
                         <input type="checkbox" onClick={(e) => e.stopPropagation()} />
                       </div>
-                      
-                      <div className="email-star">
+                      {/* <div className="email-star">
                         <button 
                           className={`star-btn ${email.isStarred ? 'starred' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Toggle star (not implemented for read-only)
+                            // (TODO: Toggle star (not implemented yet for read-only))
                           }}
                         >
                           {email.isStarred ? '⭐' : '☆'}
                         </button>
-                      </div>
-
+                      </div> */}
                       <div className="email-sender">
                         <span className={email.isUnread ? 'unread' : ''}>
                           {email.from?.name || email.from?.email}
                         </span>
                       </div>
-
                       <div className="email-content">
                         <span className={`email-subject ${email.isUnread ? 'unread' : ''}`}>
                           {email.subject}
@@ -557,7 +517,6 @@ function Home() {
                           {email.snippet}
                         </span>
                       </div>
-
                       <div className="email-meta">
                         {email.isImportant && (
                           <span className="important-badge">🏷️</span>
@@ -568,7 +527,6 @@ function Home() {
                   ))}
                 </ul>
               )}
-
               {emails.length > 0 && !loading && (
                 <div className="pagination-footer">
                   <button 
@@ -577,12 +535,10 @@ function Home() {
                     disabled={currentPage === 1}
                   >
                     ← Previous
-                  </button>
-                  
+                  </button>                 
                   <span className="pagination-info">
                     Page {currentPage} • Showing {emails.length} emails
                   </span>
-                  
                   <button 
                     className="pagination-btn-text"
                     onClick={handleNextPage}
@@ -595,7 +551,6 @@ function Home() {
             </>
           )}
         </main>
-
       </div>
     </div>
   );

@@ -4,17 +4,10 @@ import config from '../config/index.js';
 
 const router = Router();
 
-/**
- * Check if Google OAuth is configured
- */
+// Checking if Google OAuth is configured
 const isGoogleConfigured = () => {
   return !!(config.google.clientId && config.google.clientSecret);
 };
-
-/**
- * Authentication Routes
- * Handles Google OAuth 2.0 authentication flow
- */
 
 /**
  * GET /api/auth/google
@@ -52,7 +45,7 @@ router.get('/google/callback', (req, res, next) => {
       console.error('[Auth] OAuth callback error:', err);
       return res.redirect(`${config.clientUrl}/login?error=auth_failed`);
     }
-    // Successful authentication
+
     console.log('[Auth] Google OAuth successful, redirecting to home');
     res.redirect(`${config.clientUrl}/home`);
   });

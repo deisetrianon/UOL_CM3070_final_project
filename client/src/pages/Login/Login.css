@@ -193,7 +193,6 @@
   }
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   .login-page {
     padding: var(--spacing-md);
