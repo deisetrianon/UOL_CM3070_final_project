@@ -1,23 +1,35 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import config from './index.js';
+import User from '../models/User.js';
 
 /**
  * Configure Passport.js with Google OAuth 2.0 Strategy
  * This enables Google Sign-In and Gmail API access
+ * Users are persisted to MongoDB via the User model
  */
 
-// Serialize user for the session
+// Serializing user ID for the session
 passport.serializeUser((user, done) => {
-  done(null, user);
+  done(null, user.id || user._id);
 });
 
-// Deserialize user from the session
-passport.deserializeUser((user, done) => {
-  done(null, user);
+// Deserializing user from the session by fetching from database
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    if (user) {
+      done(null, user.toSessionJSON());
+    } else {
+      done(null, false);
+    }
+  } catch (error) {
+    console.error('[Passport] Error deserializing user:', error.message);
+    done(error, null);
+  }
 });
 
-// Only configure Google OAuth if credentials are available
+// Configuring Google OAuth if credentials are available
 if (config.google.clientId && config.google.clientSecret) {
   passport.use(
     new GoogleStrategy(
@@ -30,27 +42,21 @@ if (config.google.clientId && config.google.clientSecret) {
           'email',
           'https://www.googleapis.com/auth/gmail.readonly'  // Read-only Gmail access
         ],
-        accessType: 'offline',  // Get refresh token
-        prompt: 'consent'       // Always show consent screen to get refresh token
+        accessType: 'offline',  // Getting refresh token
+        prompt: 'consent'       // Always showing consent screen to get refresh token
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          // Create user object with profile and tokens
-          const user = {
-            id: profile.id,
-            email: profile.emails?.[0]?.value,
-            displayName: profile.displayName,
-            firstName: profile.name?.givenName,
-            lastName: profile.name?.familyName,
-            picture: profile.photos?.[0]?.value,
+          // Finding or creating user in MongoDB
+          const user = await User.findOrCreateFromGoogle(
+            profile,
             accessToken,
-            refreshToken,
-            tokenExpiry: Date.now() + 3600 * 1000  // Token expires in 1 hour
-          };
+            refreshToken
+          );
 
-          console.log(`[Auth] User authenticated: ${user.email}`);
+          console.log(`[Auth] User authenticated and saved: ${user.email}`);
           
-          return done(null, user);
+          return done(null, user.toSessionJSON());
         } catch (error) {
           console.error('[Auth] Error in Google strategy:', error);
           return done(error, null);
