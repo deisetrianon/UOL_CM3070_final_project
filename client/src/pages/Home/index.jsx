@@ -19,19 +19,30 @@ function Home() {
   const [gmailProfile, setGmailProfile] = useState(null);
   const [avatarError, setAvatarError] = useState(false);
 
+  const [nextPageToken, setNextPageToken] = useState(null);
+  const [pageTokenHistory, setPageTokenHistory] = useState([]); // Stack of previous page tokens
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalEstimate, setTotalEstimate] = useState(0);
+  const EMAILS_PER_PAGE = 20;
+
   // Generate fallback avatar URL
   const getFallbackAvatar = () => {
     const name = encodeURIComponent(user?.displayName || user?.email || 'User');
     return `https://ui-avatars.com/api/?name=${name}&background=4f46e5&color=fff&size=96`;
   };
 
-  // Fetch emails from Gmail
-  const fetchEmails = useCallback(async (label = 'INBOX') => {
+  // Fetch emails from Gmail with pagination support
+  const fetchEmails = useCallback(async (label = 'INBOX', pageToken = null, direction = 'current') => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/gmail/emails?label=${label}&maxResults=30`, {
+      let url = `/api/gmail/emails?label=${label}&maxResults=${EMAILS_PER_PAGE}`;
+      if (pageToken) {
+        url += `&pageToken=${pageToken}`;
+      }
+
+      const response = await fetch(url, {
         credentials: 'include'
       });
 
@@ -39,6 +50,8 @@ function Home() {
 
       if (data.success) {
         setEmails(data.emails || []);
+        setNextPageToken(data.nextPageToken || null);
+        setTotalEstimate(data.resultSizeEstimate || 0);
       } else if (response.status === 401) {
         // Session expired, redirect to login
         navigate('/login');
@@ -69,6 +82,49 @@ function Home() {
       console.error('Error fetching profile:', err);
     }
   }, []);
+
+  // Reset pagination when label changes
+  const handleLabelChange = (labelId) => {
+    setActiveLabel(labelId);
+    setNextPageToken(null);
+    setPageTokenHistory([]);
+    setCurrentPage(1);
+    setSelectedEmail(null);
+  };
+
+  const handleNextPage = () => {
+    if (nextPageToken) {
+      // Save current state before moving forward
+      setPageTokenHistory(prev => [...prev, { 
+        token: pageTokenHistory.length === 0 ? null : pageTokenHistory[pageTokenHistory.length - 1]?.nextToken,
+        nextToken: nextPageToken 
+      }]);
+      setCurrentPage(prev => prev + 1);
+      fetchEmails(activeLabel, nextPageToken, 'next');
+      setSelectedEmail(null);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (pageTokenHistory.length > 0) {
+      const newHistory = [...pageTokenHistory];
+      newHistory.pop(); // Remove current page from history
+      
+      const prevToken = newHistory.length > 0 ? newHistory[newHistory.length - 1]?.nextToken : null;
+      
+      setPageTokenHistory(newHistory);
+      setCurrentPage(prev => prev - 1);
+      fetchEmails(activeLabel, prevToken, 'prev');
+      setSelectedEmail(null);
+    }
+  };
+
+  const handleFirstPage = () => {
+    setPageTokenHistory([]);
+    setCurrentPage(1);
+    fetchEmails(activeLabel, null, 'first');
+    setSelectedEmail(null);
+  };
 
   useEffect(() => {
     fetchEmails(activeLabel);
@@ -115,6 +171,10 @@ function Home() {
     { id: 'SENT', name: 'Sent', icon: '📤' },
     { id: 'DRAFT', name: 'Drafts', icon: '📝' }
   ];
+
+  // Calculate display range
+  const startItem = (currentPage - 1) * EMAILS_PER_PAGE + 1;
+  const endItem = startItem + emails.length - 1;
 
   return (
     <div className="home-page">
@@ -174,7 +234,7 @@ function Home() {
               <button
                 key={label.id}
                 className={`nav-item ${activeLabel === label.id ? 'active' : ''}`}
-                onClick={() => setActiveLabel(label.id)}
+                onClick={() => handleLabelChange(label.id)}
               >
                 <span className="nav-icon">{label.icon}</span>
                 <span className="nav-text">{label.name}</span>
@@ -196,13 +256,53 @@ function Home() {
         <main className="email-main">
           <div className="email-header">
             <h2>{labels.find(l => l.id === activeLabel)?.name || 'Inbox'}</h2>
-            <button 
-              className="refresh-btn"
-              onClick={() => fetchEmails(activeLabel)}
-              disabled={loading}
-            >
-              {loading ? '⏳' : '🔄'} Refresh
-            </button>
+            <div className="pagination-controls">
+              {emails.length > 0 && !loading && (
+                <span className="pagination-info">
+                  {startItem}-{endItem} of {totalEstimate > 0 ? `~${totalEstimate.toLocaleString()}` : 'many'}
+                </span>
+              )}
+              
+              <button 
+                className="pagination-btn"
+                onClick={handleFirstPage}
+                disabled={loading || currentPage === 1}
+                title="First page"
+              >
+                ⏮
+              </button>
+              
+              <button 
+                className="pagination-btn"
+                onClick={handlePrevPage}
+                disabled={loading || currentPage === 1}
+                title="Previous page"
+              >
+                ◀
+              </button>
+              
+              <span className="page-indicator">
+                Page {currentPage}
+              </span>
+              
+              <button 
+                className="pagination-btn"
+                onClick={handleNextPage}
+                disabled={loading || !nextPageToken}
+                title="Next page"
+              >
+                ▶
+              </button>
+              
+              <button 
+                className="refresh-btn"
+                onClick={handleFirstPage}
+                disabled={loading}
+                title="Refresh"
+              >
+                {loading ? '⏳' : '🔄'}
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -272,6 +372,29 @@ function Home() {
                 </li>
               ))}
             </ul>
+          )}
+          {emails.length > 0 && !loading && (
+            <div className="pagination-footer">
+              <button 
+                className="pagination-btn-text"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                ← Previous
+              </button>
+              
+              <span className="pagination-info">
+                Page {currentPage} • Showing {emails.length} emails
+              </span>
+              
+              <button 
+                className="pagination-btn-text"
+                onClick={handleNextPage}
+                disabled={!nextPageToken}
+              >
+                Next →
+              </button>
+            </div>
           )}
         </main>
 

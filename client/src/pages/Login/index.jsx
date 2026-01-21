@@ -111,11 +111,6 @@ function Login() {
             Your data is never stored on our servers.
           </p>
         </div>
-
-        <div className="login-footer">
-          <p>Part of the Empathetic Workspace Project</p>
-          <p className="login-version">POC v1.0.0</p>
-        </div>
       </div>
     </div>
   );

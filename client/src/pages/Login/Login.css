@@ -73,11 +73,6 @@
   margin-bottom: var(--spacing-md);
 }
 
-.logo-icon {
-  font-size: 3.5rem;
-  animation: breathe 4s ease-in-out infinite;
-}
-
 .logo-text {
   font-size: 2rem;
   font-weight: 500;
@@ -87,23 +82,12 @@
   line-height: 1.2;
 }
 
-.logo-workspace {
-  font-size: 1.75rem;
-  color: var(--color-text-primary);
-}
-
-.login-subtitle {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-}
-
 .login-card {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-bg-tertiary);
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl);
   box-shadow: var(--shadow-lg);
-  margin-bottom: var(--spacing-xl);
 }
 
 .login-card h2 {
@@ -194,34 +178,6 @@
   line-height: 1.5;
 }
 
-.login-footer {
-  color: var(--color-text-muted);
-  font-size: 0.8125rem;
-}
-
-.login-version {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  margin-top: var(--spacing-xs);
-}
-
-/* Loading states */
-.loading-screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-bg-primary);
-}
-
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-md);
-  color: var(--color-text-secondary);
-}
-
 .loading-spinner {
   width: 40px;
   height: 40px;
@@ -249,10 +205,6 @@
 
   .logo-text {
     font-size: 1.5rem;
-  }
-
-  .logo-workspace {
-    font-size: 1.25rem;
   }
 
   .login-features {

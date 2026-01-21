@@ -25,20 +25,6 @@ function FacialAnalysis() {
       </nav>
 
       <main className="facial-main">
-        <div className="poc-info">
-          <div className="info-card">
-            <span className="info-icon">ℹ️</span>
-            <div className="info-content">
-              <h4>Proof of Concept</h4>
-              <p>
-                This facial analysis feature validates our Azure Face API integration.
-                In the final product, analysis will occur <strong>automatically every few minutes</strong> in the background,
-                without requiring any manual button clicks.
-              </p>
-            </div>
-          </div>
-        </div>
-        
         <WebcamCapture />
       </main>
     </div>
