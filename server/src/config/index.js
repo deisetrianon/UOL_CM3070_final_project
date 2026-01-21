@@ -9,10 +9,12 @@ const __dirname = dirname(__filename);
 // Load .env from the server root directory
 dotenv.config({ path: resolve(__dirname, '../../.env') });
 
-// Debug: Log if Azure keys are loaded (remove in production)
+// Debug: Log if credentials are loaded (remove in production)
 if (process.env.NODE_ENV === 'development') {
   console.log('[Config] Azure Face API Key loaded:', process.env.AZURE_FACE_API_KEY ? '✓ Yes' : '✗ No');
   console.log('[Config] Azure Face API Endpoint loaded:', process.env.AZURE_FACE_API_ENDPOINT ? '✓ Yes' : '✗ No');
+  console.log('[Config] Google Client ID loaded:', process.env.GOOGLE_CLIENT_ID ? '✓ Yes' : '✗ No');
+  console.log('[Config] Google Client Secret loaded:', process.env.GOOGLE_CLIENT_SECRET ? '✓ Yes' : '✗ No');
 }
 
 const config = {
@@ -22,6 +24,9 @@ const config = {
   
   // Client
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  
+  // Session
+  sessionSecret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
   
   // MongoDB
   mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/empathetic-workspace',
