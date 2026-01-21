@@ -9,6 +9,7 @@ import { connectDB, isConnected, getConnectionStatus } from './database/connecti
 import facialAnalysisRoutes from './routes/facialAnalysis.js';
 import authRoutes from './routes/auth.js';
 import gmailRoutes from './routes/gmail.js';
+import tasksRoutes from './routes/tasks.js';
 
 const app = express();
 const PORT = config.port;
@@ -68,6 +69,7 @@ app.get('/', (req, res) => {
       health: '/api/health',
       auth: '/api/auth/*',
       gmail: '/api/gmail/*',
+      tasks: '/api/tasks/*',
       facialAnalysis: '/api/facial-analysis/*'
     }
   });
@@ -77,6 +79,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/gmail', gmailRoutes);
 app.use('/api/facial-analysis', facialAnalysisRoutes);
+app.use('/api/tasks', tasksRoutes);
 
 // Error handlers
 app.use((req, res) => {
