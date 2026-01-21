@@ -101,8 +101,6 @@ router.get('/status', (req, res) => {
  * Logs out the current user
  */
 router.post('/logout', (req, res) => {
-  const userEmail = req.user?.email;
-  
   req.logout((err) => {
     if (err) {
       console.error('[Auth] Logout error:', err);
@@ -116,8 +114,6 @@ router.post('/logout', (req, res) => {
       if (sessionErr) {
         console.error('[Auth] Session destroy error:', sessionErr);
       }
-      
-      console.log(`[Auth] User logged out: ${userEmail}`);
       
       res.clearCookie('connect.sid');
       res.json({
