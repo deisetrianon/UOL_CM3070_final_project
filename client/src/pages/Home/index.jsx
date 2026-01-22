@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
+import ZenModeToggle from '../../components/ZenModeToggle';
 import './Home.css';
 
 function Home() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { promptForPermission, isAnalyzing, lastResult, lastAnalysisTime, cameraPermission } = useFacialAnalysis();
 
   const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +27,15 @@ function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearch, setActiveSearch] = useState(''); 
   const EMAILS_PER_PAGE = 20;
+
+  // Prompt for camera permission after page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      promptForPermission();
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [promptForPermission]);
 
   // Generating fallback avatar URL
   const getFallbackAvatar = () => {
@@ -116,7 +128,6 @@ function Home() {
     fetchFullEmail(email.id);
   }, [fetchFullEmail]);
 
-  // Resetting pagination when label changes
   const handleLabelChange = (labelId) => {
     setActiveLabel(labelId);
     setNextPageToken(null);
@@ -124,7 +135,6 @@ function Home() {
     setCurrentPage(1);
     setSelectedEmail(null);
     setFullEmailContent(null);
-    // Keeping the active search when changing labels
     fetchEmails(labelId, null, activeSearch);
   };
 
@@ -240,6 +250,14 @@ function Home() {
     }
   };
 
+  const formatLastAnalysis = () => {
+    if (!lastAnalysisTime) return null;
+    const diff = Math.floor((new Date() - lastAnalysisTime) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    return `${Math.floor(diff / 3600)}h ago`;
+  };
+
   const labels = [
     { id: 'INBOX', name: 'Inbox', icon: '📥' },
     { id: 'STARRED', name: 'Starred', icon: '⭐' },
@@ -251,6 +269,32 @@ function Home() {
   // Calculating display range for pagination
   const startItem = (currentPage - 1) * EMAILS_PER_PAGE + 1;
   const endItem = startItem + emails.length - 1;
+
+  // Getting fatigue status for indicator
+  const getFatigueStatus = () => {
+    if (!lastResult?.success || !lastResult?.analysis) return null;
+    const indicators = lastResult.analysis.stressIndicators;
+    if (!indicators) return null;
+
+    const fatigueLevel = indicators.fatigueLevel?.toLowerCase();
+
+    console.log('getFatigueStatus indicators', indicators);
+    console.log('getFatigueStatus fatigueLevel', fatigueLevel);
+
+    if (indicators.possibleFatigue && fatigueLevel === 'high') {
+      return { level: 'high', emoji: '😖', text: 'High fatigue detected' };
+    } else if (indicators.possibleFatigue && fatigueLevel === 'moderate') {
+      return { level: 'moderate', emoji: '😐', text: 'Moderate fatigue' };
+    } else if (indicators.possibleFatigue && fatigueLevel === 'low') {
+      return { level: 'low', emoji: '🙂', text: 'Mild fatigue' };
+    } else if (!indicators.possibleFatigue) {
+      return { level: 'good', emoji: '😊', text: 'Looking good!' };
+    }
+
+    return { level: 'good', emoji: '😊', text: 'Looking good!' };
+  };
+
+  const fatigueStatus = getFatigueStatus();
 
   return (
     <div className="home-page">
@@ -296,19 +340,23 @@ function Home() {
           )}
         </div>
         <div className="header-right">
+          {cameraPermission === 'granted' && fatigueStatus && (
+            <div className={`wellness-indicator ${fatigueStatus.level}`} title={fatigueStatus.text}>
+              <span className="wellness-emoji">{fatigueStatus.emoji}</span>
+              {isAnalyzing && <span className="analyzing-dot"></span>}
+              {formatLastAnalysis() && (
+                <span className="wellness-time">{formatLastAnalysis()}</span>
+              )}
+            </div>
+          )}
+          <ZenModeToggle />
           <button 
-            className="nav-btn"
+            className="tasks-nav-btn"
             onClick={() => navigate('/tasks')}
             title="Task Board"
           >
-            📋
-          </button>
-          <button 
-            className="nav-btn"
-            onClick={() => navigate('/facial-analysis')}
-            title="Facial Analysis POC"
-          >
-            🎥
+            <span className="tasks-icon">📋</span>
+            <span className="tasks-label">Tasks</span>
           </button>
           <div className="user-menu">
             <img 
@@ -500,7 +548,7 @@ function Home() {
                       {/* <div className="email-checkbox">
                         <input type="checkbox" onClick={(e) => e.stopPropagation()} />
                       </div> */}
-                      {/* <div className="email-star">
+                      <div className="email-star">
                         <button 
                           className={`star-btn ${email.isStarred ? 'starred' : ''}`}
                           onClick={(e) => {
@@ -508,9 +556,9 @@ function Home() {
                             // (TODO: Toggle star (not implemented yet for read-only))
                           }}
                         >
-                          {email.isStarred ? '⭐' : '☆'}
+                          {email.isStarred ? '⭐' : ''}
                         </button>
-                      </div> */}
+                      </div>
                       <div className="email-sender">
                         <span className={email.isUnread ? 'unread' : ''}>
                           {email.from?.name || email.from?.email}

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import confetti from 'canvas-confetti';
-import { useAuth } from '../../contexts/AuthContext';
+import ZenModeToggle from '../../components/ZenModeToggle';
 import './Tasks.css';
 
 const COLUMNS = {
@@ -276,6 +276,7 @@ function Tasks() {
               )}
             </div>
           )}
+          <ZenModeToggle />
           <button className="add-task-btn" onClick={() => setShowAddModal(true)}>
             + New Task
           </button>
