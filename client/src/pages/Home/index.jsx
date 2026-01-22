@@ -298,6 +298,13 @@ function Home() {
         <div className="header-right">
           <button 
             className="nav-btn"
+            onClick={() => navigate('/tasks')}
+            title="Task Board"
+          >
+            📋
+          </button>
+          <button 
+            className="nav-btn"
             onClick={() => navigate('/facial-analysis')}
             title="Facial Analysis POC"
           >
@@ -490,9 +497,9 @@ function Home() {
                       className={`email-item ${email.isUnread ? 'unread' : ''}`}
                       onClick={() => handleSelectEmail(email)}
                     >
-                      <div className="email-checkbox">
+                      {/* <div className="email-checkbox">
                         <input type="checkbox" onClick={(e) => e.stopPropagation()} />
-                      </div>
+                      </div> */}
                       {/* <div className="email-star">
                         <button 
                           className={`star-btn ${email.isStarred ? 'starred' : ''}`}
