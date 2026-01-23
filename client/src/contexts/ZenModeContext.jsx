@@ -1,0 +1,229 @@
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { useFacialAnalysis } from './FacialAnalysisContext';
+import { useAuth } from './AuthContext';
+
+const ZenModeContext = createContext(null);
+
+/**
+ * ZenMode Provider (Context)
+ * Manages the Zen Mode state globally across the application
+ * 
+ * Zen Mode can be activated:
+ * 1. Manually by the user clicking the toggle
+ * 2. Automatically when fatigue level is moderate or high (if auto is enabled in settings)
+ * 
+ * When active, the UI filters to show only:
+ * - Emails: starred, important
+ * - Tasks: high priority, urgent, or deadline is today
+ */
+export function ZenModeProvider({ children }) {
+  const [isZenModeActive, setIsZenModeActive] = useState(false);
+  const [isManuallyToggled, setIsManuallyToggled] = useState(false);
+  const [autoTriggeredReason, setAutoTriggeredReason] = useState(null);
+  const [autoZenModeEnabled, setAutoZenModeEnabled] = useState(true);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [showSuggestion, setShowSuggestion] = useState(false);
+  const [suggestionReason, setSuggestionReason] = useState(null);
+
+  const lastSuggestionTime = useRef(null);
+  
+  const { lastResult } = useFacialAnalysis();
+  const { isAuthenticated, registerLogoutCallback } = useAuth();
+
+  const fetchPreferences = useCallback(async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const response = await fetch('/api/settings', {
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.settings?.zenMode) {
+        setAutoZenModeEnabled(data.settings.zenMode.autoEnabled ?? true);
+        console.log('[ZenMode] Loaded preferences: autoEnabled =', data.settings.zenMode.autoEnabled);
+      }
+    } catch (error) {
+      console.error('[ZenMode] Failed to fetch preferences:', error);
+    } finally {
+      setPreferencesLoaded(true);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchPreferences();
+    }
+  }, [isAuthenticated, fetchPreferences]);
+
+  // Resetting state on logout
+  const resetState = useCallback(() => {
+    setIsZenModeActive(false);
+    setIsManuallyToggled(false);
+    setAutoTriggeredReason(null);
+    setShowSuggestion(false);
+    setSuggestionReason(null);
+    setAutoZenModeEnabled(true);
+    setPreferencesLoaded(false);
+    lastSuggestionTime.current = null;
+    console.log('[ZenMode] State reset on logout');
+  }, []);
+
+  // Registering logout callback
+  useEffect(() => {
+    if (registerLogoutCallback) {
+      const unregister = registerLogoutCallback(resetState);
+      return unregister;
+    }
+  }, [registerLogoutCallback, resetState]);
+
+  // Toggle Zen Mode manually
+  const toggleZenMode = useCallback(() => {
+    setIsManuallyToggled(prev => !prev);
+    setIsZenModeActive(prev => !prev);
+    setShowSuggestion(false); // Hide suggestion when manually toggled
+    
+    if (!isZenModeActive) {
+      console.log('[ZenMode] Manually activated');
+    } else {
+      console.log('[ZenMode] Manually deactivated');
+      setAutoTriggeredReason(null);
+    }
+  }, [isZenModeActive]);
+
+  // Enable Zen Mode, which can be called externally.
+  const enableZenMode = useCallback((reason = null) => {
+    if (!isZenModeActive) {
+      setIsZenModeActive(true);
+      setShowSuggestion(false);
+      if (reason) {
+        setAutoTriggeredReason(reason);
+      }
+      console.log('[ZenMode] Enabled:', reason || 'manual');
+    }
+  }, [isZenModeActive]);
+
+  const disableZenMode = useCallback(() => {
+    setIsZenModeActive(false);
+    setIsManuallyToggled(false);
+    setAutoTriggeredReason(null);
+    console.log('[ZenMode] Disabled');
+  }, []);
+
+  // Dismissing suggestion notification
+  const dismissSuggestion = useCallback(() => {
+    setShowSuggestion(false);
+    setSuggestionReason(null);
+    // Setting cooldown to not show suggestion again for 10 minutes
+    lastSuggestionTime.current = Date.now();
+    console.log('[ZenMode] Suggestion dismissed');
+  }, []);
+
+  const updateAutoZenModePreference = useCallback(async (enabled) => {
+    setAutoZenModeEnabled(enabled);
+    
+    try {
+      const response = await fetch('/api/settings/zen-mode', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ autoEnabled: enabled }),
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('[ZenMode] Preference updated: autoEnabled =', enabled);
+      }
+    } catch (error) {
+      console.error('[ZenMode] Failed to update preference:', error);
+    }
+  }, []);
+
+  // Auto-triggering or auto-disabling Zen Mode based on fatigue level
+  useEffect(() => {
+    if (!lastResult?.success || !lastResult?.analysis?.stressIndicators) {
+      return;
+    }
+
+    if (!preferencesLoaded) {
+      return;
+    }
+
+    const { fatigueLevel, possibleFatigue } = lastResult.analysis.stressIndicators;
+    const level = fatigueLevel?.toLowerCase();
+    const isFatigued = possibleFatigue && (level === 'moderate' || level === 'high');
+
+    if (isFatigued) {
+      const reason = level === 'high' 
+        ? 'High fatigue detected - focusing on priority items'
+        : 'Moderate fatigue detected - focusing on priority items';
+
+      if (autoZenModeEnabled) {
+        if (!isZenModeActive && !isManuallyToggled) {
+          enableZenMode(reason);
+          console.log('[ZenMode] Auto-triggered due to fatigue level:', level);
+        }
+      } else {
+        if (!isZenModeActive && !showSuggestion) {
+          // Checking cooldown: 10 minutes between suggestions
+          const now = Date.now();
+          const cooldownMs = 10 * 60 * 1000; // 10 minutes
+          
+          if (!lastSuggestionTime.current || (now - lastSuggestionTime.current) > cooldownMs) {
+            setSuggestionReason(
+              level === 'high'
+                ? 'High fatigue detected. Would you like to focus on priority items?'
+                : 'Moderate fatigue detected. Enable Zen Mode to reduce distractions?'
+            );
+            setShowSuggestion(true);
+            console.log('[ZenMode] Showing suggestion due to fatigue level:', level);
+          }
+        }
+      }
+    } else {
+      // Fatigue is low/normal - auto-disable Zen Mode if it was auto-triggered
+      // Only auto-disable if:
+      // 1. Zen Mode is currently active
+      // 2. It was auto-triggered (has autoTriggeredReason), not manually toggled
+      // 3. Auto Zen Mode is enabled in settings
+      if (isZenModeActive && autoTriggeredReason && !isManuallyToggled && autoZenModeEnabled) {
+        console.log('[ZenMode] Auto-disabling - fatigue returned to normal');
+        setIsZenModeActive(false);
+        setAutoTriggeredReason(null);
+      }
+    }
+  }, [lastResult, isZenModeActive, isManuallyToggled, autoZenModeEnabled, preferencesLoaded, enableZenMode, showSuggestion, autoTriggeredReason]);
+
+  const value = {
+    isZenModeActive,
+    isManuallyToggled,
+    autoTriggeredReason,
+    autoZenModeEnabled,
+    showSuggestion,
+    suggestionReason,
+    toggleZenMode,
+    enableZenMode,
+    disableZenMode,
+    dismissSuggestion,
+    updateAutoZenModePreference,
+    refetchPreferences: fetchPreferences
+  };
+
+  return (
+    <ZenModeContext.Provider value={value}>
+      {children}
+    </ZenModeContext.Provider>
+  );
+}
+
+export function useZenMode() {
+  const context = useContext(ZenModeContext);
+  if (!context) {
+    throw new Error('useZenMode must be used within a ZenModeProvider');
+  }
+  return context;
+}

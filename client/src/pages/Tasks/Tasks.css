@@ -84,6 +84,26 @@
   letter-spacing: 0.5px;
 }
 
+.settings-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.settings-nav-btn:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent-primary);
+  transform: rotate(45deg);
+}
+
 .add-task-btn {
   padding: var(--spacing-sm) var(--spacing-lg);
   background: var(--color-accent-primary);
@@ -115,6 +135,64 @@
   color: white;
   border-radius: var(--radius-sm);
   font-size: 0.8125rem;
+}
+
+.zen-mode-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.08) 100%);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+  animation: zenBannerSlide 0.4s ease;
+}
+
+@keyframes zenBannerSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.zen-banner-icon {
+  font-size: 1.5rem;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.zen-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zen-banner-text strong {
+  font-size: 0.875rem;
+  color: #22c55e;
+}
+
+.zen-banner-text span {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+/* Zen Mode Active State */
+.tasks-page.zen-mode-active .task-board {
+  background: rgba(34, 197, 94, 0.02);
+}
+
+.hidden-count {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
 }
 
 .loading-state {

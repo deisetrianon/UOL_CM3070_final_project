@@ -75,6 +75,12 @@ const userSchema = new mongoose.Schema({
         min: 1,
         max: 60
       }
+    },
+    zenMode: {
+      autoEnabled: {
+        type: Boolean,
+        default: true
+      }
     }
   },
   stressMetrics: {

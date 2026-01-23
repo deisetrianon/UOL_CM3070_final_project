@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
+import { useZenMode } from '../../contexts/ZenModeContext';
 import ZenModeToggle from '../../components/ZenModeToggle';
 import './Home.css';
 
@@ -9,6 +10,7 @@ function Home() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { promptForPermission, isAnalyzing, lastResult, lastAnalysisTime, cameraPermission } = useFacialAnalysis();
+  const { isZenModeActive, autoTriggeredReason } = useZenMode();
 
   const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -296,8 +298,22 @@ function Home() {
 
   const fatigueStatus = getFatigueStatus();
 
+  const filteredEmails = useMemo(() => {
+    if (!isZenModeActive) return emails;
+    
+    return emails.filter(email => email.isStarred || email.isImportant);
+  }, [emails, isZenModeActive]);
+
+  const zenModeEmailStats = useMemo(() => {
+    if (!isZenModeActive) return null;
+    return {
+      showing: filteredEmails.length,
+      hidden: emails.length - filteredEmails.length
+    };
+  }, [emails, filteredEmails, isZenModeActive]);
+
   return (
-    <div className="home-page">
+    <div className={`home-page ${isZenModeActive ? 'zen-mode-active' : ''}`}>
       <header className="home-header">
         <div className="header-left">
           <div className="header-logo">
@@ -357,6 +373,13 @@ function Home() {
           >
             <span className="tasks-icon">📋</span>
             <span className="tasks-label">Tasks</span>
+          </button>
+          <button 
+            className="settings-nav-btn"
+            onClick={() => navigate('/settings')}
+            title="Settings"
+          >
+            ⚙️
           </button>
           <div className="user-menu">
             <img 
@@ -526,20 +549,38 @@ function Home() {
                   <button onClick={() => fetchEmails(activeLabel)}>Retry</button>
                 </div>
               )}
+              {isZenModeActive && (
+                <div className="zen-mode-banner">
+                  <span className="zen-banner-icon">🧘</span>
+                  <div className="zen-banner-text">
+                    <strong>Zen Mode Active</strong>
+                    <span>
+                      {autoTriggeredReason || 'Showing only starred and important emails'}
+                      {zenModeEmailStats && zenModeEmailStats.hidden > 0 && (
+                        <> • {zenModeEmailStats.hidden} emails hidden</>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
               {loading ? (
                 <div className="loading-state">
                   <div className="loading-spinner"></div>
                   <p>Loading emails...</p>
                 </div>
-              ) : emails.length === 0 ? (
+              ) : filteredEmails.length === 0 ? (
                 <div className="empty-state">
-                  <span className="empty-icon">📭</span>
-                  <h3>No emails found</h3>
-                  <p>Your {activeLabel.toLowerCase()} is empty</p>
+                  <span className="empty-icon">{isZenModeActive ? '🧘' : '📭'}</span>
+                  <h3>{isZenModeActive ? 'No priority emails' : 'No emails found'}</h3>
+                  <p>
+                    {isZenModeActive 
+                      ? 'No starred or important emails in your inbox. Take a break!' 
+                      : `Your ${activeLabel.toLowerCase()} is empty`}
+                  </p>
                 </div>
               ) : (
                 <ul className="email-list">
-                  {emails.map((email) => (
+                  {filteredEmails.map((email) => (
                     <li 
                       key={email.id}
                       className={`email-item ${email.isUnread ? 'unread' : ''}`}
@@ -582,7 +623,7 @@ function Home() {
                   ))}
                 </ul>
               )}
-              {emails.length > 0 && !loading && (
+              {filteredEmails.length > 0 && !loading && (
                 <div className="pagination-footer">
                   <button 
                     className="pagination-btn-text"
@@ -592,7 +633,10 @@ function Home() {
                     ← Previous
                   </button>                 
                   <span className="pagination-info">
-                    Page {currentPage} • Showing {emails.length} emails
+                    Page {currentPage} • Showing {filteredEmails.length} emails
+                    {isZenModeActive && zenModeEmailStats?.hidden > 0 && (
+                      <span className="zen-filter-note"> (Zen Mode: {zenModeEmailStats.hidden} hidden)</span>
+                    )}
                   </span>
                   <button 
                     className="pagination-btn-text"
