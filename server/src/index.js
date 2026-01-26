@@ -10,6 +10,7 @@ import facialAnalysisRoutes from './routes/facialAnalysis.js';
 import authRoutes from './routes/auth.js';
 import gmailRoutes from './routes/gmail.js';
 import tasksRoutes from './routes/tasks.js';
+import settingsRoutes from './routes/settings.js';
 
 const app = express();
 const PORT = config.port;
@@ -70,7 +71,8 @@ app.get('/', (req, res) => {
       auth: '/api/auth/*',
       gmail: '/api/gmail/*',
       tasks: '/api/tasks/*',
-      facialAnalysis: '/api/facial-analysis/*'
+      facialAnalysis: '/api/facial-analysis/*',
+      settings: '/api/settings/*'
     }
   });
 });
@@ -80,6 +82,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/gmail', gmailRoutes);
 app.use('/api/facial-analysis', facialAnalysisRoutes);
 app.use('/api/tasks', tasksRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Error handlers
 app.use((req, res) => {

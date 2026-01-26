@@ -3,15 +3,12 @@ import { useAuth } from './AuthContext';
 
 const FacialAnalysisContext = createContext(null);
 
-// ANALYSIS_INTERVAL: time between automatic analyses in milliseconds (5 minutes)
-const ANALYSIS_INTERVAL = 5 * 60 * 1000;
-
 /**
  * Facial Analysis Context Provider
  * Manages facial analysis state and provides methods for analyzing facial expressions
  */
 export function FacialAnalysisProvider({ children }) {
-  const { registerLogoutCallback } = useAuth();
+  const { registerLogoutCallback, isAuthenticated } = useAuth();
   const [cameraPermission, setCameraPermission] = useState('prompt'); // 'prompt', 'granted', 'denied'
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [lastResult, setLastResult] = useState(null);
@@ -19,13 +16,63 @@ export function FacialAnalysisProvider({ children }) {
   const [error, setError] = useState(null);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [analysisFrequency, setAnalysisFrequency] = useState(5);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const intervalRef = useRef(null);
   const hasRequestedPermission = useRef(false);
-  const isVideoReadyRef = useRef(false); 
+  const isVideoReadyRef = useRef(false);
+  const analysisFrequencyRef = useRef(5); // Ref to avoid closure issues
+
+  const fetchFrequencyPreference = useCallback(async () => {
+    if (!isAuthenticated) return;
+
+    try {
+      const response = await fetch('/api/settings', {
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.settings?.facialAnalysis?.frequency) {
+        const frequency = data.settings.facialAnalysis.frequency;
+        setAnalysisFrequency(frequency);
+        analysisFrequencyRef.current = frequency;
+        console.log('[FacialAnalysis] Loaded frequency preference:', frequency, 'minutes');
+      }
+    } catch (err) {
+      console.error('[FacialAnalysis] Failed to fetch frequency preference:', err);
+    }
+  }, [isAuthenticated]);
+
+  // Fetching preferences on auth change
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchFrequencyPreference();
+    }
+  }, [isAuthenticated, fetchFrequencyPreference]);
+
+  // Updating frequency and restarting interval if running
+  const updateAnalysisFrequency = useCallback((newFrequency) => {
+    const frequency = Math.max(1, Math.min(60, newFrequency));
+    setAnalysisFrequency(frequency);
+    analysisFrequencyRef.current = frequency;
+    console.log('[FacialAnalysis] Frequency updated to:', frequency, 'minutes');
+
+    // Restarting auto-analysis with new frequency if running
+    if (intervalRef.current && streamRef.current) {
+      console.log('[FacialAnalysis] Restarting auto-analysis with new frequency');
+      clearInterval(intervalRef.current);
+      
+      const intervalMs = frequency * 60 * 1000;
+      intervalRef.current = setInterval(() => {
+        console.log('[FacialAnalysis] Performing scheduled analysis');
+        performAnalysisInternal();
+      }, intervalMs);
+    }
+  }, []);
 
   // Checking browser's camera permission state without triggering the prompt
   useEffect(() => {
@@ -121,37 +168,6 @@ export function FacialAnalysisProvider({ children }) {
     }
   }, [setupVideoElement]);
 
-  const promptForPermission = useCallback(async () => {
-    if (hasRequestedPermission.current) return;
-    
-    console.log('[FacialAnalysis] promptForPermission called, state:', cameraPermission);
-    
-    if (cameraPermission === 'granted') {
-      console.log('[FacialAnalysis] Permission already granted, starting analysis');
-      hasRequestedPermission.current = true;
-      
-      if (!streamRef.current) {
-        const success = await requestCameraPermission();
-        if (success) {
-          startAutoAnalysis();
-        }
-      } else {
-        startAutoAnalysis();
-      }
-      return;
-    }
-    
-    if (cameraPermission === 'denied') {
-      console.log('[FacialAnalysis] Permission denied by browser');
-      hasRequestedPermission.current = true;
-      setError('Camera access was previously denied. Please enable it in your browser settings.');
-      return;
-    }
-    
-    hasRequestedPermission.current = true;
-    setShowPermissionModal(true);
-  }, [cameraPermission, requestCameraPermission]);
-
   const captureFrame = useCallback(() => {
     if (!streamRef.current || !videoRef.current || !isVideoReadyRef.current) {
       console.log('[FacialAnalysis] Cannot capture: stream/video not ready', {
@@ -182,6 +198,62 @@ export function FacialAnalysisProvider({ children }) {
 
     return canvas.toDataURL('image/jpeg', 0.95);
   }, []);
+
+  // Performing internal analysis to avoid circular dependency
+  const performAnalysisInternal = async () => {
+    if (!streamRef.current || !isVideoReadyRef.current) {
+      console.log('[FacialAnalysis] Stream or video not ready, skipping analysis');
+      return null;
+    }
+
+    try {
+      console.log('[FacialAnalysis] Starting analysis...');
+
+      const video = videoRef.current;
+      if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+        console.log('[FacialAnalysis] Video not ready for capture');
+        return null;
+      }
+
+      if (!canvasRef.current) {
+        canvasRef.current = document.createElement('canvas');
+      }
+
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+
+      const imageData = canvas.toDataURL('image/jpeg', 0.95);
+
+      console.log('[FacialAnalysis] Captured image, sending to API...');
+
+      const response = await fetch('/api/facial-analysis/detect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: imageData }),
+        credentials: 'include'
+      });
+
+      const result = await response.json();
+      
+      // Updating state outside of the interval callback
+      setLastResult(result);
+      setLastAnalysisTime(new Date());
+      
+      console.log('[FacialAnalysis] Analysis completed:', result.success ? 'Success' : 'Failed');
+      
+      return result;
+    } catch (err) {
+      console.error('[FacialAnalysis] Analysis error:', err.message);
+      setError(err.message);
+      return null;
+    }
+  };
 
   const performAnalysis = useCallback(async () => {
     if (isAnalyzing) {
@@ -235,7 +307,7 @@ export function FacialAnalysisProvider({ children }) {
     }
   }, [isAnalyzing, captureFrame]);
 
-  // Starting automatic analysis (every 5 minutes)
+  // Starting automatic analysis with user-configured frequency
   const startAutoAnalysis = useCallback(() => {
     // Checking if there is a stream (not cameraPermission state to avoid closure issues)
     if (!streamRef.current) {
@@ -248,20 +320,52 @@ export function FacialAnalysisProvider({ children }) {
       clearInterval(intervalRef.current);
     }
 
-    console.log('[FacialAnalysis] Starting auto-analysis (initial + every 5 minutes)');
+    const intervalMs = analysisFrequencyRef.current * 60 * 1000;
+    console.log(`[FacialAnalysis] Starting auto-analysis (initial + every ${analysisFrequencyRef.current} minutes)`);
 
     // Performing initial analysis immediately (with a small delay for video to stabilize)
     setTimeout(() => {
       console.log('[FacialAnalysis] Performing initial analysis');
-      performAnalysis();
+      performAnalysisInternal();
     }, 1000);
 
-    // Setting up interval for subsequent analyses
+    // Setting up interval for subsequent analyses using the configured frequency
     intervalRef.current = setInterval(() => {
       console.log('[FacialAnalysis] Performing scheduled analysis');
-      performAnalysis();
-    }, ANALYSIS_INTERVAL);
-  }, [performAnalysis]);
+      performAnalysisInternal();
+    }, intervalMs);
+  }, []);
+
+  const promptForPermission = useCallback(async () => {
+    if (hasRequestedPermission.current) return;
+    
+    console.log('[FacialAnalysis] promptForPermission called, state:', cameraPermission);
+    
+    if (cameraPermission === 'granted') {
+      console.log('[FacialAnalysis] Permission already granted, starting analysis');
+      hasRequestedPermission.current = true;
+      
+      if (!streamRef.current) {
+        const success = await requestCameraPermission();
+        if (success) {
+          startAutoAnalysis();
+        }
+      } else {
+        startAutoAnalysis();
+      }
+      return;
+    }
+    
+    if (cameraPermission === 'denied') {
+      console.log('[FacialAnalysis] Permission denied by browser');
+      hasRequestedPermission.current = true;
+      setError('Camera access was previously denied. Please enable it in your browser settings.');
+      return;
+    }
+    
+    hasRequestedPermission.current = true;
+    setShowPermissionModal(true);
+  }, [cameraPermission, requestCameraPermission, startAutoAnalysis]);
 
   // Stopping automatic analysis
   const stopAutoAnalysis = useCallback(() => {
@@ -305,6 +409,8 @@ export function FacialAnalysisProvider({ children }) {
     console.log('[FacialAnalysis] Resetting session state');
     hasRequestedPermission.current = false;
     isVideoReadyRef.current = false;
+    analysisFrequencyRef.current = 5; // Resetting to default
+    setAnalysisFrequency(5);
     setShowPermissionModal(false);
     setLastResult(null);
     setLastAnalysisTime(null);
@@ -335,6 +441,7 @@ export function FacialAnalysisProvider({ children }) {
     error,
     showPermissionModal,
     isVideoReady,
+    analysisFrequency,
     promptForPermission,
     requestCameraPermission,
     performAnalysis,
@@ -342,7 +449,9 @@ export function FacialAnalysisProvider({ children }) {
     stopAutoAnalysis,
     handleAllowCamera,
     handleDenyCamera,
-    resetSession
+    resetSession,
+    updateAnalysisFrequency,
+    refetchFrequency: fetchFrequencyPreference
   };
 
   return (

@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import confetti from 'canvas-confetti';
+import { useZenMode } from '../../contexts/ZenModeContext';
 import ZenModeToggle from '../../components/ZenModeToggle';
 import './Tasks.css';
 
@@ -18,8 +19,26 @@ const PRIORITY_COLORS = {
   urgent: '#dc2626'
 };
 
+const isDeadlineToday = (deadline) => {
+  if (!deadline) return false;
+  const today = new Date();
+  const deadlineDate = new Date(deadline);
+  return today.toDateString() === deadlineDate.toDateString();
+};
+
+const isPriorityTask = (task) => {
+  const priority = task.priority?.toLowerCase();
+  return (
+    priority === 'high' ||
+    priority === 'urgent' ||
+    task.isUrgent ||
+    isDeadlineToday(task.deadline)
+  );
+};
+
 function Tasks() {
   const navigate = useNavigate();
+  const { isZenModeActive, autoTriggeredReason } = useZenMode();
 
   const [tasks, setTasks] = useState({
     todo: [],
@@ -248,8 +267,31 @@ function Tasks() {
     };
   };
 
+  // Filtering tasks when Zen Mode is active - show only high priority, urgent, or deadline today
+  const filteredTasks = useMemo(() => {
+    if (!isZenModeActive) return tasks;
+    
+    return {
+      todo: tasks.todo?.filter(isPriorityTask) || [],
+      in_progress: tasks.in_progress?.filter(isPriorityTask) || [],
+      done: tasks.done?.filter(isPriorityTask) || []
+    };
+  }, [tasks, isZenModeActive]);
+
+  const zenModeTaskStats = useMemo(() => {
+    if (!isZenModeActive) return null;
+    
+    const totalOriginal = (tasks.todo?.length || 0) + (tasks.in_progress?.length || 0) + (tasks.done?.length || 0);
+    const totalFiltered = (filteredTasks.todo?.length || 0) + (filteredTasks.in_progress?.length || 0) + (filteredTasks.done?.length || 0);
+    
+    return {
+      showing: totalFiltered,
+      hidden: totalOriginal - totalFiltered
+    };
+  }, [tasks, filteredTasks, isZenModeActive]);
+
   return (
-    <div className="tasks-page">
+    <div className={`tasks-page ${isZenModeActive ? 'zen-mode-active' : ''}`}>
       <header className="tasks-header">
         <div className="header-left">
           <button className="back-btn" onClick={() => navigate('/home')}>
@@ -277,6 +319,13 @@ function Tasks() {
             </div>
           )}
           <ZenModeToggle />
+          <button 
+            className="settings-nav-btn"
+            onClick={() => navigate('/settings')}
+            title="Settings"
+          >
+            ⚙️
+          </button>
           <button className="add-task-btn" onClick={() => setShowAddModal(true)}>
             + New Task
           </button>
@@ -286,6 +335,20 @@ function Tasks() {
         <div className="error-banner">
           <span>⚠️ {error}</span>
           <button onClick={fetchTasks}>Retry</button>
+        </div>
+      )}
+      {isZenModeActive && (
+        <div className="zen-mode-banner">
+          <span className="zen-banner-icon">🧘</span>
+          <div className="zen-banner-text">
+            <strong>Zen Mode Active</strong>
+            <span>
+              {autoTriggeredReason || 'Showing only high priority, urgent, and deadline-today tasks'}
+              {zenModeTaskStats && zenModeTaskStats.hidden > 0 && (
+                <> • {zenModeTaskStats.hidden} tasks hidden</>
+              )}
+            </span>
+          </div>
         </div>
       )}
       {loading ? (
@@ -301,7 +364,12 @@ function Tasks() {
                 <div className="column-header">
                   <span className="column-icon">{column.icon}</span>
                   <h2>{column.title}</h2>
-                  <span className="task-count">{tasks[column.id]?.length || 0}</span>
+                  <span className="task-count">
+                    {filteredTasks[column.id]?.length || 0}
+                    {isZenModeActive && tasks[column.id]?.length !== filteredTasks[column.id]?.length && (
+                      <span className="hidden-count"> / {tasks[column.id]?.length || 0}</span>
+                    )}
+                  </span>
                 </div>
                 <Droppable droppableId={column.id}>
                   {(provided, snapshot) => (
@@ -310,7 +378,7 @@ function Tasks() {
                       {...provided.droppableProps}
                       className={`task-list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
                     >
-                      {tasks[column.id]?.map((task, index) => (
+                      {filteredTasks[column.id]?.map((task, index) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
                           {(provided, snapshot) => (
                             <div
@@ -351,9 +419,13 @@ function Tasks() {
                         </Draggable>
                       ))}
                       {provided.placeholder}                     
-                      {tasks[column.id]?.length === 0 && (
+                      {filteredTasks[column.id]?.length === 0 && (
                         <div className="empty-column">
-                          <p>No tasks</p>
+                          <p>
+                            {isZenModeActive && tasks[column.id]?.length > 0 
+                              ? 'No priority tasks' 
+                              : 'No tasks'}
+                          </p>
                         </div>
                       )}
                     </div>
