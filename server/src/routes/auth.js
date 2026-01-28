@@ -42,8 +42,22 @@ router.get('/google/callback', (req, res, next) => {
     failureRedirect: `${config.clientUrl}/login?error=auth_failed`
   })(req, res, (err) => {
     if (err) {
-      console.error('[Auth] OAuth callback error:', err);
-      return res.redirect(`${config.clientUrl}/login?error=auth_failed`);
+      console.error('[Auth] OAuth callback error:', err);    
+      let errorType = 'auth_failed';
+
+      // Determining error type for better user feedback
+      if (err.oauthError) {
+        const oauthErr = err.oauthError;
+        if (oauthErr.code === 'ETIMEDOUT' || oauthErr.code === 'ECONNREFUSED') {
+          errorType = 'network_error';
+          console.error('[Auth] Network error connecting to Google OAuth:', oauthErr.message);
+        } else if (oauthErr.statusCode === 400 || oauthErr.statusCode === 401) {
+          errorType = 'invalid_credentials';
+          console.error('[Auth] Invalid OAuth credentials or token expired');
+        }
+      }
+      
+      return res.redirect(`${config.clientUrl}/login?error=${errorType}`);
     }
 
     console.log('[Auth] Google OAuth successful, redirecting to home');
