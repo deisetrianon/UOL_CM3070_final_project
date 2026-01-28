@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
-import ZenModeToggle from '../../components/ZenModeToggle';
+import Layout from '../../components/Layout';
 import './Settings.css';
 
 function Settings() {
@@ -131,19 +131,12 @@ function Settings() {
   };
 
   return (
-    <div className="settings-page">
-      <header className="settings-header">
-        <div className="header-left">
-          <button className="back-btn" onClick={() => navigate('/home')}>
-            ← Back to Inbox
-          </button>
+    <Layout>
+      <div className="settings-page">
+        <div className="settings-header-section">
           <h1>⚙️ Settings</h1>
         </div>
-        <div className="header-right">
-          <ZenModeToggle />
-        </div>
-      </header>
-      <main className="settings-content">
+        <main className="settings-content">
         <section className="settings-section profile-section">
           <div className="section-header">
             <h2>👤 Profile</h2>
@@ -298,7 +291,8 @@ function Settings() {
           </>
         )}
       </main>
-    </div>
+      </div>
+    </Layout>
   );
 }
 
