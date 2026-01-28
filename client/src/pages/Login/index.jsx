@@ -25,6 +25,8 @@ function Login() {
   const getErrorMessage = (errorCode) => {
     const errorMessages = {
       'auth_failed': 'Authentication failed. Please try again.',
+      'network_error': 'Network connection error. Please check your internet connection and try again.',
+      'invalid_credentials': 'Authentication error. Please try signing in again.',
       'oauth_not_configured': 'Google OAuth is not configured. Please add credentials to server/.env',
       'session_expired': 'Your session has expired. Please sign in again.'
     };
