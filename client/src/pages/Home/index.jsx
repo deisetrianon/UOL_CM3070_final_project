@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
+import { useStressFusion } from '../../contexts/StressFusionContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import ZenModeToggle from '../../components/ZenModeToggle';
 import './Home.css';
@@ -10,6 +11,7 @@ function Home() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { promptForPermission, isAnalyzing, lastResult, lastAnalysisTime, cameraPermission } = useFacialAnalysis();
+  const { stressLevel, stressScore } = useStressFusion();
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
 
   const [emails, setEmails] = useState([]);
@@ -272,31 +274,18 @@ function Home() {
   const startItem = (currentPage - 1) * EMAILS_PER_PAGE + 1;
   const endItem = startItem + emails.length - 1;
 
-  // Getting fatigue status for indicator
-  const getFatigueStatus = () => {
-    if (!lastResult?.success || !lastResult?.analysis) return null;
-    const indicators = lastResult.analysis.stressIndicators;
-    if (!indicators) return null;
-
-    const fatigueLevel = indicators.fatigueLevel?.toLowerCase();
-
-    console.log('getFatigueStatus indicators', indicators);
-    console.log('getFatigueStatus fatigueLevel', fatigueLevel);
-
-    if (indicators.possibleFatigue && fatigueLevel === 'high') {
-      return { level: 'high', emoji: '😖', text: 'High fatigue detected' };
-    } else if (indicators.possibleFatigue && fatigueLevel === 'moderate') {
-      return { level: 'moderate', emoji: '😐', text: 'Moderate fatigue' };
-    } else if (indicators.possibleFatigue && fatigueLevel === 'low') {
-      return { level: 'low', emoji: '🙂', text: 'Mild fatigue' };
-    } else if (!indicators.possibleFatigue) {
-      return { level: 'good', emoji: '😊', text: 'Looking good!' };
+  // Getting stress status for indicator (using unified stress level from fusion)
+  const getStressStatus = () => {
+    if (stressLevel === 'high') {
+      return { level: 'high', emoji: '😖', text: `High stress detected` };
+    } else if (stressLevel === 'moderate') {
+      return { level: 'moderate', emoji: '😐', text: `Moderate stress detected` };
+    } else {
+      return { level: 'good', emoji: '😊', text: `Looking good!` };
     }
-
-    return { level: 'good', emoji: '😊', text: 'Looking good!' };
   };
 
-  const fatigueStatus = getFatigueStatus();
+  const stressStatus = getStressStatus();
 
   const filteredEmails = useMemo(() => {
     if (!isZenModeActive) return emails;
@@ -356,9 +345,9 @@ function Home() {
           )}
         </div>
         <div className="header-right">
-          {cameraPermission === 'granted' && fatigueStatus && (
-            <div className={`wellness-indicator ${fatigueStatus.level}`} title={fatigueStatus.text}>
-              <span className="wellness-emoji">{fatigueStatus.emoji}</span>
+          {stressStatus && (
+            <div className={`wellness-indicator ${stressStatus.level}`} title={stressStatus.text}>
+              <span className="wellness-emoji">{stressStatus.emoji}</span>
               {isAnalyzing && <span className="analyzing-dot"></span>}
               {formatLastAnalysis() && (
                 <span className="wellness-time">{formatLastAnalysis()}</span>

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useFacialAnalysis } from './FacialAnalysisContext';
+import { useStressFusion } from './StressFusionContext';
 import { useAuth } from './AuthContext';
 
 const ZenModeContext = createContext(null);
@@ -27,7 +28,7 @@ export function ZenModeProvider({ children }) {
 
   const lastSuggestionTime = useRef(null);
   
-  const { lastResult } = useFacialAnalysis();
+  const { stressLevel, stressScore } = useStressFusion();
   const { isAuthenticated, registerLogoutCallback } = useAuth();
 
   const fetchPreferences = useCallback(async () => {
@@ -143,29 +144,24 @@ export function ZenModeProvider({ children }) {
     }
   }, []);
 
-  // Auto-triggering or auto-disabling Zen Mode based on fatigue level
+  // Auto-triggering or auto-disabling Zen Mode based on unified stress level
   useEffect(() => {
-    if (!lastResult?.success || !lastResult?.analysis?.stressIndicators) {
-      return;
-    }
-
     if (!preferencesLoaded) {
-      return;
+      return; // Awaiting preferences to load
     }
 
-    const { fatigueLevel, possibleFatigue } = lastResult.analysis.stressIndicators;
-    const level = fatigueLevel?.toLowerCase();
-    const isFatigued = possibleFatigue && (level === 'moderate' || level === 'high');
+    // Using unified stress level from fusion (combines facial + keystroke)
+    const isStressed = stressLevel === 'moderate' || stressLevel === 'high';
 
-    if (isFatigued) {
-      const reason = level === 'high' 
-        ? 'High fatigue detected - focusing on priority items'
-        : 'Moderate fatigue detected - focusing on priority items';
+    if (isStressed) {
+      const reason = stressLevel === 'high' 
+        ? `High stress detected - focusing on priority items`
+        : `Moderate stress detected - focusing on priority items`;
 
       if (autoZenModeEnabled) {
         if (!isZenModeActive && !isManuallyToggled) {
           enableZenMode(reason);
-          console.log('[ZenMode] Auto-triggered due to fatigue level:', level);
+          console.log('[ZenMode] Auto-triggered due to stress level:', stressLevel, 'score:', stressScore);
         }
       } else {
         if (!isZenModeActive && !showSuggestion) {
@@ -175,28 +171,28 @@ export function ZenModeProvider({ children }) {
           
           if (!lastSuggestionTime.current || (now - lastSuggestionTime.current) > cooldownMs) {
             setSuggestionReason(
-              level === 'high'
-                ? 'High fatigue detected. Would you like to focus on priority items?'
-                : 'Moderate fatigue detected. Enable Zen Mode to reduce distractions?'
+              stressLevel === 'high'
+                ? `High stress detected. Would you like to focus on priority items?`
+                : `Moderate stress detected. Enable Zen Mode to reduce distractions?`
             );
             setShowSuggestion(true);
-            console.log('[ZenMode] Showing suggestion due to fatigue level:', level);
+            console.log('[ZenMode] Showing suggestion due to stress level:', stressLevel);
           }
         }
       }
     } else {
-      // Fatigue is low/normal - auto-disable Zen Mode if it was auto-triggered
+      // Stress is normal - auto-disable Zen Mode if it was auto-triggered
       // Only auto-disable if:
       // 1. Zen Mode is currently active
       // 2. It was auto-triggered (has autoTriggeredReason), not manually toggled
       // 3. Auto Zen Mode is enabled in settings
       if (isZenModeActive && autoTriggeredReason && !isManuallyToggled && autoZenModeEnabled) {
-        console.log('[ZenMode] Auto-disabling - fatigue returned to normal');
+        console.log('[ZenMode] Auto-disabling - stress returned to normal (score:', stressScore, ')');
         setIsZenModeActive(false);
         setAutoTriggeredReason(null);
       }
     }
-  }, [lastResult, isZenModeActive, isManuallyToggled, autoZenModeEnabled, preferencesLoaded, enableZenMode, showSuggestion, autoTriggeredReason]);
+  }, [stressLevel, stressScore, isZenModeActive, isManuallyToggled, autoZenModeEnabled, preferencesLoaded, enableZenMode, showSuggestion, autoTriggeredReason]);
 
   const value = {
     isZenModeActive,
