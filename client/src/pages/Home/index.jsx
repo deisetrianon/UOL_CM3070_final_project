@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
-import { useStressFusion } from '../../contexts/StressFusionContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
-import ZenModeToggle from '../../components/ZenModeToggle';
+import Layout from '../../components/Layout';
 import './Home.css';
 
 function Home() {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { promptForPermission, isAnalyzing, lastResult, lastAnalysisTime, cameraPermission } = useFacialAnalysis();
-  const { stressLevel, stressScore } = useStressFusion();
+  const location = useLocation();
+  const { promptForPermission } = useFacialAnalysis();
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
 
   const [emails, setEmails] = useState([]);
@@ -22,7 +19,6 @@ function Home() {
   const [loadingEmail, setLoadingEmail] = useState(false);
   const [activeLabel, setActiveLabel] = useState('INBOX');
   const [gmailProfile, setGmailProfile] = useState(null);
-  const [avatarError, setAvatarError] = useState(false);
 
   const [nextPageToken, setNextPageToken] = useState(null);
   const [pageTokenHistory, setPageTokenHistory] = useState([]); 
@@ -40,12 +36,6 @@ function Home() {
 
     return () => clearTimeout(timer);
   }, [promptForPermission]);
-
-  // Generating fallback avatar URL
-  const getFallbackAvatar = () => {
-    const name = encodeURIComponent(user?.displayName || user?.email || 'User');
-    return `https://ui-avatars.com/api/?name=${name}&background=4f46e5&color=fff&size=96`;
-  };
 
   // Fetching emails from Gmail with pagination and search support
   const fetchEmails = useCallback(async (label = 'INBOX', pageToken = null, query = '') => {
@@ -206,10 +196,35 @@ function Home() {
     setFullEmailContent(null);
   };
 
+  // Reading label from URL query params
   useEffect(() => {
-    fetchEmails(activeLabel, null, '');
+    const searchParams = new URLSearchParams(location.search);
+    const label = searchParams.get('label');
+    if (label) {
+      setActiveLabel(label);
+    } else {
+      setActiveLabel('INBOX');
+    }
+  }, [location.search]);
+
+  // Fetching emails when activeLabel changes
+  useEffect(() => {
+    if (activeLabel) {
+      // Resetting pagination and search when label changes
+      setPageTokenHistory([]);
+      setCurrentPage(1);
+      setNextPageToken(null);
+      setSelectedEmail(null);
+      setFullEmailContent(null);
+      setActiveSearch('');
+      setSearchQuery('');
+      fetchEmails(activeLabel, null, '');
+    }
+  }, [activeLabel, fetchEmails]);
+
+  useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   // Handling ESC key to go back to email list
   useEffect(() => {
@@ -224,12 +239,6 @@ function Home() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedEmail]);
 
-  const handleLogout = async () => {
-    const success = await logout();
-    if (success) {
-      navigate('/login');
-    }
-  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -254,14 +263,6 @@ function Home() {
     }
   };
 
-  const formatLastAnalysis = () => {
-    if (!lastAnalysisTime) return null;
-    const diff = Math.floor((new Date() - lastAnalysisTime) / 1000);
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    return `${Math.floor(diff / 3600)}h ago`;
-  };
-
   const labels = [
     { id: 'INBOX', name: 'Inbox', icon: '📥' },
     { id: 'STARRED', name: 'Starred', icon: '⭐' },
@@ -274,18 +275,6 @@ function Home() {
   const startItem = (currentPage - 1) * EMAILS_PER_PAGE + 1;
   const endItem = startItem + emails.length - 1;
 
-  // Getting stress status for indicator (using unified stress level from fusion)
-  const getStressStatus = () => {
-    if (stressLevel === 'high') {
-      return { level: 'high', emoji: '😖', text: `High stress detected` };
-    } else if (stressLevel === 'moderate') {
-      return { level: 'moderate', emoji: '😐', text: `Moderate stress detected` };
-    } else {
-      return { level: 'good', emoji: '😊', text: `Looking good!` };
-    }
-  };
-
-  const stressStatus = getStressStatus();
 
   const filteredEmails = useMemo(() => {
     if (!isZenModeActive) return emails;
@@ -302,14 +291,9 @@ function Home() {
   }, [emails, filteredEmails, isZenModeActive]);
 
   return (
-    <div className={`home-page ${isZenModeActive ? 'zen-mode-active' : ''}`}>
-      <header className="home-header">
-        <div className="header-left">
-          <div className="header-logo">
-            <span className="logo-title">Empathetic Workspace</span>
-          </div>
-        </div>
-        <div className="header-center">
+    <Layout>
+      <div className={`home-page ${isZenModeActive ? 'zen-mode-active' : ''}`}>
+        <div className="home-header-section">
           <div className="search-bar">
             <span className="search-icon">🔍</span>
             <input 
@@ -344,73 +328,6 @@ function Home() {
             </div>
           )}
         </div>
-        <div className="header-right">
-          {stressStatus && (
-            <div className={`wellness-indicator ${stressStatus.level}`} title={stressStatus.text}>
-              <span className="wellness-emoji">{stressStatus.emoji}</span>
-              {isAnalyzing && <span className="analyzing-dot"></span>}
-              {formatLastAnalysis() && (
-                <span className="wellness-time">{formatLastAnalysis()}</span>
-              )}
-            </div>
-          )}
-          <ZenModeToggle />
-          <button 
-            className="tasks-nav-btn"
-            onClick={() => navigate('/tasks')}
-            title="Task Board"
-          >
-            <span className="tasks-icon">📋</span>
-            <span className="tasks-label">Tasks</span>
-          </button>
-          <button 
-            className="settings-nav-btn"
-            onClick={() => navigate('/settings')}
-            title="Settings"
-          >
-            ⚙️
-          </button>
-          <div className="user-menu">
-            <img 
-              src={avatarError ? getFallbackAvatar() : (user?.picture || getFallbackAvatar())} 
-              alt={user?.displayName} 
-              className="user-avatar"
-              onError={() => setAvatarError(true)}
-              referrerPolicy="no-referrer"
-            />
-            <div className="user-info">
-              <span className="user-name">{user?.displayName}</span>
-              <span className="user-email">{user?.email}</span>
-            </div>
-            <button className="logout-btn" onClick={handleLogout}>
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
-      <div className="home-content">
-        <aside className="sidebar">
-          <nav className="sidebar-nav">
-            {labels.map((label) => (
-              <button
-                key={label.id}
-                className={`nav-item ${activeLabel === label.id ? 'active' : ''}`}
-                onClick={() => handleLabelChange(label.id)}
-              >
-                <span className="nav-icon">{label.icon}</span>
-                <span className="nav-text">{label.name}</span>
-              </button>
-            ))}
-          </nav>
-          {gmailProfile && (
-            <div className="sidebar-stats">
-              <p className="stat">
-                <span className="stat-value">{gmailProfile.messagesTotal?.toLocaleString()}</span>
-                <span className="stat-label">Total emails</span>
-              </p>
-            </div>
-          )}
-        </aside>
         <main className="email-main">
           {selectedEmail ? (
             <div className="email-view">
@@ -640,7 +557,7 @@ function Home() {
           )}
         </main>
       </div>
-    </div>
+    </Layout>
   );
 }
 

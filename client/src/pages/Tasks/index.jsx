@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import confetti from 'canvas-confetti';
 import { useZenMode } from '../../contexts/ZenModeContext';
-import ZenModeToggle from '../../components/ZenModeToggle';
+import Layout from '../../components/Layout';
 import './Tasks.css';
 
 const COLUMNS = {
@@ -291,46 +291,34 @@ function Tasks() {
   }, [tasks, filteredTasks, isZenModeActive]);
 
   return (
-    <div className={`tasks-page ${isZenModeActive ? 'zen-mode-active' : ''}`}>
-      <header className="tasks-header">
-        <div className="header-left">
-          <button className="back-btn" onClick={() => navigate('/home')}>
-            ← Back to Inbox
-          </button>
-          <h1>Task Board</h1>
-        </div>
-        <div className="header-right">
-          {stats && (
-            <div className="task-stats">
-              <span className="stat">
-                <span className="stat-value">{stats.pending}</span>
-                <span className="stat-label">Pending</span>
-              </span>
-              <span className="stat">
-                <span className="stat-value">{stats.completed}</span>
-                <span className="stat-label">Done</span>
-              </span>
-              {stats.overdue > 0 && (
-                <span className="stat overdue">
-                  <span className="stat-value">{stats.overdue}</span>
-                  <span className="stat-label">Overdue</span>
+    <Layout>
+      <div className={`tasks-page ${isZenModeActive ? 'zen-mode-active' : ''}`}>
+        <div className="tasks-header-section">
+          <div className="tasks-header-left">
+            <h1>Task Board</h1>
+            {stats && (
+              <div className="task-stats">
+                <span className="stat">
+                  <span className="stat-value">{stats.pending}</span>
+                  <span className="stat-label">Pending</span>
                 </span>
-              )}
-            </div>
-          )}
-          <ZenModeToggle />
-          <button 
-            className="settings-nav-btn"
-            onClick={() => navigate('/settings')}
-            title="Settings"
-          >
-            ⚙️
-          </button>
+                <span className="stat">
+                  <span className="stat-value">{stats.completed}</span>
+                  <span className="stat-label">Done</span>
+                </span>
+                {stats.overdue > 0 && (
+                  <span className="stat overdue">
+                    <span className="stat-value">{stats.overdue}</span>
+                    <span className="stat-label">Overdue</span>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
           <button className="add-task-btn" onClick={() => setShowAddModal(true)}>
             + New Task
           </button>
         </div>
-      </header>
       {error && (
         <div className="error-banner">
           <span>⚠️ {error}</span>
@@ -447,7 +435,8 @@ function Tasks() {
           onDelete={editingTask ? handleDeleteTask : null}
         />
       )}
-    </div>
+      </div>
+    </Layout>
   );
 }
 
