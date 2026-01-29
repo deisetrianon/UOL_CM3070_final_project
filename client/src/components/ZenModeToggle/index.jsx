@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import './ZenModeToggle.css';
 
@@ -10,23 +11,70 @@ import './ZenModeToggle.css';
  * - Tasks: high priority, urgent, or deadline today
  */
 function ZenModeToggle({ className = '' }) {
-  const { isZenModeActive, autoTriggeredReason, toggleZenMode } = useZenMode();
+  const { isZenModeActive, autoTriggeredReason, autoZenModeEnabled, isManuallyToggled, toggleZenMode } = useZenMode();
+  const [statusMessage, setStatusMessage] = useState(null);
+  const prevStateRef = useRef({ 
+    isActive: isZenModeActive, 
+    autoTriggered: !!autoTriggeredReason,
+    manuallyToggled: isManuallyToggled 
+  });
+
+  // Detecting state changes and showing zen mode status message
+  useEffect(() => {
+    const prev = prevStateRef.current;
+    const current = { 
+      isActive: isZenModeActive, 
+      autoTriggered: !!autoTriggeredReason,
+      manuallyToggled: isManuallyToggled 
+    };
+
+    if (prev.isActive !== current.isActive) {
+      if (current.isActive) {
+        if (current.autoTriggered && !current.manuallyToggled) {
+          setStatusMessage({ type: 'auto-enabled', text: 'Zen Mode enabled automatically' });
+        } else if (current.manuallyToggled) {
+          setStatusMessage({ type: 'manual-enabled', text: 'Zen Mode enabled manually' });
+        }
+      } else {
+        if (prev.autoTriggered && !prev.manuallyToggled) {
+          setStatusMessage({ type: 'auto-disabled', text: 'Zen Mode disabled automatically' });
+        } else {
+          setStatusMessage({ type: 'manual-disabled', text: 'Zen Mode disabled manually' });
+        }
+      }
+
+      // Clearing message after 3 seconds
+      const timer = setTimeout(() => {
+        setStatusMessage(null);
+      }, 3000);
+
+      prevStateRef.current = current;
+      return () => clearTimeout(timer);
+    } else {
+      prevStateRef.current = current;
+    }
+  }, [isZenModeActive, autoTriggeredReason, isManuallyToggled]);
 
   return (
     <div className={`zen-mode-wrapper ${className}`}>
       <button 
         className={`zen-mode-toggle ${isZenModeActive ? 'active' : ''}`}
         onClick={toggleZenMode}
-        title={isZenModeActive ? 'Disable Zen Mode' : 'Enable Zen Mode - Focus on priority items'}
       >
-        <span className="zen-icon">{isZenModeActive ? '🧘' : '🌿'}</span>
         <span className="zen-label">Zen Mode</span>
         <span className={`zen-indicator ${isZenModeActive ? 'on' : 'off'}`} />
       </button>
-      {isZenModeActive && autoTriggeredReason && (
-        <span className="zen-auto-reason" title={autoTriggeredReason}>
+      {autoZenModeEnabled && (
+        <span 
+          className={`zen-auto-badge ${isZenModeActive && autoTriggeredReason && !isManuallyToggled ? 'active-auto' : 'available-auto'}`}
+        >
           Auto
         </span>
+      )}
+      {statusMessage && (
+        <div className={`zen-status-message ${statusMessage.type}`}>
+          <span className="status-text">{statusMessage.text}</span>
+        </div>
       )}
     </div>
   );
