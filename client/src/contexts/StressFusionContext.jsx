@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useFacialAnalysis } from './FacialAnalysisContext';
 import { useKeystroke } from './KeystrokeContext';
+import { useAuth } from './AuthContext';
 
 const StressFusionContext = createContext(null);
 
@@ -28,9 +29,15 @@ const HIGH_STRESS_THRESHOLD = 60;
 const FACIAL_AVERAGE_WINDOW = 5 * 60 * 1000; // 5 minutes
 const KEYSTROKE_AVERAGE_WINDOW = 2 * 60 * 1000; // 2 minutes
 
+// Interval for saving stress logs to database (5 minutes)
+const STRESS_LOG_SAVE_INTERVAL = 5 * 60 * 1000; // 5 minutes
+// Minimum score change to trigger immediate save (10 points)
+const MIN_SCORE_CHANGE_FOR_IMMEDIATE_SAVE = 10;
+
 export function StressFusionProvider({ children }) {
   const { lastResult, lastAnalysisTime } = useFacialAnalysis();
   const { stressIndicators: keystrokeStress } = useKeystroke();
+  const { isAuthenticated } = useAuth();
 
   const [stressLevel, setStressLevel] = useState('normal');
   const [stressScore, setStressScore] = useState(0);
@@ -42,6 +49,8 @@ export function StressFusionProvider({ children }) {
   });
   const facialHistoryRef = useRef([]);
   const keystrokeHistoryRef = useRef([]);
+  const lastSavedScoreRef = useRef(0);
+  const lastSaveTimeRef = useRef(Date.now());
 
   const facialFatigueToScore = useCallback((fatigueLevel, fatigueScore, possibleFatigue) => {
     if (!possibleFatigue) return 0;
@@ -169,6 +178,73 @@ export function StressFusionProvider({ children }) {
     getKeystrokeScore,
     calculateWeightedAverage
   ]);
+
+  const saveStressLog = useCallback(async (score, level, facialScore, keystrokeScore) => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    try {
+      // TODO: Add zenModeActive and interventionTriggered
+      const response = await fetch('/api/stress-logs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          stressScore: score,
+          stressLevel: level,
+          componentScores: {
+            facialScore: Math.round(facialScore),
+            keystrokeScore: Math.round(keystrokeScore)
+          },
+          metadata: {
+            zenModeActive: false,
+            interventionTriggered: false
+          }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          lastSavedScoreRef.current = score;
+          lastSaveTimeRef.current = Date.now();
+          console.log('[StressFusion] Stress log saved:', { score, level });
+        }
+      } else {
+        console.warn('[StressFusion] Failed to save stress log:', response.status);
+      }
+    } catch (error) {
+      console.error('[StressFusion] Error saving stress log:', error);
+    }
+  }, [isAuthenticated]);
+
+  // Saving stress logs periodically or when significant change occurs
+  useEffect(() => {
+    if (!isAuthenticated || stressScore === 0) {
+      return;
+    }
+
+    const now = Date.now();
+    const timeSinceLastSave = now - lastSaveTimeRef.current;
+    const scoreChange = Math.abs(stressScore - lastSavedScoreRef.current);
+
+    // Saving if enough time has passed OR if score changed significantly
+    const shouldSave = 
+      timeSinceLastSave >= STRESS_LOG_SAVE_INTERVAL ||
+      (scoreChange >= MIN_SCORE_CHANGE_FOR_IMMEDIATE_SAVE && timeSinceLastSave >= 60000); // At least 1 minute between saves
+
+    if (shouldSave) {
+      saveStressLog(
+        stressScore,
+        stressLevel,
+        fusionData.facialScore,
+        fusionData.keystrokeScore
+      );
+    }
+  }, [stressScore, stressLevel, fusionData, isAuthenticated, saveStressLog]);
 
   // Updating fusion when facial analysis completes
   useEffect(() => {

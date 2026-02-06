@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import Tasks from './pages/Tasks';
 import Settings from './pages/Settings';
+import StressHistoryPage from './pages/StressHistory';
 import './App.css';
 
 function App() {
@@ -44,6 +45,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <Settings />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/stress-history"
+                    element={
+                      <ProtectedRoute>
+                        <StressHistoryPage />
                       </ProtectedRoute>
                     }
                   />

@@ -9,26 +9,22 @@ function CameraPermissionModal() {
   return (
     <div className="permission-modal-overlay">
       <div className="permission-modal">
-        <div className="permission-icon">
-          <span className="camera-emoji">📷</span>
-          <span className="wellness-emoji">🧘</span>
-        </div>     
         <h2>Enable Wellness Monitoring?</h2>       
         <p className="permission-description">
-          Empathetic Workspace can monitor your facial expressions to detect signs of 
+          The Empathetic Workspace can monitor your facial expressions to detect signs of 
           stress and fatigue, helping you maintain a healthy work balance.
         </p>
         <div className="permission-features">
           <div className="feature-item">
-            <span className="feature-icon">👁️</span>
+            <span className="feature-icon">-</span>
             <span>Detects fatigue and stress indicators</span>
           </div>
           <div className="feature-item">
-            <span className="feature-icon">⏰</span>
+            <span className="feature-icon">-</span>
             <span>Runs automatically every 5 minutes</span>
           </div>
           <div className="feature-item">
-            <span className="feature-icon">🔒</span>
+            <span className="feature-icon">-</span>
             <span>Your video is never stored or shared</span>
           </div>
         </div>

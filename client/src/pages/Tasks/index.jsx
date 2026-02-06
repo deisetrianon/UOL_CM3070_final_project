@@ -327,7 +327,6 @@ function Tasks() {
       )}
       {isZenModeActive && (
         <div className="zen-mode-banner">
-          <span className="zen-banner-icon">🧘</span>
           <div className="zen-banner-text">
             <strong>Zen Mode Active</strong>
             <span>

@@ -1,12 +1,15 @@
 import User from './User.js';
 import Task from './Task.js';
+import StressLog from './StressLog.js';
 
 export {
   User,
-  Task
+  Task,
+  StressLog
 };
 
 export default {
   User,
-  Task
+  Task,
+  StressLog
 };
