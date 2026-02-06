@@ -175,7 +175,7 @@ function Settings() {
           <>
             <section className="settings-section zen-mode-section">
               <div className="section-header">
-                <h2>🧘 Zen Mode</h2>
+                <h2>Zen Mode</h2>
                 <p className="section-description">
                   Zen Mode filters your view to show only priority items when you're fatigued
                 </p>
@@ -209,7 +209,7 @@ function Settings() {
             </section>
             <section className="settings-section">
               <div className="section-header">
-                <h2>👁️ Wellness Monitoring</h2>
+                <h2>Wellness Monitoring</h2>
                 <p className="section-description">
                   Configure how the application monitors your well-being through facial analysis.
                   Camera permission can be managed in your browser settings.
@@ -235,7 +235,7 @@ function Settings() {
             </section>
             <section className="settings-section">
               <div className="section-header">
-                <h2>🔔 Notifications</h2>
+                <h2>Notifications</h2>
                 <p className="section-description">
                   Manage how you receive alerts and notifications
                 </p>

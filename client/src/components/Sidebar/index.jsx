@@ -7,7 +7,8 @@ function Sidebar() {
   const location = useLocation();
   const [expandedSections, setExpandedSections] = useState({
     emails: true,
-    tasks: true
+    tasks: true,
+    wellness: true
   });
 
   const toggleSection = (section) => {
@@ -29,7 +30,6 @@ function Sidebar() {
             className="sidebar-section-header"
             onClick={() => toggleSection('emails')}
           >
-            <span className="section-icon">📧</span>
             <span className="section-title">Emails</span>
             <span className={`section-arrow ${expandedSections.emails ? 'expanded' : ''}`}>
               ▼
@@ -80,7 +80,6 @@ function Sidebar() {
             className="sidebar-section-header"
             onClick={() => toggleSection('tasks')}
           >
-            <span className="section-icon">📋</span>
             <span className="section-title">Task Management</span>
             <span className={`section-arrow ${expandedSections.tasks ? 'expanded' : ''}`}>
               ▼
@@ -92,8 +91,28 @@ function Sidebar() {
                 className={`sidebar-item ${isActive('/tasks') ? 'active' : ''}`}
                 onClick={() => navigate('/tasks')}
               >
-                <span className="item-icon">📝</span>
                 <span className="item-text">Task Board</span>
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="sidebar-section">
+          <button 
+            className="sidebar-section-header"
+            onClick={() => toggleSection('wellness')}
+          >
+            <span className="section-title">Wellness</span>
+            <span className={`section-arrow ${expandedSections.wellness ? 'expanded' : ''}`}>
+              ▼
+            </span>
+          </button>
+          {expandedSections.wellness && (
+            <div className="sidebar-section-content">
+              <button
+                className={`sidebar-item ${isActive('/stress-history') ? 'active' : ''}`}
+                onClick={() => navigate('/stress-history')}
+              >
+                <span className="item-text">Stress History</span>
               </button>
             </div>
           )}
