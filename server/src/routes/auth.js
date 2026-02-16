@@ -22,7 +22,8 @@ router.get('/google', (req, res, next) => {
     scope: [
       'profile',
       'email',
-      'https://www.googleapis.com/auth/gmail.readonly'
+      'https://www.googleapis.com/auth/gmail.readonly',
+      'https://www.googleapis.com/auth/calendar.readonly'
     ],
     accessType: 'offline',
     prompt: 'consent'

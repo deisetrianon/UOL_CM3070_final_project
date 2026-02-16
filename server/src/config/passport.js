@@ -40,7 +40,8 @@ if (config.google.clientId && config.google.clientSecret) {
         scope: [
           'profile',
           'email',
-          'https://www.googleapis.com/auth/gmail.readonly'  // Read-only Gmail access
+          'https://www.googleapis.com/auth/gmail.readonly',
+          'https://www.googleapis.com/auth/calendar.readonly'
         ],
         accessType: 'offline',  // Getting refresh token
         prompt: 'consent'       // Always showing consent screen to get refresh token
