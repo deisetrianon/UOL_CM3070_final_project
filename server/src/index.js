@@ -12,6 +12,7 @@ import gmailRoutes from './routes/gmail.js';
 import tasksRoutes from './routes/tasks.js';
 import settingsRoutes from './routes/settings.js';
 import stressLogsRoutes from './routes/stressLogs.js';
+import calendarRoutes from './routes/calendar.js';
 
 const app = express();
 const PORT = config.port;
@@ -74,7 +75,8 @@ app.get('/', (req, res) => {
       tasks: '/api/tasks/*',
       facialAnalysis: '/api/facial-analysis/*',
       settings: '/api/settings/*',
-      stressLogs: '/api/stress-logs/*'
+      stressLogs: '/api/stress-logs/*',
+      calendar: '/api/calendar/*'
     }
   });
 });
@@ -86,6 +88,7 @@ app.use('/api/facial-analysis', facialAnalysisRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/stress-logs', stressLogsRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Error handlers
 app.use((req, res) => {

@@ -8,7 +8,8 @@ function Sidebar() {
   const [expandedSections, setExpandedSections] = useState({
     emails: true,
     tasks: true,
-    wellness: true
+    wellness: true,
+    calendar: true
   });
 
   const toggleSection = (section) => {
@@ -113,6 +114,27 @@ function Sidebar() {
                 onClick={() => navigate('/stress-history')}
               >
                 <span className="item-text">Stress History</span>
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="sidebar-section">
+          <button 
+            className="sidebar-section-header"
+            onClick={() => toggleSection('calendar')}
+          >
+            <span className="section-title">Calendar</span>
+            <span className={`section-arrow ${expandedSections.calendar ? 'expanded' : ''}`}>
+              ▼
+            </span>
+          </button>
+          {expandedSections.calendar && (
+            <div className="sidebar-section-content">
+              <button
+                className={`sidebar-item ${isActive('/calendar') ? 'active' : ''}`}
+                onClick={() => navigate('/calendar')}
+              >
+                <span className="item-text">Calendar View</span>
               </button>
             </div>
           )}
