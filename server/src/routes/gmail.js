@@ -135,4 +135,90 @@ router.get('/labels', requireAuth, async (req, res) => {
   });
 });
 
+/**
+ * POST /api/gmail/emails/:id/mark-read
+ * Mark an email as read (remove UNREAD label)
+ */
+router.post('/emails/:id/mark-read', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await gmailService.markAsRead(
+      req.user.accessToken,
+      req.user.refreshToken,
+      id
+    );
+
+    res.json({
+      success: true,
+      message: 'Email marked as read',
+      email: result
+    });
+  } catch (error) {
+    console.error('[Gmail Route] Error marking email as read:', error.message);
+    
+    if (error.message === 'TOKEN_EXPIRED') {
+      return res.status(401).json({
+        success: false,
+        error: 'Session expired',
+        message: 'Please log in again'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to mark email as read',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/gmail/emails/:id/toggle-star
+ * Toggle star on an email (add/remove STARRED label)
+ */
+router.post('/emails/:id/toggle-star', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isStarred } = req.body;
+
+    if (typeof isStarred !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request',
+        message: 'isStarred must be a boolean'
+      });
+    }
+
+    const result = await gmailService.toggleStar(
+      req.user.accessToken,
+      req.user.refreshToken,
+      id,
+      isStarred
+    );
+
+    res.json({
+      success: true,
+      message: result.isStarred ? 'Email starred' : 'Email unstarred',
+      email: result
+    });
+  } catch (error) {
+    console.error('[Gmail Route] Error toggling star:', error.message);
+    
+    if (error.message === 'TOKEN_EXPIRED') {
+      return res.status(401).json({
+        success: false,
+        error: 'Session expired',
+        message: 'Please log in again'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to toggle star',
+      message: error.message
+    });
+  }
+});
+
 export default router;

@@ -535,6 +535,49 @@
   color: var(--color-warning);
 }
 
+.email-view-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-primary);
+}
+
+.action-btn.star-action.starred {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: #fbbf24;
+  color: #f59e0b;
+}
+
+.action-btn.star-action.starred:hover {
+  background: rgba(251, 191, 36, 0.2);
+}
+
+.action-btn.mark-read-action:hover {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
 .email-view-meta {
   display: flex;
   align-items: center;
