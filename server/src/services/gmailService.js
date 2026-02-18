@@ -219,6 +219,82 @@ class GmailService {
       sizeEstimate: message.sizeEstimate
     };
   }
+
+  /**
+   * Marking an email as read (removing UNREAD label)
+   * @param {string} accessToken
+   * @param {string} refreshToken
+   * @param {string} messageId
+   * @returns {Promise<Object>}
+   */
+  async markAsRead(accessToken, refreshToken, messageId) {
+    this.setCredentials(accessToken, refreshToken);
+    const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
+
+    try {
+      const response = await gmail.users.messages.modify({
+        userId: 'me',
+        id: messageId,
+        requestBody: {
+          removeLabelIds: ['UNREAD']
+        }
+      });
+
+      return {
+        id: response.data.id,
+        labelIds: response.data.labelIds,
+        threadId: response.data.threadId
+      };
+    } catch (error) {
+      console.error('[Gmail] Error marking email as read:', error.message);
+      
+      if (error.code === 401 || error.message?.includes('invalid_grant')) {
+        throw new Error('TOKEN_EXPIRED');
+      }
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Toggling star on an email (adding/removing STARRED label)
+   * @param {string} accessToken
+   * @param {string} refreshToken
+   * @param {string} messageId
+   * @param {boolean} isStarred - Current starred state
+   * @returns {Promise<Object>}
+   */
+  async toggleStar(accessToken, refreshToken, messageId, isStarred) {
+    this.setCredentials(accessToken, refreshToken);
+    const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
+
+    try {
+      const requestBody = isStarred
+        ? { removeLabelIds: ['STARRED'] }
+        : { addLabelIds: ['STARRED'] };
+
+      const response = await gmail.users.messages.modify({
+        userId: 'me',
+        id: messageId,
+        requestBody
+      });
+
+      return {
+        id: response.data.id,
+        labelIds: response.data.labelIds,
+        threadId: response.data.threadId,
+        isStarred: !isStarred
+      };
+    } catch (error) {
+      console.error('[Gmail] Error toggling star:', error.message);
+      
+      if (error.code === 401 || error.message?.includes('invalid_grant')) {
+        throw new Error('TOKEN_EXPIRED');
+      }
+      
+      throw error;
+    }
+  }
 }
 
 export default new GmailService();

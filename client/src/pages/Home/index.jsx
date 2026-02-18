@@ -116,21 +116,73 @@ function Home() {
     }
   }, []);
 
+  const markEmailAsRead = useCallback(async (emailId) => {
+    try {
+      const response = await fetch(`/api/gmail/emails/${emailId}/mark-read`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setEmails(prevEmails => 
+          prevEmails.map(email => 
+            email.id === emailId 
+              ? { ...email, isUnread: false, labelIds: data.email.labelIds }
+              : email
+          )
+        );
+        
+        if (selectedEmail?.id === emailId) {
+          setSelectedEmail(prev => prev ? { ...prev, isUnread: false, labelIds: data.email.labelIds } : null);
+        }
+      }
+    } catch (err) {
+      console.error('Error marking email as read:', err);
+    }
+  }, [selectedEmail]);
+
+  const toggleStar = useCallback(async (emailId, currentStarredState) => {
+    try {
+      const response = await fetch(`/api/gmail/emails/${emailId}/toggle-star`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ isStarred: currentStarredState })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setEmails(prevEmails => 
+          prevEmails.map(email => 
+            email.id === emailId 
+              ? { ...email, isStarred: data.email.isStarred, labelIds: data.email.labelIds }
+              : email
+          )
+        );
+        
+        if (selectedEmail?.id === emailId) {
+          setSelectedEmail(prev => prev ? { ...prev, isStarred: data.email.isStarred, labelIds: data.email.labelIds } : null);
+        }
+      }
+    } catch (err) {
+      console.error('Error toggling star:', err);
+    }
+  }, [selectedEmail]);
+
   const handleSelectEmail = useCallback((email) => {
     setSelectedEmail(email);
     setFullEmailContent(null);
     fetchFullEmail(email.id);
-  }, [fetchFullEmail]);
-
-  const handleLabelChange = (labelId) => {
-    setActiveLabel(labelId);
-    setNextPageToken(null);
-    setPageTokenHistory([]);
-    setCurrentPage(1);
-    setSelectedEmail(null);
-    setFullEmailContent(null);
-    fetchEmails(labelId, null, activeSearch);
-  };
+    
+    if (email.isUnread) {
+      markEmailAsRead(email.id);
+    }
+  }, [fetchFullEmail, markEmailAsRead]);
 
   const handleSearch = () => {
     const trimmedQuery = searchQuery.trim();
@@ -360,6 +412,24 @@ function Home() {
                       <span className="sender-email-large">{selectedEmail.from?.email}</span>
                     </div>
                   </div>
+                  <div className="email-view-actions">
+                    <button
+                      className={`action-btn star-action ${selectedEmail.isStarred ? 'starred' : ''}`}
+                      onClick={() => toggleStar(selectedEmail.id, selectedEmail.isStarred)}
+                      title={selectedEmail.isStarred ? 'Remove star' : 'Add star'}
+                    >
+                      {selectedEmail.isStarred ? '⭐' : '☆'} {selectedEmail.isStarred ? 'Starred' : 'Star'}
+                    </button>
+                    {selectedEmail.isUnread && (
+                      <button
+                        className="action-btn mark-read-action"
+                        onClick={() => markEmailAsRead(selectedEmail.id)}
+                        title="Mark as read"
+                      >
+                        ✓ Mark as read
+                      </button>
+                    )}
+                  </div>
                   <div className="email-view-date">
                     <span className="date-full">
                       {new Date(selectedEmail.date).toLocaleDateString('en-US', {
@@ -499,10 +569,11 @@ function Home() {
                           className={`star-btn ${email.isStarred ? 'starred' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            // (TODO: Toggle star (not implemented yet for read-only))
+                            toggleStar(email.id, email.isStarred);
                           }}
+                          title={email.isStarred ? 'Remove star' : 'Add star'}
                         >
-                          {email.isStarred ? '⭐' : ''}
+                          {email.isStarred ? '⭐' : '☆'}
                         </button>
                       </div>
                       <div className="email-sender">
