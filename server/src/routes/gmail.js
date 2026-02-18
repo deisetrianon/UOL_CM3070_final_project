@@ -221,4 +221,148 @@ router.post('/emails/:id/toggle-star', requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * POST /api/gmail/emails/send
+ * Send a new email
+ */
+router.post('/emails/send', requireAuth, async (req, res) => {
+  try {
+    const { to, subject, body, cc, bcc, replyTo } = req.body;
+
+    if (!to || !subject || !body) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request',
+        message: 'to, subject, and body are required'
+      });
+    }
+
+    const fromName = req.user.displayName || 
+                    (req.user.firstName && req.user.lastName 
+                      ? `${req.user.firstName} ${req.user.lastName}`.trim()
+                      : req.user.firstName || req.user.lastName || null);
+    const fromEmail = req.user.email;
+
+    const result = await gmailService.sendEmail(
+      req.user.accessToken,
+      req.user.refreshToken,
+      { to, subject, body, cc, bcc, replyTo, fromName, fromEmail }
+    );
+
+    res.json({
+      success: true,
+      message: 'Email sent successfully',
+      email: result
+    });
+  } catch (error) {
+    console.error('[Gmail Route] Error sending email:', error.message);
+    
+    if (error.message === 'TOKEN_EXPIRED') {
+      return res.status(401).json({
+        success: false,
+        error: 'Session expired',
+        message: 'Please log in again'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send email',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/gmail/emails/:id/reply
+ * Reply to an email
+ */
+router.post('/emails/:id/reply', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body, replyAll } = req.body;
+
+    if (!body) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request',
+        message: 'body is required'
+      });
+    }
+
+    const fromName = req.user.displayName || 
+                    (req.user.firstName && req.user.lastName 
+                      ? `${req.user.firstName} ${req.user.lastName}`.trim()
+                      : req.user.firstName || req.user.lastName || null);
+    const fromEmail = req.user.email;
+
+    const result = await gmailService.replyToEmail(
+      req.user.accessToken,
+      req.user.refreshToken,
+      id,
+      { body, replyAll: replyAll === true, fromName, fromEmail }
+    );
+
+    res.json({
+      success: true,
+      message: 'Reply sent successfully',
+      email: result
+    });
+  } catch (error) {
+    console.error('[Gmail Route] Error replying to email:', error.message);
+    
+    if (error.message === 'TOKEN_EXPIRED') {
+      return res.status(401).json({
+        success: false,
+        error: 'Session expired',
+        message: 'Please log in again'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send reply',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/gmail/emails/:id
+ * Delete an email (move to trash)
+ */
+router.delete('/emails/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await gmailService.deleteEmail(
+      req.user.accessToken,
+      req.user.refreshToken,
+      id
+    );
+
+    res.json({
+      success: true,
+      message: 'Email deleted successfully',
+      email: result
+    });
+  } catch (error) {
+    console.error('[Gmail Route] Error deleting email:', error.message);
+    
+    if (error.message === 'TOKEN_EXPIRED') {
+      return res.status(401).json({
+        success: false,
+        error: 'Session expired',
+        message: 'Please log in again'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete email',
+      message: error.message
+    });
+  }
+});
+
 export default router;
