@@ -116,23 +116,49 @@ router.get('/profile', requireAuth, async (req, res) => {
 
 /**
  * GET /api/gmail/labels
- * Fetch available Gmail labels
+ * Fetch available Gmail labels from Gmail API
+ * Fallbacks to default labels if API call fails
  */
 router.get('/labels', requireAuth, async (req, res) => {
-  // Returning commonly used labels
-  // (TODO: In a full implementation, this would fetch from Gmail API)
-  res.json({
-    success: true,
-    labels: [
-      { id: 'INBOX', name: 'Inbox', type: 'system' },
-      { id: 'STARRED', name: 'Starred', type: 'system' },
-      { id: 'IMPORTANT', name: 'Important', type: 'system' },
-      { id: 'SENT', name: 'Sent', type: 'system' },
-      { id: 'DRAFT', name: 'Drafts', type: 'system' },
-      { id: 'TRASH', name: 'Trash', type: 'system' },
-      { id: 'SPAM', name: 'Spam', type: 'system' }
-    ]
-  });
+  const defaultLabels = [
+    { id: 'INBOX', name: 'Inbox', type: 'system' },
+    { id: 'STARRED', name: 'Starred', type: 'system' },
+    { id: 'IMPORTANT', name: 'Important', type: 'system' },
+    { id: 'SENT', name: 'Sent', type: 'system' },
+    { id: 'DRAFT', name: 'Drafts', type: 'system' },
+    { id: 'TRASH', name: 'Trash', type: 'system' },
+    { id: 'SPAM', name: 'Spam', type: 'system' }
+  ];
+
+  try {
+    const result = await gmailService.getLabels(
+      req.user.accessToken,
+      req.user.refreshToken
+    );
+
+    res.json({
+      success: true,
+      labels: result.labels || defaultLabels
+    });
+  } catch (error) {
+    console.error('[Gmail Route] Error fetching labels:', error.message);
+    
+    if (error.message === 'TOKEN_EXPIRED') {
+      return res.status(401).json({
+        success: false,
+        error: 'Session expired',
+        message: 'Please log in again'
+      });
+    }
+
+    console.warn('[Gmail Route] Using default labels as fallback');
+    res.json({
+      success: true,
+      labels: defaultLabels,
+      fallback: true,
+      error: error.message
+    });
+  }
 });
 
 /**

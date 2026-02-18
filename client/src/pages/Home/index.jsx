@@ -560,7 +560,9 @@ function Home() {
     { id: 'STARRED', name: 'Starred', icon: '⭐' },
     { id: 'IMPORTANT', name: 'Important', icon: '🏷️' },
     { id: 'SENT', name: 'Sent', icon: '📤' },
-    { id: 'DRAFT', name: 'Drafts', icon: '📝' }
+    { id: 'DRAFT', name: 'Drafts', icon: '📝' },
+    { id: 'TRASH', name: 'Trash', icon: '🗑️' },
+    { id: 'SPAM', name: 'Spam', icon: '🚫' }
   ];
 
   // Calculating display range for pagination

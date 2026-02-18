@@ -147,6 +147,69 @@ class GmailService {
   }
 
   /**
+   * Getting user's Gmail labels
+   * @param {string} accessToken
+   * @param {string} refreshToken
+   * @returns {Promise<Object>}
+   */
+  async getLabels(accessToken, refreshToken) {
+    this.setCredentials(accessToken, refreshToken);
+    const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
+
+    try {
+      const response = await gmail.users.labels.list({
+        userId: 'me'
+      });
+
+      if (!response.data.labels || response.data.labels.length === 0) {
+        return { labels: [] };
+      }
+
+      // Parsing labels to a more usable format. Also filtering out labels that are hidden from label list
+      const labels = response.data.labels
+        .filter(label => label.labelListVisibility !== 'hide')
+        .map(label => ({
+          id: label.id,
+          name: label.name,
+          type: label.type || 'user', // 'system' or 'user'
+          messageListVisibility: label.messageListVisibility,
+          labelListVisibility: label.labelListVisibility,
+          color: label.color
+        }));
+
+      // Ensuring essential system labels are always included
+      const essentialLabelIds = ['TRASH', 'SPAM'];
+      const existingLabelIds = labels.map(l => l.id);
+      
+      essentialLabelIds.forEach(labelId => {
+        if (!existingLabelIds.includes(labelId)) {
+          const originalLabel = response.data.labels.find(l => l.id === labelId);
+          if (originalLabel) {
+            labels.push({
+              id: originalLabel.id,
+              name: originalLabel.name,
+              type: originalLabel.type || 'system',
+              messageListVisibility: originalLabel.messageListVisibility,
+              labelListVisibility: originalLabel.labelListVisibility || 'show',
+              color: originalLabel.color
+            });
+          }
+        }
+      });
+
+      return { labels };
+    } catch (error) {
+      console.error('[Gmail] Error fetching labels:', error.message);
+      
+      if (error.code === 401 || error.message?.includes('invalid_grant')) {
+        throw new Error('TOKEN_EXPIRED');
+      }
+      
+      throw error;
+    }
+  }
+
+  /**
    * Parse email metadata from Gmail API response
    * @param {Object} message - Raw Gmail message
    * @returns {Object} - Parsed email metadata
