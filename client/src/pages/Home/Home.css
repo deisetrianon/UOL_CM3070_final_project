@@ -8,6 +8,37 @@
 
 .home-header-section {
   margin-bottom: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.home-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.compose-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-accent-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.compose-btn:hover {
+  background: var(--color-accent-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 
@@ -114,11 +145,85 @@
   padding: var(--spacing-md) var(--spacing-lg);
   border-bottom: 1px solid var(--color-bg-tertiary);
   background: var(--color-bg-secondary);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.email-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
 }
 
 .email-header h2 {
   font-size: 1.125rem;
   font-weight: 500;
+  margin: 0;
+}
+
+.select-all-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.select-all-checkbox input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.bulk-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-accent-primary);
+  border-radius: var(--radius-md);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bulk-actions-count {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  margin-right: var(--spacing-xs);
+}
+
+.bulk-action-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.bulk-action-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .refresh-btn {
@@ -368,17 +473,41 @@
   background: var(--color-bg-secondary);
 }
 
+.email-item.selected {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid var(--color-accent-primary);
+}
 
-.email-star {
+.email-checkbox {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.email-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--color-accent-primary);
+}
+
+.email-star,
+.email-actions-inline {
   flex-shrink: 0;
 }
 
 .star-btn {
   background: transparent;
+  border: none;
   font-size: 1rem;
   padding: var(--spacing-xs);
   opacity: 0.4;
   transition: all var(--transition-fast);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .star-btn:hover,
@@ -576,6 +705,59 @@
   background: rgba(34, 197, 94, 0.1);
   border-color: #22c55e;
   color: #22c55e;
+}
+
+.action-btn.reply-action,
+.action-btn.reply-all-action {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.action-btn.reply-action:hover,
+.action-btn.reply-all-action:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.action-btn.delete-action {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.action-btn.delete-action:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.email-actions-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 60px;
+}
+
+.delete-btn-inline {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  opacity: 0.6;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn-inline:hover {
+  opacity: 1;
+  color: #ef4444;
+  transform: scale(1.1);
 }
 
 .email-view-meta {

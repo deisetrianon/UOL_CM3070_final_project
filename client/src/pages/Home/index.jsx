@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import Layout from '../../components/Layout';
+import EmailWriter from '../../components/EmailWriter';
 import './Home.css';
 
 function Home() {
@@ -26,6 +27,11 @@ function Home() {
   const [totalEstimate, setTotalEstimate] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearch, setActiveSearch] = useState(''); 
+  const [showWriter, setShowWriter] = useState(false);
+  const [writerMode, setWriterMode] = useState('write'); // 'write' or 'reply'
+  const [replyEmail, setReplyEmail] = useState(null);
+  const [replyAll, setReplyAll] = useState(false);
+  const [selectedEmailIds, setSelectedEmailIds] = useState(new Set());
   const EMAILS_PER_PAGE = 20;
 
   // Prompt for camera permission after page load
@@ -184,6 +190,233 @@ function Home() {
     }
   }, [fetchFullEmail, markEmailAsRead]);
 
+  const handleSendEmail = useCallback(async (emailData) => {
+    try {
+      const response = await fetch('/api/gmail/emails/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(emailData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        fetchEmails(activeLabel, null, activeSearch);
+        setShowWriter(false);
+        setReplyEmail(null);
+        return;
+      } else {
+        throw new Error(data.message || 'Failed to send email');
+      }
+    } catch (err) {
+      console.error('Error sending email:', err);
+      throw err;
+    }
+  }, [activeLabel, activeSearch, fetchEmails]);
+
+  const handleReplyEmail = useCallback(async (emailData) => {
+    if (!replyEmail) return;
+
+    try {
+      const response = await fetch(`/api/gmail/emails/${replyEmail.id}/reply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          body: emailData.body,
+          replyAll: replyAll
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        fetchEmails(activeLabel, null, activeSearch);
+        setShowWriter(false);
+        setReplyEmail(null);
+        setReplyAll(false);
+        return;
+      } else {
+        throw new Error(data.message || 'Failed to send reply');
+      }
+    } catch (err) {
+      console.error('Error replying to email:', err);
+      throw err;
+    }
+  }, [replyEmail, replyAll, activeLabel, activeSearch, fetchEmails]);
+
+  const openWriter = useCallback(() => {
+    setWriterMode('write');
+    setReplyEmail(null);
+    setShowWriter(true);
+  }, []);
+
+  const openReply = useCallback((email, all = false) => {
+    setWriterMode('reply');
+    setReplyEmail(email);
+    setReplyAll(all);
+    setShowWriter(true);
+  }, []);
+
+  const handleDeleteEmail = useCallback(async (emailId) => {
+    if (!window.confirm('Are you sure you want to delete this email? It will be moved to trash.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/gmail/emails/${emailId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setEmails(prevEmails => prevEmails.filter(email => email.id !== emailId));
+        setSelectedEmailIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(emailId);
+          return newSet;
+        });
+        
+        if (selectedEmail?.id === emailId) {
+          setSelectedEmail(null);
+          setFullEmailContent(null);
+        }
+        
+        fetchEmails(activeLabel, null, activeSearch);
+      } else {
+        throw new Error(data.message || 'Failed to delete email');
+      }
+    } catch (err) {
+      console.error('Error deleting email:', err);
+      alert('Failed to delete email. Please try again.');
+    }
+  }, [selectedEmail, activeLabel, activeSearch, fetchEmails]);
+
+  const toggleEmailSelection = useCallback((emailId) => {
+    setSelectedEmailIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(emailId)) {
+        newSet.delete(emailId);
+      } else {
+        newSet.add(emailId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const handleBulkMarkAsRead = useCallback(async () => {
+    if (selectedEmailIds.size === 0) return;
+
+    try {
+      const promises = Array.from(selectedEmailIds).map(emailId =>
+        fetch(`/api/gmail/emails/${emailId}/mark-read`, {
+          method: 'POST',
+          credentials: 'include'
+        }).then(res => res.json())
+      );
+
+      const results = await Promise.allSettled(promises);
+      const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+
+      if (successful > 0) {
+        setEmails(prevEmails =>
+          prevEmails.map(email =>
+            selectedEmailIds.has(email.id)
+              ? { ...email, isUnread: false }
+              : email
+          )
+        );
+        setSelectedEmailIds(new Set());
+        fetchEmails(activeLabel, null, activeSearch);
+      }
+    } catch (err) {
+      console.error('Error marking emails as read:', err);
+      alert('Failed to mark some emails as read. Please try again.');
+    }
+  }, [selectedEmailIds, activeLabel, activeSearch, fetchEmails]);
+
+  const handleBulkToggleStar = useCallback(async (starAction) => {
+    if (selectedEmailIds.size === 0) return;
+
+    try {
+      const promises = Array.from(selectedEmailIds).map(async (emailId) => {
+        const email = emails.find(e => e.id === emailId);
+        if (!email) return null;
+        
+        if (starAction === 'star' && email.isStarred) return null;
+        if (starAction === 'unstar' && !email.isStarred) return null;
+        
+        return fetch(`/api/gmail/emails/${emailId}/toggle-star`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ isStarred: email.isStarred })
+        }).then(res => res.json());
+      });
+
+      const results = await Promise.allSettled(promises);
+      const successful = results.filter(r => r.status === 'fulfilled' && r.value?.success).length;
+
+      if (successful > 0) {
+        setEmails(prevEmails =>
+          prevEmails.map(email =>
+            selectedEmailIds.has(email.id)
+              ? { ...email, isStarred: starAction === 'star' ? true : false }
+              : email
+          )
+        );
+        setSelectedEmailIds(new Set());
+        fetchEmails(activeLabel, null, activeSearch);
+      }
+    } catch (err) {
+      console.error('Error toggling stars:', err);
+      alert('Failed to update stars. Please try again.');
+    }
+  }, [selectedEmailIds, emails, activeLabel, activeSearch, fetchEmails]);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedEmailIds.size === 0) return;
+
+    const count = selectedEmailIds.size;
+    if (!window.confirm(`Are you sure you want to delete ${count} email${count > 1 ? 's' : ''}? They will be moved to trash.`)) {
+      return;
+    }
+
+    try {
+      const promises = Array.from(selectedEmailIds).map(emailId =>
+        fetch(`/api/gmail/emails/${emailId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        }).then(res => res.json())
+      );
+
+      const results = await Promise.allSettled(promises);
+      const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+
+      if (successful > 0) {
+        setEmails(prevEmails => prevEmails.filter(email => !selectedEmailIds.has(email.id)));
+        setSelectedEmailIds(new Set());
+        
+        if (selectedEmail && selectedEmailIds.has(selectedEmail.id)) {
+          setSelectedEmail(null);
+          setFullEmailContent(null);
+        }
+        
+        fetchEmails(activeLabel, null, activeSearch);
+      }
+    } catch (err) {
+      console.error('Error deleting emails:', err);
+      alert('Failed to delete some emails. Please try again.');
+    }
+  }, [selectedEmailIds, selectedEmail, activeLabel, activeSearch, fetchEmails]);
+
   const handleSearch = () => {
     const trimmedQuery = searchQuery.trim();
     setActiveSearch(trimmedQuery);
@@ -192,6 +425,7 @@ function Home() {
     setCurrentPage(1);
     setSelectedEmail(null);
     setFullEmailContent(null);
+    setSelectedEmailIds(new Set());
     fetchEmails(activeLabel, null, trimmedQuery);
   };
 
@@ -209,6 +443,7 @@ function Home() {
     setCurrentPage(1);
     setSelectedEmail(null);
     setFullEmailContent(null);
+    setSelectedEmailIds(new Set());
     fetchEmails(activeLabel, null, '');
   };
 
@@ -222,6 +457,7 @@ function Home() {
       fetchEmails(activeLabel, nextPageToken, activeSearch);
       setSelectedEmail(null);
       setFullEmailContent(null);
+      setSelectedEmailIds(new Set());
     }
   };
 
@@ -237,6 +473,7 @@ function Home() {
       fetchEmails(activeLabel, prevToken, activeSearch);
       setSelectedEmail(null);
       setFullEmailContent(null);
+      setSelectedEmailIds(new Set());
     }
   };
 
@@ -246,17 +483,20 @@ function Home() {
     fetchEmails(activeLabel, null, activeSearch);
     setSelectedEmail(null);
     setFullEmailContent(null);
+    setSelectedEmailIds(new Set());
   };
 
   // Reading label from URL query params
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const label = searchParams.get('label');
-    if (label) {
-      setActiveLabel(label);
-    } else {
-      setActiveLabel('INBOX');
-    }
+      if (label) {
+        setActiveLabel(label);
+        setSelectedEmailIds(new Set());
+      } else {
+        setActiveLabel('INBOX');
+        setSelectedEmailIds(new Set());
+      }
   }, [location.search]);
 
   // Fetching emails when activeLabel changes
@@ -320,19 +560,28 @@ function Home() {
     { id: 'STARRED', name: 'Starred', icon: '⭐' },
     { id: 'IMPORTANT', name: 'Important', icon: '🏷️' },
     { id: 'SENT', name: 'Sent', icon: '📤' },
-    { id: 'DRAFT', name: 'Drafts', icon: '📝' }
+    { id: 'DRAFT', name: 'Drafts', icon: '📝' },
+    { id: 'TRASH', name: 'Trash', icon: '🗑️' },
+    { id: 'SPAM', name: 'Spam', icon: '🚫' }
   ];
 
   // Calculating display range for pagination
   const startItem = (currentPage - 1) * EMAILS_PER_PAGE + 1;
   const endItem = startItem + emails.length - 1;
 
-
   const filteredEmails = useMemo(() => {
     if (!isZenModeActive) return emails;
     
     return emails.filter(email => email.isStarred || email.isImportant);
   }, [emails, isZenModeActive]);
+
+  const toggleSelectAll = useCallback(() => {
+    if (selectedEmailIds.size === filteredEmails.length) {
+      setSelectedEmailIds(new Set());
+    } else {
+      setSelectedEmailIds(new Set(filteredEmails.map(email => email.id)));
+    }
+  }, [selectedEmailIds.size, filteredEmails]);
 
   const zenModeEmailStats = useMemo(() => {
     if (!isZenModeActive) return null;
@@ -346,6 +595,15 @@ function Home() {
     <Layout>
       <div className={`home-page ${isZenModeActive ? 'zen-mode-active' : ''}`}>
         <div className="home-header-section">
+          <div className="home-header-actions">
+            <button
+              className="compose-btn"
+              onClick={openWriter}
+              title="Write new email"
+            >
+              ✏️ Write
+            </button>
+          </div>
           <div className="search-bar">
             <span className="search-icon">🔍</span>
             <input 
@@ -414,6 +672,20 @@ function Home() {
                   </div>
                   <div className="email-view-actions">
                     <button
+                      className="action-btn reply-action"
+                      onClick={() => openReply(selectedEmail, false)}
+                      title="Reply"
+                    >
+                      ↪ Reply
+                    </button>
+                    <button
+                      className="action-btn reply-all-action"
+                      onClick={() => openReply(selectedEmail, true)}
+                      title="Reply All"
+                    >
+                      ↪ Reply All
+                    </button>
+                    <button
                       className={`action-btn star-action ${selectedEmail.isStarred ? 'starred' : ''}`}
                       onClick={() => toggleStar(selectedEmail.id, selectedEmail.isStarred)}
                       title={selectedEmail.isStarred ? 'Remove star' : 'Add star'}
@@ -429,6 +701,13 @@ function Home() {
                         ✓ Mark as read
                       </button>
                     )}
+                    <button
+                      className="action-btn delete-action"
+                      onClick={() => handleDeleteEmail(selectedEmail.id)}
+                      title="Delete email"
+                    >
+                      🗑️ Delete
+                    </button>
                   </div>
                   <div className="email-view-date">
                     <span className="date-full">
@@ -474,7 +753,55 @@ function Home() {
           ) : (
             <>
               <div className="email-header">
-                <h2>{labels.find(l => l.id === activeLabel)?.name || 'Inbox'}</h2>
+                <div className="email-header-left">
+                  <h2>{labels.find(l => l.id === activeLabel)?.name || 'Inbox'}</h2>
+                  {filteredEmails.length > 0 && (
+                    <label className="select-all-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={selectedEmailIds.size === filteredEmails.length && filteredEmails.length > 0}
+                        onChange={toggleSelectAll}
+                        title={selectedEmailIds.size === filteredEmails.length ? 'Deselect all' : 'Select all'}
+                      />
+                      <span>Select all</span>
+                    </label>
+                  )}
+                </div>
+                {selectedEmailIds.size > 0 && (
+                  <div className="bulk-actions-bar">
+                    <span className="bulk-actions-count">
+                      {selectedEmailIds.size} selected
+                    </span>
+                    <button
+                      className="bulk-action-btn mark-read"
+                      onClick={handleBulkMarkAsRead}
+                      title="Mark as read"
+                    >
+                      ✓ Mark as read
+                    </button>
+                    <button
+                      className="bulk-action-btn star"
+                      onClick={() => handleBulkToggleStar('star')}
+                      title="Star"
+                    >
+                      ⭐ Star
+                    </button>
+                    <button
+                      className="bulk-action-btn unstar"
+                      onClick={() => handleBulkToggleStar('unstar')}
+                      title="Unstar"
+                    >
+                      ☆ Unstar
+                    </button>
+                    <button
+                      className="bulk-action-btn delete"
+                      onClick={handleBulkDelete}
+                      title="Delete"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                )}
                 <div className="pagination-controls">
                   {emails.length > 0 && !loading && (
                     <span className="pagination-info">
@@ -558,13 +885,22 @@ function Home() {
                   {filteredEmails.map((email) => (
                     <li 
                       key={email.id}
-                      className={`email-item ${email.isUnread ? 'unread' : ''}`}
+                      className={`email-item ${email.isUnread ? 'unread' : ''} ${selectedEmailIds.has(email.id) ? 'selected' : ''}`}
                       onClick={() => handleSelectEmail(email)}
                     >
-                      {/* <div className="email-checkbox">
-                        <input type="checkbox" onClick={(e) => e.stopPropagation()} />
-                      </div> */}
-                      <div className="email-star">
+                      <div className="email-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={selectedEmailIds.has(email.id)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleEmailSelection(email.id);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          title={selectedEmailIds.has(email.id) ? 'Deselect' : 'Select'}
+                        />
+                      </div>
+                      <div className="email-actions-inline">
                         <button 
                           className={`star-btn ${email.isStarred ? 'starred' : ''}`}
                           onClick={(e) => {
@@ -574,6 +910,16 @@ function Home() {
                           title={email.isStarred ? 'Remove star' : 'Add star'}
                         >
                           {email.isStarred ? '⭐' : '☆'}
+                        </button>
+                        <button 
+                          className="delete-btn-inline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteEmail(email.id);
+                          }}
+                          title="Delete email"
+                        >
+                          🗑️
                         </button>
                       </div>
                       <div className="email-sender">
@@ -626,6 +972,21 @@ function Home() {
             </>
           )}
         </main>
+        {showWriter && (
+          <EmailWriter
+            onClose={() => {
+              setShowWriter(false);
+              setReplyEmail(null);
+              setReplyAll(false);
+            }}
+            onSend={writerMode === 'reply' ? handleReplyEmail : handleSendEmail}
+            initialTo={replyEmail ? replyEmail.from?.email : ''}
+            initialSubject={replyEmail ? (replyEmail.subject.startsWith('Re:') ? replyEmail.subject : `Re: ${replyEmail.subject}`) : ''}
+            initialBody={replyEmail ? `\n\n--- Original Message ---\nFrom: ${replyEmail.from?.name || replyEmail.from?.email}\nDate: ${new Date(replyEmail.date).toLocaleString()}\n\n${replyEmail.snippet}` : ''}
+            isReply={writerMode === 'reply'}
+            replyAll={replyAll}
+          />
+        )}
       </div>
     </Layout>
   );

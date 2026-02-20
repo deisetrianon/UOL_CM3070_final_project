@@ -73,6 +73,20 @@ function Sidebar() {
                 <span className="item-icon">📝</span>
                 <span className="item-text">Drafts</span>
               </button>
+              <button
+                className={`sidebar-item ${location.search.includes('TRASH') ? 'active' : ''}`}
+                onClick={() => navigate('/home?label=TRASH')}
+              >
+                <span className="item-icon">🗑️</span>
+                <span className="item-text">Trash</span>
+              </button>
+              <button
+                className={`sidebar-item ${location.search.includes('SPAM') ? 'active' : ''}`}
+                onClick={() => navigate('/home?label=SPAM')}
+              >
+                <span className="item-icon">🚫</span>
+                <span className="item-text">Spam</span>
+              </button>
             </div>
           )}
         </div>
