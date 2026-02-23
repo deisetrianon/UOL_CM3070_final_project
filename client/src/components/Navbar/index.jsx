@@ -1,12 +1,19 @@
+import { useState } from 'react';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useStressFusion } from '../../contexts/StressFusionContext';
+import { useWellnessIntervention } from '../../contexts/WellnessInterventionContext';
+import { useZenMode } from '../../contexts/ZenModeContext';
 import ZenModeToggle from '../ZenModeToggle';
 import UserMenu from '../UserMenu';
+import PomodoroTimer from '../PomodoroTimer';
 import './Navbar.css';
 
 function Navbar() {
   const { isAnalyzing, lastAnalysisTime, cameraPermission } = useFacialAnalysis();
   const { stressLevel } = useStressFusion();
+  const { openBreathing, openMindfulness, openStretching, openAnxietyRelief, openMentalHealth } = useWellnessIntervention();
+  const { isZenModeActive } = useZenMode();
+  const [showWellnessMenu, setShowWellnessMenu] = useState(false);
 
   const formatLastAnalysis = () => {
     if (!lastAnalysisTime) return null;
@@ -53,6 +60,35 @@ function Navbar() {
             )}
           </div>
         )}
+        <PomodoroTimer />
+        <div className="wellness-menu-container">
+          <button
+            className="wellness-menu-btn"
+            onClick={() => setShowWellnessMenu(!showWellnessMenu)}
+            title="Wellness Interventions"
+          >
+            WELLNESS
+          </button>
+          {showWellnessMenu && (
+            <div className="wellness-menu-dropdown">
+              <button onClick={() => { openBreathing(); setShowWellnessMenu(false); }}>
+                🫁 Breathing Exercise
+              </button>
+              <button onClick={() => { openMindfulness(); setShowWellnessMenu(false); }}>
+                🧘 Mindfulness
+              </button>
+              <button onClick={() => { openStretching(); setShowWellnessMenu(false); }}>
+                🤸 Stretching
+              </button>
+              <button onClick={() => { openAnxietyRelief(); setShowWellnessMenu(false); }}>
+                💙 Anxiety Relief
+              </button>
+              <button onClick={() => { openMentalHealth(); setShowWellnessMenu(false); }}>
+                🆘 Mental Health Resources
+              </button>
+            </div>
+          )}
+        </div>
         <ZenModeToggle />
         <UserMenu />
       </div>

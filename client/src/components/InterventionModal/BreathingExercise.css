@@ -1,0 +1,211 @@
+.breathing-exercise {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.breathing-title {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.breathing-technique-selector {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.breathing-technique-selector label {
+  font-weight: 500;
+  color: #666;
+}
+
+.breathing-technique-selector select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.breathing-technique-selector select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.breathing-description {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.breathing-visualizer {
+  margin: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.breathing-circle {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: transform 1s ease-in-out, background-color 0.3s;
+}
+
+.breathing-countdown {
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.breathing-phase-text {
+  font-size: 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.breathing-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin: 24px 0;
+}
+
+.breathing-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+.breathing-instructions {
+  text-align: left;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 24px 0;
+}
+
+.breathing-instructions h3 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.breathing-instructions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.breathing-instructions li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.breathing-instructions li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #50c878;
+  font-weight: bold;
+}
+
+.breathing-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.breathing-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.breathing-btn.start {
+  background: #4a90e2;
+  color: white;
+}
+
+.breathing-btn.start:hover {
+  background: #357abd;
+}
+
+.breathing-btn.stop {
+  background: #f5a623;
+  color: white;
+}
+
+.breathing-btn.stop:hover {
+  background: #d68910;
+}
+
+.breathing-btn.reset {
+  background: #666;
+  color: white;
+}
+
+.breathing-btn.reset:hover {
+  background: #555;
+}
+
+.breathing-btn.close {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.breathing-btn.close:hover {
+  background: #d0d0d0;
+}
+
+@media (max-width: 768px) {
+  .breathing-circle {
+    width: 150px;
+    height: 150px;
+  }
+
+  .breathing-countdown {
+    font-size: 36px;
+  }
+
+  .breathing-phase-text {
+    font-size: 20px;
+  }
+}

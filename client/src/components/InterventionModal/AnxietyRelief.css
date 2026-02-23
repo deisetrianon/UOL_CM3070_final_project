@@ -1,0 +1,579 @@
+.anxiety-relief {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.anxiety-title {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.anxiety-intro {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.anxiety-technique-selector {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.technique-option {
+  padding: 10px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.technique-option:hover {
+  border-color: #4a90e2;
+  background: #f8f9fa;
+}
+
+.technique-option.active {
+  border-color: #4a90e2;
+  background: #e8f4f8;
+  color: #4a90e2;
+}
+
+.anxiety-technique-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 32px;
+  margin: 24px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.technique-name {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.technique-description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.technique-steps {
+  margin: 24px 0;
+}
+
+.step-indicator {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.step-content {
+  font-size: 18px;
+  color: #333;
+  line-height: 1.8;
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.step-text {
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.step-animation {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.technique-navigation {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.step-btn {
+  padding: 10px 20px;
+  border: 2px solid #4a90e2;
+  border-radius: 8px;
+  background: white;
+  color: #4a90e2;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.step-btn:hover:not(:disabled) {
+  background: #4a90e2;
+  color: white;
+}
+
+.step-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.anxiety-tips {
+  text-align: left;
+  background: #e8f4f8;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 24px 0;
+  border-left: 4px solid #4a90e2;
+}
+
+.anxiety-tips h3 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.anxiety-tips ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.anxiety-tips li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.anxiety-tips li:before {
+  content: '💙';
+  position: absolute;
+  left: 0;
+}
+
+.anxiety-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.anxiety-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.anxiety-btn.reset {
+  background: #666;
+  color: white;
+}
+
+.anxiety-btn.reset:hover {
+  background: #555;
+}
+
+.anxiety-btn.close {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.anxiety-btn.close:hover {
+  background: #d0d0d0;
+}
+
+.breathing-animation-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.breathing-box {
+  width: 200px;
+  height: 200px;
+  border: 4px solid #4a90e2;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 4s ease-in-out;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(74, 144, 226, 0.2) 100%);
+}
+
+.breathing-box.active.inhale {
+  transform: scale(1.3);
+  border-color: #22c55e;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.3) 100%);
+}
+
+.breathing-box.active.hold1 {
+  transform: scale(1.3);
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.3) 100%);
+}
+
+.breathing-box.active.exhale {
+  transform: scale(0.7);
+  border-color: #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.3) 100%);
+}
+
+.breathing-box.active.hold2 {
+  transform: scale(0.7);
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.3) 100%);
+}
+
+.breathing-box-inner {
+  text-align: center;
+}
+
+.breathing-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.breathing-instruction {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  animation: pulse-text 1s ease-in-out infinite;
+}
+
+.breathing-count {
+  font-size: 14px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.start-breathing-btn {
+  padding: 12px 24px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.start-breathing-btn:hover {
+  background: #357abd;
+  transform: scale(1.05);
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.muscle-relaxation-animation {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.body-figure {
+  width: 150px;
+  height: 250px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.body-part {
+  position: absolute;
+  background: rgba(74, 144, 226, 0.3);
+  border-radius: 8px;
+  transition: all 0.5s ease;
+}
+
+.body-part.feet {
+  width: 60px;
+  height: 30px;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.body-part.legs {
+  width: 50px;
+  height: 80px;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.body-part.hands {
+  width: 40px;
+  height: 60px;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.body-part.shoulders {
+  width: 80px;
+  height: 40px;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.body-part.face {
+  width: 50px;
+  height: 50px;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+}
+
+.body-figure.tense .body-part.muscle-feet,
+.body-figure.tense.muscle-feet .body-part.feet {
+  background: rgba(239, 68, 68, 0.6);
+  transform: translateX(-50%) scale(1.2);
+  animation: tense-pulse 0.5s ease-in-out infinite;
+}
+
+.body-figure.tense .body-part.muscle-legs,
+.body-figure.tense.muscle-legs .body-part.legs {
+  background: rgba(239, 68, 68, 0.6);
+  transform: translateX(-50%) scale(1.2);
+  animation: tense-pulse 0.5s ease-in-out infinite;
+}
+
+.body-figure.tense .body-part.muscle-hands,
+.body-figure.tense.muscle-hands .body-part.hands {
+  background: rgba(239, 68, 68, 0.6);
+  transform: translateX(-50%) scale(1.2);
+  animation: tense-pulse 0.5s ease-in-out infinite;
+}
+
+.body-figure.tense .body-part.muscle-shoulders,
+.body-figure.tense.muscle-shoulders .body-part.shoulders {
+  background: rgba(239, 68, 68, 0.6);
+  transform: translateX(-50%) scale(1.2);
+  animation: tense-pulse 0.5s ease-in-out infinite;
+}
+
+.body-figure.tense .body-part.muscle-face,
+.body-figure.tense.muscle-face .body-part.face {
+  background: rgba(239, 68, 68, 0.6);
+  transform: translateX(-50%) scale(1.2);
+  animation: tense-pulse 0.5s ease-in-out infinite;
+}
+
+.body-figure.relaxed .body-part {
+  background: rgba(34, 197, 94, 0.3);
+  transform: translateX(-50%) scale(1);
+}
+
+@keyframes tense-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1.2); }
+  50% { transform: translateX(-50%) scale(1.25); }
+}
+
+.muscle-status {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.status-tense {
+  color: #ef4444;
+  animation: pulse-text 0.5s ease-in-out infinite;
+}
+
+.status-relax {
+  color: #22c55e;
+}
+
+.status-complete {
+  color: #22c55e;
+  font-size: 18px;
+}
+
+.anxiety-video-player {
+  margin: 24px 0;
+}
+
+.anxiety-video-player .youtube-embed-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  background: #000;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-bottom: 16px;
+}
+
+.anxiety-video-player .youtube-embed-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+}
+
+.anxiety-video-player .video-instruction {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 16px;
+  padding: 0 20px;
+}
+
+.affirmations-animation {
+  width: 100%;
+  padding: 20px;
+}
+
+.affirmation-card {
+  position: relative;
+  padding: 40px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-radius: 16px;
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.affirmation-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  line-height: 1.6;
+  position: relative;
+  z-index: 2;
+}
+
+.affirmation-text.animated {
+  animation: affirmation-fade-in 0.8s ease-in-out;
+}
+
+@keyframes affirmation-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.affirmation-sparkles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 24px;
+  animation: sparkle-float 3s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+.sparkle:nth-child(1) {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.sparkle:nth-child(2) {
+  top: 60%;
+  right: 20%;
+  animation-delay: 1s;
+}
+
+.sparkle:nth-child(3) {
+  bottom: 20%;
+  left: 50%;
+  animation-delay: 2s;
+}
+
+@keyframes sparkle-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .anxiety-technique-selector {
+    flex-direction: column;
+  }
+
+  .technique-option {
+    width: 100%;
+  }
+
+  .senses-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .breathing-box {
+    width: 150px;
+    height: 150px;
+  }
+
+  .body-figure {
+    width: 120px;
+    height: 200px;
+  }
+}
