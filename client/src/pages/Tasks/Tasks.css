@@ -1,9 +1,9 @@
 .tasks-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
   background-color: var(--color-bg-primary);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl);
 }
 
 .tasks-header-section {
@@ -208,6 +208,14 @@
 
 .column-icon {
   font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.column-icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 .column-header h2 {

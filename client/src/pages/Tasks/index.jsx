@@ -4,11 +4,13 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import confetti from 'canvas-confetti';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import Layout from '../../components/Layout';
+import refreshIcon from '../../assets/icons/refresh.png';
+import importantIcon from '../../assets/icons/important.png';
 import './Tasks.css';
 
 const COLUMNS = {
   todo: { id: 'todo', title: 'To Do', icon: '📋' },
-  in_progress: { id: 'in_progress', title: 'In Progress', icon: '🔄' },
+  in_progress: { id: 'in_progress', title: 'In Progress', icon: refreshIcon },
   done: { id: 'done', title: 'Done', icon: '✅' }
 };
 
@@ -321,7 +323,8 @@ function Tasks() {
         </div>
       {error && (
         <div className="error-banner">
-          <span>⚠️ {error}</span>
+          <img src={importantIcon} alt="Warning" className="warning-icon" />
+          <span>{error}</span>
           <button onClick={fetchTasks}>Retry</button>
         </div>
       )}
@@ -349,7 +352,13 @@ function Tasks() {
             {Object.values(COLUMNS).map((column) => (
               <div key={column.id} className="task-column">
                 <div className="column-header">
-                  <span className="column-icon">{column.icon}</span>
+                  <span className="column-icon">
+                    {typeof column.icon === 'string' && column.icon.length <= 2 ? (
+                      column.icon
+                    ) : (
+                      <img src={column.icon} alt={column.title} className="column-icon-img" />
+                    )}
+                  </span>
                   <h2>{column.title}</h2>
                   <span className="task-count">
                     {filteredTasks[column.id]?.length || 0}

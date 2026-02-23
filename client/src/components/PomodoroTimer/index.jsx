@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import pomodoroIcon from '../../assets/icons/pomodoro.png';
 import './PomodoroTimer.css';
 
 const WORK_DURATION = 25 * 60; // 25 minutes in seconds
@@ -294,7 +295,7 @@ function PomodoroTimer() {
         onClick={isExpanded && !isActive ? toggleExpand : undefined}
         style={{ cursor: isExpanded && !isActive ? 'pointer' : 'default' }}
       >
-        <span className="pomodoro-icon">🍅</span>
+        <img src={pomodoroIcon} alt="Pomodoro" className="pomodoro-icon" />
         {!isExpanded && (
           <span className="pomodoro-mode-text">
             POMODORO

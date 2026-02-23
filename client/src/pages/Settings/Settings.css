@@ -1,9 +1,9 @@
 .settings-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 64px);
   background: var(--color-bg-primary);
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl);
 }
 
 .settings-header-section {
@@ -294,6 +294,13 @@
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
   color: var(--color-error);
+}
+
+.error-banner .warning-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .error-banner button {

@@ -1,0 +1,94 @@
+.wellness-panel {
+  width: 280px;
+  min-width: 280px;
+  background: var(--color-bg-secondary);
+  border-left: 1px solid var(--color-bg-elevated);
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wellness-panel-content {
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+}
+
+.wellness-panel-header {
+  border-bottom: 1px solid var(--color-bg-elevated);
+  padding-bottom: var(--spacing-md);
+}
+
+.wellness-panel-header h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.wellness-pomodoro-section {
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--color-bg-elevated);
+  margin-bottom: var(--spacing-md);
+}
+
+.wellness-interventions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.wellness-option-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+  width: 100%;
+}
+
+.wellness-option-btn:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent-primary);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.wellness-option-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.wellness-option-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.wellness-option-btn:hover .wellness-option-label {
+  color: var(--color-accent-primary);
+}
+
+@media (max-width: 1200px) {
+  .wellness-panel {
+    width: 280px;
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wellness-panel {
+    display: none;
+  }
+}

@@ -9,12 +9,21 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  gap: 0;
 }
 
 .layout-main {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--color-bg-primary);
+  min-width: 0;
+}
+
+@media (max-width: 1200px) {
+  .layout-content {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 768px) {

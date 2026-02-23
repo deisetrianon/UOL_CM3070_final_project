@@ -3,6 +3,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import Layout from '../../components/Layout';
+import importantIcon from '../../assets/icons/important.png';
 import './Calendar.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
@@ -130,11 +131,11 @@ function CalendarPage() {
 
         if (data.calendarError) {
           if (data.calendarError.message === 'INSUFFICIENT_SCOPES' || data.calendarError.status === 403) {
-            setError('⚠️ Calendar access not granted. Please log out and log in again to grant calendar permissions. Tasks are still shown below.');
+            setError('Calendar access not granted. Please log out and log in again to grant calendar permissions. Tasks are still shown below.');
           } else if (data.calendarError.message === 'CALENDAR_API_NOT_ENABLED') {
-            setError('⚠️ Calendar API not enabled. Please enable it in Google Cloud Console. Tasks are still shown below.');
+            setError('Calendar API not enabled. Please enable it in Google Cloud Console. Tasks are still shown below.');
           } else {
-            setError(`⚠️ Calendar error: ${data.calendarError.message}. Tasks are still shown below.`);
+            setError(`Calendar error: ${data.calendarError.message}. Tasks are still shown below.`);
           }
         }
       } else {
@@ -278,7 +279,7 @@ function CalendarPage() {
       message += `Priority: ${event.resource?.taskPriority || 'N/A'}\n`;
       message += `Status: ${event.resource?.taskStatus || 'N/A'}\n`;
       if (event.resource?.taskIsUrgent) {
-        message += `⚠️ Urgent\n`;
+        message += `Urgent\n`;
       }
     } else if (isGoogleMeet) {
       message += `\nType: Google Meet\n`;
@@ -335,7 +336,9 @@ function CalendarPage() {
       <Layout>
         <div className="calendar-page">
           <div className="calendar-error">
-            <p>⚠️ {error}</p>
+            <p>
+              <img src={importantIcon} alt="Warning" className="warning-icon" /> {error}
+            </p>
             <button onClick={handleRetry} className="retry-button">
               Retry
             </button>

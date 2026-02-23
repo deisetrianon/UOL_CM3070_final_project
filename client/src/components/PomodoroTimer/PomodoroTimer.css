@@ -58,8 +58,9 @@
 }
 
 .pomodoro-icon {
-  font-size: 14px;
-  line-height: 1;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .pomodoro-mode-text {
@@ -99,7 +100,7 @@
   font-weight: bold;
   font-variant-numeric: tabular-nums;
   color: #333;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-primary);
   min-width: 48px;
   text-align: center;
   line-height: 1;

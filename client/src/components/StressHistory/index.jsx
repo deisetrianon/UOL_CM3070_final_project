@@ -11,6 +11,7 @@ import {
   Area,
   AreaChart
 } from 'recharts';
+import importantIcon from '../../assets/icons/important.png';
 import './StressHistory.css';
 
 // Displaying a graphical visualization of the user's stress indicator history
@@ -143,7 +144,9 @@ function StressHistory() {
     return (
       <div className="stress-history-container">
         <div className="stress-history-error">
-          <p>⚠️ {error}</p>
+          <p>
+            <img src={importantIcon} alt="Warning" className="warning-icon" /> {error}
+          </p>
           <button onClick={() => fetchHistory(timeRange)} className="retry-button">
             Retry
           </button>

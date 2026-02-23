@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import Layout from '../../components/Layout';
+import importantIcon from '../../assets/icons/important.png';
 import './Settings.css';
 
 function Settings() {
@@ -157,7 +158,8 @@ function Settings() {
         </section>
         {error && (
           <div className="error-banner">
-            <span>⚠️ {error}</span>
+            <img src={importantIcon} alt="Warning" className="warning-icon" />
+            <span>{error}</span>
             <button onClick={fetchSettings}>Retry</button>
           </div>
         )}
@@ -284,6 +286,7 @@ function Settings() {
                 <ul>
                   <li>✓ Camera images are processed and immediately discarded</li>
                   <li>✓ Email content is never stored on our servers</li>
+                  <li>✓ All email operations (read, send, reply, delete) are performed securely through Google APIs</li>
                   <li>✓ Your data remains under your control</li>
                 </ul>
               </div>

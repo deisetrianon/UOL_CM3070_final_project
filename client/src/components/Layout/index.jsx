@@ -1,5 +1,6 @@
 import Navbar from '../Navbar';
 import Sidebar from '../Sidebar';
+import WellnessPanel from '../WellnessPanel';
 import './Layout.css';
 
 function Layout({ children }) {
@@ -11,6 +12,7 @@ function Layout({ children }) {
         <main className="layout-main">
           {children}
         </main>
+        <WellnessPanel />
       </div>
     </div>
   );

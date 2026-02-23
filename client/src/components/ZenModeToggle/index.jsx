@@ -62,7 +62,6 @@ function ZenModeToggle({ className = '' }) {
         onClick={toggleZenMode}
       >
         <span className="zen-label">Zen Mode</span>
-        <span className={`zen-indicator ${isZenModeActive ? 'on' : 'off'}`} />
       </button>
       {autoZenModeEnabled && (
         <span 

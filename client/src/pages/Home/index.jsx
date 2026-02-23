@@ -4,6 +4,14 @@ import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import Layout from '../../components/Layout';
 import EmailWriter from '../../components/EmailWriter';
+import starredFilledIcon from '../../assets/icons/starred-filled.png';
+import starredIcon from '../../assets/icons/starred.png';
+import searchIcon from '../../assets/icons/search.png';
+import trashIcon from '../../assets/icons/trash.png';
+import writeIcon from '../../assets/icons/write.png';
+import refreshIcon from '../../assets/icons/refresh.png';
+import loadingIcon from '../../assets/icons/loading.png';
+import importantIcon from '../../assets/icons/important.png';
 import './Home.css';
 
 function Home() {
@@ -557,11 +565,11 @@ function Home() {
 
   const labels = [
     { id: 'INBOX', name: 'Inbox', icon: '📥' },
-    { id: 'STARRED', name: 'Starred', icon: '⭐' },
+    { id: 'STARRED', name: 'Starred', icon: starredFilledIcon },
     { id: 'IMPORTANT', name: 'Important', icon: '🏷️' },
     { id: 'SENT', name: 'Sent', icon: '📤' },
     { id: 'DRAFT', name: 'Drafts', icon: '📝' },
-    { id: 'TRASH', name: 'Trash', icon: '🗑️' },
+    { id: 'TRASH', name: 'Trash', icon: trashIcon },
     { id: 'SPAM', name: 'Spam', icon: '🚫' }
   ];
 
@@ -597,15 +605,14 @@ function Home() {
         <div className="home-header-section">
           <div className="home-header-actions">
             <button
-              className="compose-btn"
+              className="write-email-btn"
               onClick={openWriter}
               title="Write new email"
             >
-              ✏️ Write
+              <img src={writeIcon} alt="Write" className="write-icon" /> Write
             </button>
-          </div>
-          <div className="search-bar">
-            <span className="search-icon">🔍</span>
+            <div className="search-bar">
+            <img src={searchIcon} alt="Search" className="search-icon" />
             <input 
               type="text" 
               placeholder="Search emails..." 
@@ -631,6 +638,7 @@ function Home() {
             >
               Search
             </button>
+            </div>
           </div>
           {activeSearch && (
             <div className="search-active-indicator">
@@ -657,7 +665,11 @@ function Home() {
                   <h2>{selectedEmail.subject}</h2>
                   <div className="email-view-labels">
                     {selectedEmail.isImportant && <span className="label-badge important">Important</span>}
-                    {selectedEmail.isStarred && <span className="label-badge starred">⭐ Starred</span>}
+                    {selectedEmail.isStarred && (
+                      <span className="label-badge starred">
+                        <img src={starredFilledIcon} alt="Starred" className="star-icon-inline" /> Starred
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="email-view-meta">
@@ -690,7 +702,11 @@ function Home() {
                       onClick={() => toggleStar(selectedEmail.id, selectedEmail.isStarred)}
                       title={selectedEmail.isStarred ? 'Remove star' : 'Add star'}
                     >
-                      {selectedEmail.isStarred ? '⭐' : '☆'} {selectedEmail.isStarred ? 'Starred' : 'Star'}
+                      {selectedEmail.isStarred ? (
+                        <><img src={starredFilledIcon} alt="Starred" className="star-icon-inline" /> Starred</>
+                      ) : (
+                        <><img src={starredIcon} alt="Star" className="star-icon-inline" /> Star</>
+                      )}
                     </button>
                     {selectedEmail.isUnread && (
                       <button
@@ -706,7 +722,7 @@ function Home() {
                       onClick={() => handleDeleteEmail(selectedEmail.id)}
                       title="Delete email"
                     >
-                      🗑️ Delete
+                      <img src={trashIcon} alt="Delete" className="trash-icon-inline" /> Delete
                     </button>
                   </div>
                   <div className="email-view-date">
@@ -784,21 +800,21 @@ function Home() {
                       onClick={() => handleBulkToggleStar('star')}
                       title="Star"
                     >
-                      ⭐ Star
+                      <img src={starredFilledIcon} alt="Star" className="star-icon-inline" /> Star
                     </button>
                     <button
                       className="bulk-action-btn unstar"
                       onClick={() => handleBulkToggleStar('unstar')}
                       title="Unstar"
                     >
-                      ☆ Unstar
+                      <img src={starredIcon} alt="Unstar" className="star-icon-inline" /> Unstar
                     </button>
                     <button
                       className="bulk-action-btn delete"
                       onClick={handleBulkDelete}
                       title="Delete"
                     >
-                      🗑️ Delete
+                      <img src={trashIcon} alt="Delete" className="trash-icon-inline" /> Delete
                     </button>
                   </div>
                 )}
@@ -841,13 +857,17 @@ function Home() {
                     disabled={loading}
                     title="Refresh"
                   >
-                    {loading ? '⏳' : '🔄'}
+                    {loading ? (
+                      <img src={loadingIcon} alt="Loading" className="refresh-loading-icon" />
+                    ) : (
+                      <img src={refreshIcon} alt="Refresh" className="refresh-loading-icon" />
+                    )}
                   </button>
                 </div>
               </div>
               {error && (
                 <div className="error-banner">
-                  <span>⚠️</span>
+                  <img src={importantIcon} alt="Warning" className="warning-icon" />
                   <span>{error}</span>
                   <button onClick={() => fetchEmails(activeLabel)}>Retry</button>
                 </div>
@@ -909,7 +929,11 @@ function Home() {
                           }}
                           title={email.isStarred ? 'Remove star' : 'Add star'}
                         >
-                          {email.isStarred ? '⭐' : '☆'}
+                          {email.isStarred ? (
+                            <img src={starredFilledIcon} alt="Starred" className="star-icon-inline" />
+                          ) : (
+                            <img src={starredIcon} alt="Star" className="star-icon-inline" />
+                          )}
                         </button>
                         <button 
                           className="delete-btn-inline"
@@ -919,7 +943,7 @@ function Home() {
                           }}
                           title="Delete email"
                         >
-                          🗑️
+                          <img src={trashIcon} alt="Delete" className="trash-icon-inline" />
                         </button>
                       </div>
                       <div className="email-sender">

@@ -116,6 +116,13 @@
   margin-bottom: var(--spacing-lg);
 }
 
+.login-error .warning-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .google-signin-btn {
   width: 100%;
   display: flex;

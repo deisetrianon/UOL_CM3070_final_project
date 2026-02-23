@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import importantIcon from '../../assets/icons/important.png';
 import './Login.css';
 
 function Login() {
@@ -67,7 +68,7 @@ function Login() {
           </p>
           {(error || authError) && (
             <div className="login-error">
-              <span>⚠️</span>
+              <img src={importantIcon} alt="Warning" className="warning-icon" />
               <span>{error || getErrorMessage(authError)}</span>
             </div>
           )}
@@ -93,12 +94,12 @@ function Login() {
               <span>Secure OAuth 2.0</span>
             </div>
             <div className="feature">
-              <span className="feature-icon">👁️</span>
-              <span>Read-only access</span>
+              <span className="feature-icon">✉️</span>
+              <span>Email Management</span>
             </div>
           </div>
           <p className="login-privacy">
-            We only request read-only access to your emails. 
+            Manage your emails with full access to read, send, reply, and organize. 
             Your data is never stored on our servers.
           </p>
         </div>
