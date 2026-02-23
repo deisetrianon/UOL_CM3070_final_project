@@ -1,0 +1,256 @@
+.meeting-reminder {
+  position: fixed;
+  bottom: var(--spacing-xl);
+  right: var(--spacing-xl);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.meeting-reminder.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.meeting-reminder.exiting {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+.meeting-reminder-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(59, 130, 246, 0.08);
+  position: relative;
+  max-width: 420px;
+  min-width: 360px;
+}
+
+.meeting-reminder-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.meeting-reminder-calendar-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.calendar-month {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #3b82f6;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.calendar-day {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e40af;
+  line-height: 1;
+}
+
+.meeting-reminder-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.meeting-reminder-text h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3b82f6;
+  margin: 0 0 var(--spacing-sm) 0;
+  letter-spacing: -0.01em;
+}
+
+.meeting-reminder-text .meeting-details {
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  line-height: 1.5;
+}
+
+.meeting-reminder-text .meeting-details strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.meeting-reminder-text .anxiety-message {
+  font-size: 0.8125rem;
+  color: #f59e0b;
+  font-style: italic;
+  margin: var(--spacing-xs) 0 0 0;
+  line-height: 1.5;
+}
+
+.meeting-reminder-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: var(--spacing-xs);
+}
+
+.exercise-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #f59e0b;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 0;
+}
+
+.exercise-btn:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.exercise-btn:active {
+  transform: translateY(0);
+}
+
+.dismiss-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: 1px solid var(--color-text-muted);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dismiss-btn:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+}
+
+.join-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 0;
+}
+
+.join-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+}
+
+.join-btn:active {
+  transform: translateY(0);
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #374151;
+  transform: scale(1.1);
+}
+
+.close-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .meeting-reminder {
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    bottom: var(--spacing-md);
+  }
+
+  .meeting-reminder-content {
+    max-width: none;
+    min-width: auto;
+    padding: var(--spacing-md);
+  }
+
+  .meeting-reminder-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .meeting-reminder-calendar-icon {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .meeting-reminder-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .exercise-btn,
+  .join-btn {
+    width: 100%;
+  }
+}

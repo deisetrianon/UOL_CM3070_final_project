@@ -1,0 +1,154 @@
+.stretching-guide {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.stretching-title {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.stretching-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: 24px 0;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  border: 2px solid #4a90e2;
+  border-radius: 8px;
+  background: white;
+  color: #4a90e2;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #4a90e2;
+  color: white;
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.video-counter {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.stretching-player {
+  width: 100%;
+  margin: 24px 0;
+}
+
+.stretching-player .youtube-embed-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stretching-player .youtube-embed-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.stretching-tips {
+  text-align: left;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 24px 0;
+}
+
+.stretching-tips h3 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.stretching-tips ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stretching-tips li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.stretching-tips li:before {
+  content: '💡';
+  position: absolute;
+  left: 0;
+}
+
+.stretching-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.stretching-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.stretching-btn.reset {
+  background: #666;
+  color: white;
+}
+
+.stretching-btn.reset:hover {
+  background: #555;
+}
+
+.stretching-btn.close {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.stretching-btn.close:hover {
+  background: #d0d0d0;
+}
+
+@media (max-width: 768px) {
+  .stretching-navigation {
+    gap: 16px;
+  }
+
+  .nav-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}

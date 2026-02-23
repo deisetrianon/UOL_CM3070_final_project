@@ -26,6 +26,62 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.wellness-menu-container {
+  position: relative;
+}
+
+.wellness-menu-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.wellness-menu-btn:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-primary);
+}
+
+.wellness-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.wellness-menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: white;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.wellness-menu-dropdown button:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.wellness-menu-dropdown button:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
 }
 
 .wellness-indicator {

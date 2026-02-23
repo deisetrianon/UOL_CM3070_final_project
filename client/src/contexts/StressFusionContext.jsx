@@ -179,13 +179,12 @@ export function StressFusionProvider({ children }) {
     calculateWeightedAverage
   ]);
 
-  const saveStressLog = useCallback(async (score, level, facialScore, keystrokeScore) => {
+  const saveStressLog = useCallback(async (score, level, facialScore, keystrokeScore, zenModeActive = false, interventionTriggered = false) => {
     if (!isAuthenticated) {
       return;
     }
 
     try {
-      // TODO: Add zenModeActive and interventionTriggered
       const response = await fetch('/api/stress-logs', {
         method: 'POST',
         headers: {
@@ -200,8 +199,8 @@ export function StressFusionProvider({ children }) {
             keystrokeScore: Math.round(keystrokeScore)
           },
           metadata: {
-            zenModeActive: false,
-            interventionTriggered: false
+            zenModeActive,
+            interventionTriggered
           }
         })
       });
@@ -241,7 +240,9 @@ export function StressFusionProvider({ children }) {
         stressScore,
         stressLevel,
         fusionData.facialScore,
-        fusionData.keystrokeScore
+        fusionData.keystrokeScore,
+        false, 
+        false 
       );
     }
   }, [stressScore, stressLevel, fusionData, isAuthenticated, saveStressLog]);
