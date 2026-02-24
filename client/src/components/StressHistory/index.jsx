@@ -62,13 +62,68 @@ function StressHistory() {
 
       const data = await response.json();
 
-      if (data.success) {
+      if (data.success && data.statistics) {
         setStatistics(data.statistics);
+      } else {
+        console.error('[StressHistory] Statistics fetch failed:', data);
+        setStatistics(null);
       }
     } catch (err) {
       console.error('[StressHistory] Error fetching statistics:', err);
+      setStatistics(null);
     }
   }, []);
+
+  const calculateStatisticsFromHistory = useCallback((historyData) => {
+    if (!historyData || historyData.length === 0) {
+      return null;
+    }
+
+    const scores = historyData.map(log => log.stressScore).filter(score => score != null);
+    if (scores.length === 0) {
+      return null;
+    }
+
+    const averageScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const maxScore = Math.max(...scores);
+    const minScore = Math.min(...scores);
+    const totalEntries = historyData.length;
+
+    const highStressCount = historyData.filter(log => log.stressLevel === 'high').length;
+    const moderateStressCount = historyData.filter(log => log.stressLevel === 'moderate').length;
+    const normalStressCount = historyData.filter(log => log.stressLevel === 'normal').length;
+
+    return {
+      averageScore: Math.round(averageScore * 100) / 100,
+      maxScore: maxScore,
+      minScore: minScore,
+      totalEntries: totalEntries,
+      highStressCount: highStressCount,
+      moderateStressCount: moderateStressCount,
+      normalStressCount: normalStressCount,
+      highStressPercentage: totalEntries > 0
+        ? Math.round((highStressCount / totalEntries) * 100 * 100) / 100
+        : 0,
+      moderateStressPercentage: totalEntries > 0
+        ? Math.round((moderateStressCount / totalEntries) * 100 * 100) / 100
+        : 0,
+      normalStressPercentage: totalEntries > 0
+        ? Math.round((normalStressCount / totalEntries) * 100 * 100) / 100
+        : 0
+    };
+  }, []);
+
+  useEffect(() => {
+    if (history.length > 0) {
+      if (!statistics || (statistics.totalEntries === 0 && history.length > 0)) {
+        const calculatedStats = calculateStatisticsFromHistory(history);
+        if (calculatedStats && calculatedStats.totalEntries > 0) {
+          console.log('[StressHistory] Using calculated statistics as fallback');
+          setStatistics(calculatedStats);
+        }
+      }
+    }
+  }, [history.length, calculateStatisticsFromHistory]);
 
   useEffect(() => {
     fetchHistory(timeRange);
@@ -196,19 +251,27 @@ function StressHistory() {
         <div className="stress-statistics">
           <div className="stat-card">
             <div className="stat-label">Average Score</div>
-            <div className="stat-value">{statistics.averageScore.toFixed(1)}</div>
+            <div className="stat-value">
+              {statistics.averageScore != null ? statistics.averageScore.toFixed(1) : '0.0'}
+            </div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Maximum</div>
-            <div className="stat-value stat-max">{statistics.maxScore}</div>
+            <div className="stat-value stat-max">
+              {statistics.maxScore != null ? statistics.maxScore : 0}
+            </div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Minimum</div>
-            <div className="stat-value stat-min">{statistics.minScore}</div>
+            <div className="stat-value stat-min">
+              {statistics.minScore != null ? statistics.minScore : 0}
+            </div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Total Entries</div>
-            <div className="stat-value">{statistics.totalEntries}</div>
+            <div className="stat-value">
+              {statistics.totalEntries != null ? statistics.totalEntries : 0}
+            </div>
           </div>
         </div>
       )}

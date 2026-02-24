@@ -1,16 +1,14 @@
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useStressFusion } from '../../contexts/StressFusionContext';
-import { useWellnessIntervention } from '../../contexts/WellnessInterventionContext';
 import ZenModeToggle from '../ZenModeToggle';
+import PomodoroTimer from '../PomodoroTimer';
 import UserMenu from '../UserMenu';
 import './Navbar.css';
 
 function Navbar() {
   const { isAnalyzing, lastAnalysisTime, cameraPermission } = useFacialAnalysis();
   const { stressLevel } = useStressFusion();
-  const { openBreathing, openMindfulness, openStretching, openAnxietyRelief, openMentalHealth } = useWellnessIntervention();
-  const [showWellnessMenu, setShowWellnessMenu] = useState(false);
 
   const formatLastAnalysis = () => {
     if (!lastAnalysisTime) return null;
@@ -43,24 +41,21 @@ function Navbar() {
     <header className="app-navbar">
       <div className="navbar-left">
         <div className="navbar-logo">
-          <span className="logo-title">Empathetic Workspace</span>
+          <Link to="/home" className="logo-title">
+            <span className="text-gradient">Empathetic Workspace</span>
+          </Link>
         </div>
       </div>
       <div className="navbar-center">
+        <PomodoroTimer />
         {cameraPermission === 'granted' && stressStatus && (
           <div 
             className={`wellness-indicator ${stressStatus.level}`} 
             title={`Stress level: ${stressStatus.label}`}
-            style={{ '--stress-color': stressStatus.color }}
           >
-            <span className="wellness-stress-label">
-              <span className="wellness-status-prefix">Status:</span>{' '}
-              <span className="wellness-status-value">{stressStatus.label}</span>
-            </span>
+            <span className="stress-dot"></span>
+            <span className="stress-label">{stressStatus.label}</span>
             {isAnalyzing && <span className="analyzing-dot"></span>}
-            {formatLastAnalysis() && (
-              <span className="wellness-time"> - {formatLastAnalysis()}</span>
-            )}
           </div>
         )}
         <ZenModeToggle />

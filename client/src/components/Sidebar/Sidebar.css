@@ -50,7 +50,7 @@
 }
 
 .sidebar-section-header.active {
-  background: var(--color-accent-primary);
+  background: var(--color-accent-gradient);
   color: white;
 
   .section-title {
@@ -152,7 +152,7 @@
 }
 
 .sidebar-item.active {
-  background: var(--color-accent-primary);
+  background: var(--color-accent-gradient);
   color: white;
   font-weight: 500;
 }

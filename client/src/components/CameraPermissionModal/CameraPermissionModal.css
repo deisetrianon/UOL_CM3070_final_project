@@ -150,7 +150,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-xl);
-  background: var(--color-accent-primary);
+  background: var(--color-accent-gradient);
   color: white;
   border-radius: var(--radius-md);
   font-size: 0.9375rem;
