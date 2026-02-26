@@ -12,15 +12,17 @@ import {
   AreaChart
 } from 'recharts';
 import importantIcon from '../../assets/icons/important.png';
+import happyIcon from '../../assets/icons/happy.png';
+import neutralFaceIcon from '../../assets/icons/neutral-face.png';
+import stressIcon from '../../assets/icons/stress.png';
 import './StressHistory.css';
 
 // Displaying a graphical visualization of the user's stress indicator history
-function StressHistory() {
+function StressHistory({ timeRange = 7 }) {
   const [history, setHistory] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [timeRange, setTimeRange] = useState(7); // Default time range: 7 days
 
   const fetchHistory = useCallback(async (days = 7) => {
     try {
@@ -225,28 +227,6 @@ function StressHistory() {
 
   return (
     <div className="stress-history-container">
-      <div className="stress-history-header">
-        <div className="time-range-selector">
-          <button
-            className={timeRange === 1 ? 'active' : ''}
-            onClick={() => setTimeRange(1)}
-          >
-            1 Day
-          </button>
-          <button
-            className={timeRange === 7 ? 'active' : ''}
-            onClick={() => setTimeRange(7)}
-          >
-            7 Days
-          </button>
-          <button
-            className={timeRange === 30 ? 'active' : ''}
-            onClick={() => setTimeRange(30)}
-          >
-            30 Days
-          </button>
-        </div>
-      </div>
       {statistics && (
         <div className="stress-statistics">
           <div className="stat-card">
@@ -337,8 +317,8 @@ function StressHistory() {
           <div className="breakdown-bars">
             <div className="breakdown-item">
               <div className="breakdown-label">
-                <span className="breakdown-color" style={{ backgroundColor: '#22c55e' }}></span>
-                Normal
+                <img src={happyIcon} alt="Low Stress" className="breakdown-icon breakdown-icon-low" />
+                Low
               </div>
               <div className="breakdown-bar-container">
                 <div
@@ -352,7 +332,7 @@ function StressHistory() {
             </div>
             <div className="breakdown-item">
               <div className="breakdown-label">
-                <span className="breakdown-color" style={{ backgroundColor: '#f59e0b' }}></span>
+                <img src={neutralFaceIcon} alt="Moderate Stress" className="breakdown-icon breakdown-icon-moderate" />
                 Moderate
               </div>
               <div className="breakdown-bar-container">
@@ -367,7 +347,7 @@ function StressHistory() {
             </div>
             <div className="breakdown-item">
               <div className="breakdown-label">
-                <span className="breakdown-color" style={{ backgroundColor: '#ef4444' }}></span>
+                <img src={stressIcon} alt="High Stress" className="breakdown-icon breakdown-icon-high" />
                 High
               </div>
               <div className="breakdown-bar-container">
