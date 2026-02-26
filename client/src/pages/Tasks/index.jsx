@@ -8,6 +8,7 @@ import refreshIcon from '../../assets/icons/refresh.png';
 import importantIcon from '../../assets/icons/important.png';
 import boardIcon from '../../assets/icons/board.png';
 import listIcon from '../../assets/icons/list.png';
+import pomodoroIcon from '../../assets/icons/pomodoro.png';
 import './Tasks.css';
 
 const COLUMNS = {
@@ -269,6 +270,43 @@ function Tasks() {
     };
   };
 
+  const handleStartPomodoro = (e) => {
+    e.stopPropagation();
+    const WORK_DURATION = 25 * 60; // 25 minutes
+    const now = Date.now();
+    
+    const existingState = localStorage.getItem('pomodoro_timer_state');
+    let sessionCount = 0;
+    let currentMode = 'work';
+    
+    if (existingState) {
+      try {
+        const parsed = JSON.parse(existingState);
+        sessionCount = parsed.sessionCount || 0;
+        currentMode = parsed.mode || 'work';
+      } catch (e) {
+        console.error('Error parsing pomodoro state:', e);
+      }
+    }
+    
+    const timerState = {
+      mode: currentMode,
+      timeLeft: currentMode === 'work' ? WORK_DURATION : 5 * 60,
+      isActive: true,
+      sessionCount: sessionCount,
+      startTimestamp: now,
+      originalDuration: currentMode === 'work' ? WORK_DURATION : 5 * 60
+    };
+    
+    localStorage.setItem('pomodoro_timer_state', JSON.stringify(timerState));
+    
+    window.dispatchEvent(new CustomEvent('pomodoro-start'));
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'pomodoro_timer_state',
+      newValue: JSON.stringify(timerState)
+    }));
+  };
+
   // Filtering tasks based on active filter and Zen Mode
   const filteredTasks = useMemo(() => {
     let filtered = { ...tasks };
@@ -448,6 +486,17 @@ function Tasks() {
                                   </span>
                                 )}
                               </div>
+                              {task.isUrgent && column.id === 'in_progress' && (
+                                <div className="start-pomodoro-btn-container">
+                                  <button
+                                    className="start-pomodoro-btn"
+                                    onClick={handleStartPomodoro}
+                                  >
+                                    <img src={pomodoroIcon} alt="Start Pomodoro" />
+                                    Start Pomodoro
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           )}
                         </Draggable>

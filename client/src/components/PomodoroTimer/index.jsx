@@ -137,6 +137,46 @@ function PomodoroTimer() {
     }
   }, []);
 
+  // Listening for external Pomodoro start events
+  useEffect(() => {
+    const handlePomodoroStart = () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          if (state.isActive && state.startTimestamp && state.originalDuration) {
+            const now = Date.now();
+            const elapsed = Math.floor((now - state.startTimestamp) / 1000);
+            const remainingTime = state.originalDuration - elapsed;
+            
+            if (remainingTime > 0) {
+              setMode(state.mode);
+              setTimeLeft(remainingTime);
+              setIsActive(true);
+              setSessionCount(state.sessionCount || 0);
+              setIsExpanded(true);
+              startTimeRef.current = state.startTimestamp;
+              originalDurationRef.current = state.originalDuration;
+            }
+          }
+        } catch (error) {
+          console.error('[Pomodoro] Error handling external start:', error);
+        }
+      }
+    };
+
+    window.addEventListener('pomodoro-start', handlePomodoroStart);
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        handlePomodoroStart();
+      }
+    });
+
+    return () => {
+      window.removeEventListener('pomodoro-start', handlePomodoroStart);
+    };
+  }, []);
+
   // Saving state to localStorage when timer starts, pauses, or timeLeft changes
   useEffect(() => {
     if (isActive && startTimeRef.current && originalDurationRef.current) {

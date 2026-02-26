@@ -465,6 +465,51 @@
   margin-bottom: 12px;
 }
 
+.start-pomodoro-btn-container {
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-bg-elevated);
+  padding-top: 1rem;
+}
+
+.start-pomodoro-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border: 1px solid #ffc9c9;
+  border-radius: 6px;
+  color: #c10007;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.start-pomodoro-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+.start-pomodoro-btn:active {
+  transform: translateY(0);
+}
+
+.start-pomodoro-btn img {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.start-pomodoro-btn-list {
+  width: auto;
+  margin-bottom: 0;
+  margin-left: 8px;
+}
+
 .tag {
   font-size: 0.6875rem;
   font-weight: 500;
