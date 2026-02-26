@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import { useDialog } from '../../contexts/DialogContext';
 import Layout from '../../components/Layout';
 import EmailWriter from '../../components/EmailWriter';
 import starredFilledIcon from '../../assets/icons/starred-filled.png';
@@ -19,6 +20,7 @@ function Home() {
   const location = useLocation();
   const { promptForPermission } = useFacialAnalysis();
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
+  const { showAlert, showConfirm } = useDialog();
 
   const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -272,9 +274,17 @@ function Home() {
   }, []);
 
   const handleDeleteEmail = useCallback(async (emailId) => {
-    if (!window.confirm('Are you sure you want to delete this email? It will be moved to trash.')) {
-      return;
-    }
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this email? It will be moved to trash.',
+      {
+        title: 'Delete Email',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'danger'
+      }
+    );
+    
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/gmail/emails/${emailId}`, {
@@ -303,9 +313,9 @@ function Home() {
       }
     } catch (err) {
       console.error('Error deleting email:', err);
-      alert('Failed to delete email. Please try again.');
+      await showAlert('Failed to delete email. Please try again.', 'error');
     }
-  }, [selectedEmail, activeLabel, activeSearch, fetchEmails]);
+  }, [selectedEmail, activeLabel, activeSearch, fetchEmails, showAlert, showConfirm]);
 
   const toggleEmailSelection = useCallback((emailId) => {
     setSelectedEmailIds(prev => {
@@ -346,9 +356,9 @@ function Home() {
       }
     } catch (err) {
       console.error('Error marking emails as read:', err);
-      alert('Failed to mark some emails as read. Please try again.');
+      await showAlert('Failed to mark some emails as read. Please try again.', 'error');
     }
-  }, [selectedEmailIds, activeLabel, activeSearch, fetchEmails]);
+  }, [selectedEmailIds, activeLabel, activeSearch, fetchEmails, showAlert]);
 
   const handleBulkToggleStar = useCallback(async (starAction) => {
     if (selectedEmailIds.size === 0) return;
@@ -385,17 +395,25 @@ function Home() {
       }
     } catch (err) {
       console.error('Error toggling stars:', err);
-      alert('Failed to update stars. Please try again.');
+      await showAlert('Failed to update stars. Please try again.', 'error');
     }
-  }, [selectedEmailIds, emails, activeLabel, activeSearch, fetchEmails]);
+  }, [selectedEmailIds, emails, activeLabel, activeSearch, fetchEmails, showAlert]);
 
   const handleBulkDelete = useCallback(async () => {
     if (selectedEmailIds.size === 0) return;
 
     const count = selectedEmailIds.size;
-    if (!window.confirm(`Are you sure you want to delete ${count} email${count > 1 ? 's' : ''}? They will be moved to trash.`)) {
-      return;
-    }
+    const confirmed = await showConfirm(
+      `Are you sure you want to delete ${count} email${count > 1 ? 's' : ''}? They will be moved to trash.`,
+      {
+        title: 'Delete Emails',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'danger'
+      }
+    );
+    
+    if (!confirmed) return;
 
     try {
       const promises = Array.from(selectedEmailIds).map(emailId =>
@@ -421,9 +439,9 @@ function Home() {
       }
     } catch (err) {
       console.error('Error deleting emails:', err);
-      alert('Failed to delete some emails. Please try again.');
+      await showAlert('Failed to delete some emails. Please try again.', 'error');
     }
-  }, [selectedEmailIds, selectedEmail, activeLabel, activeSearch, fetchEmails]);
+  }, [selectedEmailIds, selectedEmail, activeLabel, activeSearch, fetchEmails, showAlert, showConfirm]);
 
   const handleSearch = () => {
     const trimmedQuery = searchQuery.trim();

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import confetti from 'canvas-confetti';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import { useDialog } from '../../contexts/DialogContext';
 import Layout from '../../components/Layout';
 import refreshIcon from '../../assets/icons/refresh.png';
 import importantIcon from '../../assets/icons/important.png';
@@ -37,6 +38,7 @@ const isPriorityTask = (task) => {
 function Tasks() {
   const navigate = useNavigate();
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
+  const { showAlert, showConfirm } = useDialog();
 
   const [tasks, setTasks] = useState({
     todo: [],
@@ -197,11 +199,11 @@ function Tasks() {
         setEditingTask(null);
         fetchStats();
       } else {
-        alert(data.error || 'Failed to create task');
+        await showAlert(data.error || 'Failed to create task', 'error');
       }
     } catch (err) {
       console.error('Error creating task:', err);
-      alert('Failed to create task');
+      await showAlert('Failed to create task', 'error');
     }
   };
 
@@ -220,16 +222,26 @@ function Tasks() {
         fetchTasks();
         setEditingTask(null);
       } else {
-        alert(data.error || 'Failed to update task');
+        await showAlert(data.error || 'Failed to update task', 'error');
       }
     } catch (err) {
       console.error('Error updating task:', err);
-      alert('Failed to update task');
+      await showAlert('Failed to update task', 'error');
     }
   };
 
   const handleDeleteTask = async (taskId) => {
-    if (!confirm('Are you sure you want to delete this task?')) return;
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this task?',
+      {
+        title: 'Delete Task',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'danger'
+      }
+    );
+    
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {
@@ -245,11 +257,11 @@ function Tasks() {
         fetchTasks();
         fetchStats();
       } else {
-        alert(data.error || 'Failed to delete task');
+        await showAlert(data.error || 'Failed to delete task', 'error');
       }
     } catch (err) {
       console.error('Error deleting task:', err);
-      alert('Failed to delete task');
+      await showAlert('Failed to delete task', 'error');
     }
   };
 
@@ -596,6 +608,7 @@ function Tasks() {
  * Used for creating and editing tasks
  */
 function TaskModal({ task, onClose, onSave, onDelete }) {
+  const { showAlert } = useDialog();
   const [formData, setFormData] = useState({
     title: task?.title || '',
     description: task?.description || '',
@@ -609,7 +622,7 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
     e.preventDefault();
     
     if (!formData.title.trim()) {
-      alert('Title is required');
+      await showAlert('Title is required', 'warning');
       return;
     }
 

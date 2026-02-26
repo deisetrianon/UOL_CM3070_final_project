@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import { useDialog } from '../../contexts/DialogContext';
 import Layout from '../../components/Layout';
 import importantIcon from '../../assets/icons/important.png';
 import './Calendar.css';
@@ -11,6 +12,7 @@ const localizer = momentLocalizer(moment);
 
 function CalendarPage() {
   const { isZenModeActive } = useZenMode();
+  const { showAlert } = useDialog();
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]); 
   const [loading, setLoading] = useState(true);
@@ -297,7 +299,7 @@ function CalendarPage() {
       message += `Organizer: ${event.resource.organizer}\n`;
     }
 
-    alert(message);
+    showAlert(message, 'info');
   };
 
   if (loading) {

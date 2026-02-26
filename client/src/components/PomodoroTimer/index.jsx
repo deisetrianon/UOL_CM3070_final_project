@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import { useDialog } from '../../contexts/DialogContext';
 import pomodoroIcon from '../../assets/icons/pomodoro.png';
 import './PomodoroTimer.css';
 
@@ -70,6 +71,7 @@ const loadInitialState = () => {
 
 function PomodoroTimer() {
   const { enableZenMode } = useZenMode();
+  const { showAlert } = useDialog();
   const initialState = loadInitialState();
   const [mode, setMode] = useState(initialState.mode);
   const [timeLeft, setTimeLeft] = useState(initialState.timeLeft);
@@ -81,7 +83,7 @@ function PomodoroTimer() {
   const startTimeRef = useRef(initialState.startTimestamp);
   const originalDurationRef = useRef(initialState.originalDuration);
 
-  const handleTimerExpired = useCallback((expiredMode, count) => {
+  const handleTimerExpired = useCallback(async (expiredMode, count) => {
     if (expiredMode === 'work') {
       setMode('break');
       setTimeLeft(BREAK_DURATION);
@@ -98,7 +100,7 @@ function PomodoroTimer() {
           icon: '/favicon.ico'
         });
       } else {
-        alert('🍅 Work session complete! Time for a break.\n\nZen Mode has been enabled to help you rest.');
+        showAlert('🍅 Work session complete! Time for a break.\n\nZen Mode has been enabled to help you rest.', 'success');
       }
       
       // Clearing saved state
@@ -115,7 +117,7 @@ function PomodoroTimer() {
       
       localStorage.removeItem(STORAGE_KEY);
     }
-  }, [enableZenMode]);
+  }, [enableZenMode, showAlert]);
 
   const handleTimerComplete = useCallback(() => {
     handleTimerExpired(mode, sessionCount);
