@@ -6,8 +6,11 @@
 
 .resources-title {
   font-size: 28px;
-  color: #333;
   margin-bottom: 16px;
+  background: var(--color-accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .resources-intro {

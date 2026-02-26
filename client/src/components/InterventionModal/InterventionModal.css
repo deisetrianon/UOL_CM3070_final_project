@@ -10,6 +10,11 @@
   justify-content: center;
   z-index: 10000;
   animation: fadeIn 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+body:has(.intervention-modal-overlay) {
+  overflow: hidden;
 }
 
 @keyframes fadeIn {
@@ -24,14 +29,24 @@
 .intervention-modal {
   background: white;
   border-radius: 16px;
-  padding: 32px;
   max-width: 90vw;
   min-width: 56vw;
   max-height: 90vh;
-  overflow-y: auto;
+  height: 90vh;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.intervention-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 32px;
+  padding-top: 60px;
 }
 
 @keyframes slideUp {
@@ -61,6 +76,7 @@
   justify-content: center;
   border-radius: 50%;
   transition: all 0.2s;
+  z-index: 1;
 }
 
 .intervention-close-btn:hover {
@@ -81,8 +97,13 @@
 
 @media (max-width: 768px) {
   .intervention-modal {
-    padding: 24px;
     max-width: 95vw;
     max-height: 95vh;
+    height: 95vh;
+  }
+
+  .intervention-modal-content {
+    padding: 24px;
+    padding-top: 60px;
   }
 }

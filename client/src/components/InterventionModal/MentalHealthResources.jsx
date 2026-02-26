@@ -107,11 +107,6 @@ function MentalHealthResources({ onClose }) {
           If you're experiencing persistent or severe symptoms, please consult with a qualified mental health professional.
         </p>
       </div>
-      <div className="resources-controls">
-        <button className="resources-btn close" onClick={onClose}>
-          Close
-        </button>
-      </div>
     </div>
   );
 }

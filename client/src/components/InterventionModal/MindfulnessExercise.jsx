@@ -3,19 +3,19 @@ import './MindfulnessExercise.css';
 
 const MINDFULNESS_VIDEOS = [
   {
-    id: 'ZToicYcHIOU',
+    id: 'ssss7V1_eyA',
     title: '5-Minute Mindfulness Meditation',
     duration: '5 min',
     description: 'A quick guided meditation to help you reset and refocus.'
   },
   {
-    id: 'U9YKY7fdwyg',
+    id: 'ZToicYcHIOU',
     title: '10-Minute Mindfulness Meditation',
     duration: '10 min',
     description: 'A longer session for deeper relaxation and stress relief.'
   },
   {
-    id: '6p_yaNFSYao',
+    id: 'Nw3Kn_VvTpY',
     title: '15-Minute Body Scan Meditation',
     duration: '15 min',
     description: 'A comprehensive body scan meditation for complete relaxation.'
@@ -66,11 +66,6 @@ function MindfulnessExercise({ onClose }) {
           <li>Let go of expectations and judgments</li>
           <li>Return your attention gently when your mind wanders</li>
         </ul>
-      </div>
-      <div className="mindfulness-controls">
-        <button className="mindfulness-btn close" onClick={onClose}>
-          Close
-        </button>
       </div>
     </div>
   );

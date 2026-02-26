@@ -33,19 +33,6 @@ function StretchingGuide({ onClose }) {
     }
   };
 
-
-  if (!STRETCHING_VIDEOS.length || !currentVideo) {
-    return (
-      <div className="stretching-guide">
-        <h2 className="stretching-title">Guided Stretching Exercises</h2>
-        <p>Please configure YouTube video IDs from the playlist.</p>
-        <button className="stretching-btn close" onClick={onClose}>
-          Close
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="stretching-guide">
       <h2 className="stretching-title">Guided Stretching Exercises</h2>

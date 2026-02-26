@@ -6,8 +6,11 @@
 
 .anxiety-title {
   font-size: 28px;
-  color: #333;
   margin-bottom: 16px;
+  background: var(--color-accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .anxiety-intro {
@@ -29,7 +32,7 @@
   padding: 10px 16px;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
-  background: white;
+  background: var(--color-bg-tertiary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -37,14 +40,13 @@
 }
 
 .technique-option:hover {
-  border-color: #4a90e2;
+  border-color: var(--color-accent-primary);
   background: #f8f9fa;
 }
 
 .technique-option.active {
-  border-color: #4a90e2;
-  background: #e8f4f8;
-  color: #4a90e2;
+  border-color: var(--color-accent-primary);
+  color: var(--color-accent-primary);
 }
 
 .anxiety-technique-card {
@@ -139,11 +141,10 @@
 
 .anxiety-tips {
   text-align: left;
-  background: #e8f4f8;
+  background: #f8f9fa;
   padding: 20px;
   border-radius: 8px;
   margin: 24px 0;
-  border-left: 4px solid #4a90e2;
 }
 
 .anxiety-tips h3 {
@@ -168,9 +169,11 @@
 }
 
 .anxiety-tips li:before {
-  content: '💙';
+  content: '✓';
   position: absolute;
   left: 0;
+  color: #50c878;
+  font-weight: bold;
 }
 
 .anxiety-controls {
@@ -464,94 +467,6 @@
   padding: 0 20px;
 }
 
-.affirmations-animation {
-  width: 100%;
-  padding: 20px;
-}
-
-.affirmation-card {
-  position: relative;
-  padding: 40px;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-  border-radius: 16px;
-  border: 2px solid rgba(139, 92, 246, 0.3);
-  min-height: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.affirmation-text {
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-  line-height: 1.6;
-  position: relative;
-  z-index: 2;
-}
-
-.affirmation-text.animated {
-  animation: affirmation-fade-in 0.8s ease-in-out;
-}
-
-@keyframes affirmation-fade-in {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.affirmation-sparkles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.sparkle {
-  position: absolute;
-  font-size: 24px;
-  animation: sparkle-float 3s ease-in-out infinite;
-  opacity: 0.6;
-}
-
-.sparkle:nth-child(1) {
-  top: 20%;
-  left: 15%;
-  animation-delay: 0s;
-}
-
-.sparkle:nth-child(2) {
-  top: 60%;
-  right: 20%;
-  animation-delay: 1s;
-}
-
-.sparkle:nth-child(3) {
-  bottom: 20%;
-  left: 50%;
-  animation-delay: 2s;
-}
-
-@keyframes sparkle-float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-    opacity: 1;
-  }
-}
 
 @media (max-width: 768px) {
   .anxiety-technique-selector {

@@ -113,10 +113,10 @@ function WellnessPanel() {
           <button 
             className="wellness-option-btn"
             onClick={() => openBreathing()}
-            title="Breathing Exercise"
+            title="Breathing Exercises"
           >
             <img src={breathingIcon} alt="Breathing Exercise" className="wellness-option-icon" />
-            <span className="wellness-option-label">Breathing Exercise</span>
+            <span className="wellness-option-label">Breathing Exercises</span>
           </button>
           <button 
             className="wellness-option-btn"

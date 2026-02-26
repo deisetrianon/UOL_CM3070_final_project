@@ -143,9 +143,9 @@ function BreathingExercise({ onClose }) {
           style={{
             backgroundColor: getPhaseColor(),
             transform: phase === 'inhale' 
-              ? `scale(${1 + (countdown / currentTechnique.inhale) * 0.5})`
+              ? `scale(${1.5 - (countdown / currentTechnique.inhale) * 0.5})`
               : phase === 'exhale'
-              ? `scale(${1.5 - (countdown / currentTechnique.exhale) * 0.5})`
+              ? `scale(${1 + (countdown / currentTechnique.exhale) * 0.5})`
               : 'scale(1.5)',
             transition: 'transform 0.1s ease-out'
           }}
@@ -156,11 +156,16 @@ function BreathingExercise({ onClose }) {
           {phase !== 'idle' ? getPhaseText() : 'Press Start to Begin'}
         </div>
       </div>
-      <div className="breathing-stats">
-        <div className="breathing-stat">
-          <span className="stat-label">Cycles:</span>
-          <span className="stat-value">{cycleCount}</span>
-        </div>
+      <div className="breathing-controls">
+        {!isActive ? (
+          <button className="breathing-btn start" onClick={startExercise}>
+            Start
+          </button>
+        ) : (
+          <button className="breathing-btn reset" onClick={resetExercise}>
+            Reset
+          </button>
+        )}
       </div>
       <div className="breathing-instructions">
         <h3>Instructions:</h3>
@@ -171,25 +176,6 @@ function BreathingExercise({ onClose }) {
           <li>Breathe naturally through your nose</li>
           <li>Try to complete at least 4-6 cycles</li>
         </ul>
-      </div>
-      <div className="breathing-controls">
-        {!isActive ? (
-          <button className="breathing-btn start" onClick={startExercise}>
-            Start Exercise
-          </button>
-        ) : (
-          <>
-            <button className="breathing-btn stop" onClick={stopExercise}>
-              Pause
-            </button>
-            <button className="breathing-btn reset" onClick={resetExercise}>
-              Reset
-            </button>
-          </>
-        )}
-        <button className="breathing-btn close" onClick={onClose}>
-          Close
-        </button>
       </div>
     </div>
   );

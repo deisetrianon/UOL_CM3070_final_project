@@ -193,7 +193,7 @@
   font-size: 0.8125rem;
 }
 
-.zen-mode-banner {
+.tasks-page .zen-mode-banner {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
