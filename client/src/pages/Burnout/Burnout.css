@@ -1,0 +1,358 @@
+.burnout-page {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-primary);
+  padding: var(--spacing-xl);
+}
+
+.burnout-content {
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.burnout-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.burnout-page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.burnout-subtitle-intro {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-weight: 400;
+}
+
+.burnout-intro-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.intro-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  line-height: 1;
+
+  img {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+.burnout-intro-card p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.burnout-section-card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.burnout-subtitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.section-description {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.symptoms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.symptom-category {
+  background: var(--color-bg-tertiary);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--color-bg-elevated);
+  transition: all 0.3s ease;
+}
+
+.symptom-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-accent-primary);
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-bg-elevated);
+}
+
+.category-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.category-icon.physical {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.15));
+}
+
+.category-icon.emotional {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(139, 92, 246, 0.15));
+}
+
+.category-icon.behavioral {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 191, 36, 0.15));
+}
+
+.category-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.symptom-category h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.symptom-category ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.symptom-category li {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  padding-left: 24px;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.symptom-category li::before {
+  content: '•';
+  position: absolute;
+  left: 8px;
+  color: var(--color-accent-primary);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.prevention-tips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.prevention-tip {
+  background: var(--color-bg-tertiary);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--color-bg-elevated);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  transition: all 0.3s ease;
+}
+
+.prevention-tip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-accent-primary);
+}
+
+.tip-icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.tip-icon img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.tip-content {
+  flex: 1;
+}
+
+.prevention-tip strong {
+  display: block;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.prevention-tip p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.burnout-resources-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 8px;
+}
+
+.resource-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resource-link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.resource-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border-color: var(--color-accent-primary);
+  background: var(--color-bg-secondary);
+}
+
+.resource-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.resource-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.resource-text strong {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.resource-text span {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.resource-arrow {
+  font-size: 1.5rem;
+  color: var(--color-accent-primary);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.resource-link:hover .resource-arrow {
+  transform: translateX(4px);
+}
+
+@media (max-width: 968px) {
+  .symptoms-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .prevention-tips {
+    grid-template-columns: 1fr;
+  }
+
+  .burnout-page-title {
+    font-size: 1.75rem;
+  }
+
+  .burnout-subtitle {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .burnout-page {
+    padding: var(--spacing-md);
+  }
+
+  .burnout-intro-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .intro-icon {
+    margin: 0 auto;
+  }
+
+  .prevention-tip {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .tip-icon {
+    margin: 0 auto;
+  }
+
+  .resource-link {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .resource-icon {
+    margin: 0 auto;
+  }
+}

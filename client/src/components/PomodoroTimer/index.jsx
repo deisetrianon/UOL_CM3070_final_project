@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import { useDialog } from '../../contexts/DialogContext';
+import pomodoroIcon from '../../assets/icons/pomodoro.png';
 import './PomodoroTimer.css';
 
 const WORK_DURATION = 25 * 60; // 25 minutes in seconds
@@ -69,6 +71,7 @@ const loadInitialState = () => {
 
 function PomodoroTimer() {
   const { enableZenMode } = useZenMode();
+  const { showAlert } = useDialog();
   const initialState = loadInitialState();
   const [mode, setMode] = useState(initialState.mode);
   const [timeLeft, setTimeLeft] = useState(initialState.timeLeft);
@@ -80,7 +83,7 @@ function PomodoroTimer() {
   const startTimeRef = useRef(initialState.startTimestamp);
   const originalDurationRef = useRef(initialState.originalDuration);
 
-  const handleTimerExpired = useCallback((expiredMode, count) => {
+  const handleTimerExpired = useCallback(async (expiredMode, count) => {
     if (expiredMode === 'work') {
       setMode('break');
       setTimeLeft(BREAK_DURATION);
@@ -97,7 +100,7 @@ function PomodoroTimer() {
           icon: '/favicon.ico'
         });
       } else {
-        alert('🍅 Work session complete! Time for a break.\n\nZen Mode has been enabled to help you rest.');
+        showAlert('🍅 Work session complete! Time for a break.\n\nZen Mode has been enabled to help you rest.', 'success');
       }
       
       // Clearing saved state
@@ -114,7 +117,7 @@ function PomodoroTimer() {
       
       localStorage.removeItem(STORAGE_KEY);
     }
-  }, [enableZenMode]);
+  }, [enableZenMode, showAlert]);
 
   const handleTimerComplete = useCallback(() => {
     handleTimerExpired(mode, sessionCount);
@@ -134,6 +137,46 @@ function PomodoroTimer() {
         handleTimerExpired(initialState.expiredMode, initialState.expiredCount);
       }, 100);
     }
+  }, []);
+
+  // Listening for external Pomodoro start events
+  useEffect(() => {
+    const handlePomodoroStart = () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          if (state.isActive && state.startTimestamp && state.originalDuration) {
+            const now = Date.now();
+            const elapsed = Math.floor((now - state.startTimestamp) / 1000);
+            const remainingTime = state.originalDuration - elapsed;
+            
+            if (remainingTime > 0) {
+              setMode(state.mode);
+              setTimeLeft(remainingTime);
+              setIsActive(true);
+              setSessionCount(state.sessionCount || 0);
+              setIsExpanded(true);
+              startTimeRef.current = state.startTimestamp;
+              originalDurationRef.current = state.originalDuration;
+            }
+          }
+        } catch (error) {
+          console.error('[Pomodoro] Error handling external start:', error);
+        }
+      }
+    };
+
+    window.addEventListener('pomodoro-start', handlePomodoroStart);
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        handlePomodoroStart();
+      }
+    });
+
+    return () => {
+      window.removeEventListener('pomodoro-start', handlePomodoroStart);
+    };
   }, []);
 
   // Saving state to localStorage when timer starts, pauses, or timeLeft changes
@@ -294,7 +337,7 @@ function PomodoroTimer() {
         onClick={isExpanded && !isActive ? toggleExpand : undefined}
         style={{ cursor: isExpanded && !isActive ? 'pointer' : 'default' }}
       >
-        <span className="pomodoro-icon">🍅</span>
+        <img src={pomodoroIcon} alt="Pomodoro" className="pomodoro-icon" />
         {!isExpanded && (
           <span className="pomodoro-mode-text">
             POMODORO

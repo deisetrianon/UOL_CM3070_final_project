@@ -14,7 +14,7 @@ const StressFusionContext = createContext(null);
  * - Keystroke Dynamics: 40% weight (behavioral indicator, requires typing)
  * 
  * Stress Levels:
- * - Normal: 0-30
+ * - Low: 0-30
  * - Moderate: 31-60
  * - High: 61-100
  */

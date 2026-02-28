@@ -1,4 +1,5 @@
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
+import webcamIcon from '../../assets/icons/webcam.png';
 import './CameraPermissionModal.css';
 
 function CameraPermissionModal() {
@@ -14,24 +15,19 @@ function CameraPermissionModal() {
           The Empathetic Workspace can monitor your facial expressions to detect signs of 
           stress and fatigue, helping you maintain a healthy work balance.
         </p>
-        <div className="permission-features">
-          <div className="feature-item">
-            <span className="feature-icon">-</span>
+        <ul className="permission-features">
+          <li className="feature-item">
             <span>Detects fatigue and stress indicators</span>
-          </div>
-          <div className="feature-item">
-            <span className="feature-icon">-</span>
+          </li>
+          <li className="feature-item">
             <span>Runs automatically every 5 minutes</span>
-          </div>
-          <div className="feature-item">
-            <span className="feature-icon">-</span>
+          </li>
+          <li className="feature-item">
             <span>Your video is never stored or shared</span>
-          </div>
-        </div>
+          </li>
+        </ul>
         <p className="permission-privacy">
           You can disable this anytime using the <strong>Zen Mode</strong> toggle.
-        </p>
-        <p className="permission-browser-note">
           After clicking "Allow Camera", your browser will ask for confirmation.
         </p>
         <div className="permission-actions">
@@ -39,7 +35,8 @@ function CameraPermissionModal() {
             Not Now
           </button>
           <button className="allow-btn" onClick={handleAllowCamera}>
-            <span>📷</span> Allow Camera
+            <img src={webcamIcon} alt="Camera" />
+            Allow Camera
           </button>
         </div>
       </div>

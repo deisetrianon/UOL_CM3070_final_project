@@ -124,14 +124,24 @@ stressLogSchema.statics.getUserStatistics = async function(userId, startDate = n
     }
   ]);
   
-  return stats[0] || {
-    averageScore: 0,
-    maxScore: 0,
-    minScore: 0,
+  const result = stats[0] || {
+    averageScore: null,
+    maxScore: null,
+    minScore: null,
     totalEntries: 0,
     highStressCount: 0,
     moderateStressCount: 0,
     normalStressCount: 0
+  };
+  
+  return {
+    averageScore: result.averageScore != null ? result.averageScore : 0,
+    maxScore: result.maxScore != null ? result.maxScore : 0,
+    minScore: result.minScore != null ? result.minScore : 0,
+    totalEntries: result.totalEntries || 0,
+    highStressCount: result.highStressCount || 0,
+    moderateStressCount: result.moderateStressCount || 0,
+    normalStressCount: result.normalStressCount || 0
   };
 };
 

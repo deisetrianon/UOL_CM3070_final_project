@@ -5,6 +5,7 @@ import { KeystrokeProvider } from './contexts/KeystrokeContext';
 import { StressFusionProvider } from './contexts/StressFusionContext';
 import { ZenModeProvider } from './contexts/ZenModeContext';
 import { WellnessInterventionProvider } from './contexts/WellnessInterventionContext';
+import { DialogProvider } from './contexts/DialogContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import CameraPermissionModal from './components/CameraPermissionModal';
 import ZenModeSuggestion from './components/ZenModeSuggestion';
@@ -16,6 +17,7 @@ import Tasks from './pages/Tasks';
 import Settings from './pages/Settings';
 import StressHistoryPage from './pages/StressHistory';
 import CalendarPage from './pages/Calendar';
+import Burnout from './pages/Burnout';
 import './App.css';
 
 function App() {
@@ -26,6 +28,7 @@ function App() {
           <StressFusionProvider>
             <ZenModeProvider>
               <WellnessInterventionProvider>
+                <DialogProvider>
                 <div className="app">
                   <Routes>
                     <Route path="/login" element={<Login />} />
@@ -69,6 +72,14 @@ function App() {
                         </ProtectedRoute>
                       }
                     />
+                    <Route
+                      path="/burnout"
+                      element={
+                        <ProtectedRoute>
+                          <Burnout />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="/" element={<Navigate to="/login" replace />} />
                     <Route path="*" element={<Navigate to="/login" replace />} />
                   </Routes>
@@ -77,6 +88,7 @@ function App() {
                   <MeetingReminderNotification />
                   <InterventionModal />
                 </div>
+                </DialogProvider>
               </WellnessInterventionProvider>
             </ZenModeProvider>
           </StressFusionProvider>

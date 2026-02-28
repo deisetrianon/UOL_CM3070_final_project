@@ -169,7 +169,7 @@
 }
 
 .send-btn {
-  background: var(--color-accent-primary);
+  background: var(--color-accent-gradient);
   color: white;
 }
 

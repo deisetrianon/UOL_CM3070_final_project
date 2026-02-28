@@ -1,21 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
+import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import { useDialog } from '../../contexts/DialogContext';
 import Layout from '../../components/Layout';
+import CustomCalendar from '../../components/CustomCalendar';
+import importantIcon from '../../assets/icons/important.png';
 import './Calendar.css';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-const localizer = momentLocalizer(moment);
 
 function CalendarPage() {
-  const { isZenModeActive } = useZenMode();
+  const { isZenModeActive, autoTriggeredReason } = useZenMode();
+  const { showAlert } = useDialog();
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState('month');
+  const [view, setView] = useState('week');
   const [calendarEventsCount, setCalendarEventsCount] = useState(0);
   const [taskEventsCount, setTaskEventsCount] = useState(0);
   const [filter, setFilter] = useState('all'); // 'all', 'tasks', 'meetings'
@@ -130,11 +132,11 @@ function CalendarPage() {
 
         if (data.calendarError) {
           if (data.calendarError.message === 'INSUFFICIENT_SCOPES' || data.calendarError.status === 403) {
-            setError('⚠️ Calendar access not granted. Please log out and log in again to grant calendar permissions. Tasks are still shown below.');
+            setError('Calendar access not granted. Please log out and log in again to grant calendar permissions. Tasks are still shown below.');
           } else if (data.calendarError.message === 'CALENDAR_API_NOT_ENABLED') {
-            setError('⚠️ Calendar API not enabled. Please enable it in Google Cloud Console. Tasks are still shown below.');
+            setError('Calendar API not enabled. Please enable it in Google Cloud Console. Tasks are still shown below.');
           } else {
-            setError(`⚠️ Calendar error: ${data.calendarError.message}. Tasks are still shown below.`);
+            setError(`Calendar error: ${data.calendarError.message}. Tasks are still shown below.`);
           }
         }
       } else {
@@ -149,10 +151,10 @@ function CalendarPage() {
     }
   }, [filter, isZenModeActive, applyFilters]);
 
-  // Fetching events when view or date changes
+  // Fetching events when date or view changes
   useEffect(() => {
     let startDate, endDate;
-
+    
     if (view === 'month') {
       startDate = moment(currentDate).startOf('month').toDate();
       endDate = moment(currentDate).endOf('month').toDate();
@@ -162,12 +164,8 @@ function CalendarPage() {
     } else if (view === 'day') {
       startDate = moment(currentDate).startOf('day').toDate();
       endDate = moment(currentDate).endOf('day').toDate();
-    } else {
-      // Agenda view - showing next 30 days
-      startDate = moment(currentDate).startOf('day').toDate();
-      endDate = moment(currentDate).add(30, 'days').endOf('day').toDate();
     }
-
+    
     fetchEvents(startDate, endDate);
   }, [currentDate, view, fetchEvents]);
 
@@ -181,87 +179,32 @@ function CalendarPage() {
     applyFilters(allEvents, filter, isZenModeActive);
   }, [isZenModeActive, allEvents, filter, applyFilters]);
 
-  const eventStyleGetter = (event) => {
-    const isTask = event.resource?.type === 'task';
-    const isGoogleMeet = event.resource?.isGoogleMeet;
-    const taskPriority = event.resource?.taskPriority;
-    const taskIsUrgent = event.resource?.taskIsUrgent;
-    const calendarColor = event.resource?.calendarColor;
-
-    let backgroundColor = '#3174ad';
-    let borderColor = '#3174ad';
-    let style = {};
-
-    if (isTask) {
-      if (taskIsUrgent || taskPriority === 'urgent') {
-        backgroundColor = '#ef4444';
-        borderColor = '#dc2626';
-      } else if (taskPriority === 'high') {
-        backgroundColor = '#f59e0b';
-        borderColor = '#d97706';
-      } else if (taskPriority === 'medium') {
-        backgroundColor = '#3b82f6';
-        borderColor = '#2563eb';
-      } else {
-        backgroundColor = '#6b7280';
-        borderColor = '#4b5563';
-      }
-    } else if (isGoogleMeet) {
-      backgroundColor = calendarColor || '#10b981';
-      borderColor = calendarColor || '#059669';
-    } else if (calendarColor) {
-      backgroundColor = calendarColor;
-      borderColor = calendarColor;
-    }
-
-    const getTextColor = (bgColor) => {
-      if (!bgColor) return 'white';
-      const hex = bgColor.replace('#', '');
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-      return brightness > 128 ? '#000000' : '#ffffff';
-    };
-
-    style = {
-      backgroundColor,
-      borderColor,
-      borderWidth: '2px',
-      borderRadius: '4px',
-      color: getTextColor(backgroundColor),
-      opacity: 0.9
-    };
-
-    return { style };
-  };
-
-  const EventComponent = ({ event }) => {
-    const isTask = event.resource?.type === 'task';
-    const isGoogleMeet = event.resource?.isGoogleMeet;
-    
-    return (
-      <div className="calendar-event-content">
-        {isTask && <span className="event-icon">📋</span>}
-        {isGoogleMeet && <span className="event-icon">📹</span>}
-        {!isTask && !isGoogleMeet && <span className="event-icon">📅</span>}
-        <span className="event-title">{event.title}</span>
-      </div>
-    );
-  };
-
   const handleNavigate = (newDate) => {
-    setCurrentDate(newDate);
-  };
-
-  const handleViewChange = (newView) => {
-    setView(newView);
+    if (newDate instanceof Date) {
+      setCurrentDate(newDate);
+    }
   };
 
   const handleSelectEvent = (event) => {
     const isTask = event.resource?.type === 'task';
     const isGoogleMeet = event.resource?.isGoogleMeet;
     const meetLink = event.resource?.meetLink;
+    const isCalendarEvent = event.resource?.type === 'calendar';
+
+    if (isTask) {
+      navigate('/tasks');
+      return;
+    }
+
+    if (isGoogleMeet && meetLink) {
+      window.open(meetLink, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    if (isCalendarEvent && !isTask) {
+      window.open('https://calendar.google.com/calendar/r', '_blank', 'noopener,noreferrer');
+      return;
+    }
 
     let message = `\nTitle: ${event.title}\n`;
     
@@ -273,19 +216,12 @@ function CalendarPage() {
       message += `Location: ${event.resource.location}\n`;
     }
 
-    if (isTask) {
-      message += `\nType: Task\n`;
-      message += `Priority: ${event.resource?.taskPriority || 'N/A'}\n`;
-      message += `Status: ${event.resource?.taskStatus || 'N/A'}\n`;
-      if (event.resource?.taskIsUrgent) {
-        message += `⚠️ Urgent\n`;
-      }
-    } else if (isGoogleMeet) {
+    if (isGoogleMeet) {
       message += `\nType: Google Meet\n`;
       if (meetLink) {
         message += `Meet Link: ${meetLink}\n`;
       }
-    } else {
+    } else if (isCalendarEvent) {
       message += `\nType: Calendar Event\n`;
       if (event.resource?.calendarName) {
         message += `Calendar: ${event.resource.calendarName}\n`;
@@ -296,8 +232,9 @@ function CalendarPage() {
       message += `Organizer: ${event.resource.organizer}\n`;
     }
 
-    alert(message);
+    showAlert(message, 'info');
   };
+
 
   if (loading) {
     return (
@@ -314,20 +251,8 @@ function CalendarPage() {
 
   if (error) {
     const handleRetry = () => {
-      let startDate, endDate;
-      if (view === 'month') {
-        startDate = moment(currentDate).startOf('month').toDate();
-        endDate = moment(currentDate).endOf('month').toDate();
-      } else if (view === 'week') {
-        startDate = moment(currentDate).startOf('week').toDate();
-        endDate = moment(currentDate).endOf('week').toDate();
-      } else if (view === 'day') {
-        startDate = moment(currentDate).startOf('day').toDate();
-        endDate = moment(currentDate).endOf('day').toDate();
-      } else {
-        startDate = moment(currentDate).startOf('day').toDate();
-        endDate = moment(currentDate).add(30, 'days').endOf('day').toDate();
-      }
+      const startDate = moment(currentDate).startOf('week').toDate();
+      const endDate = moment(currentDate).endOf('week').toDate();
       fetchEvents(startDate, endDate);
     };
 
@@ -335,7 +260,9 @@ function CalendarPage() {
       <Layout>
         <div className="calendar-page">
           <div className="calendar-error">
-            <p>⚠️ {error}</p>
+            <p>
+              <img src={importantIcon} alt="Warning" className="warning-icon" /> {error}
+            </p>
             <button onClick={handleRetry} className="retry-button">
               Retry
             </button>
@@ -348,43 +275,51 @@ function CalendarPage() {
   return (
     <Layout>
       <div className="calendar-page">
-        <div className="calendar-header">
-          <h1>📅 Calendar</h1>
-          <div className="calendar-header-right">
-            {isZenModeActive && (
-              <div className="zen-mode-banner" style={{
-                padding: 'var(--spacing-xs) var(--spacing-md)',
-                background: 'rgba(34, 197, 94, 0.1)',
-                border: '1px solid #22c55e',
-                borderRadius: 'var(--radius-md)',
-                color: '#22c55e',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                marginRight: 'var(--spacing-md)'
-              }}>
-                Zen Mode: Showing only Meetings, Urgent & High Priority Tasks
-              </div>
-            )}
-            <div className="calendar-filters">
-              <button
-                className={`filter-button ${filter === 'all' ? 'active' : ''}`}
+        <div className="calendar-header-section">
+          <div className="calendar-header-left">
+            <h1>Calendar</h1>
+            <div className="calendar-view-buttons">
+              <button 
+                className={`view-btn ${view === 'month' ? 'active' : ''}`}
+                onClick={() => setView('month')}
+              >
+                Month
+              </button>
+              <button 
+                className={`view-btn ${view === 'week' ? 'active' : ''}`}
+                onClick={() => setView('week')}
+              >
+                Week
+              </button>
+              <button 
+                className={`view-btn ${view === 'day' ? 'active' : ''}`}
+                onClick={() => setView('day')}
+              >
+                Day
+              </button>
+            </div>
+            <div className="calendar-nav-buttons">
+              <button 
+                className={`nav-btn ${filter === 'all' ? 'active' : ''}`}
                 onClick={() => handleFilterChange('all')}
               >
                 All
               </button>
-              <button
-                className={`filter-button ${filter === 'meetings' ? 'active' : ''}`}
+              <button 
+                className={`nav-btn ${filter === 'meetings' ? 'active' : ''}`}
                 onClick={() => handleFilterChange('meetings')}
               >
                 Meetings
               </button>
-              <button
-                className={`filter-button ${filter === 'tasks' ? 'active' : ''}`}
+              <button 
+                className={`nav-btn ${filter === 'tasks' ? 'active' : ''}`}
                 onClick={() => handleFilterChange('tasks')}
               >
                 Tasks
               </button>
             </div>
+          </div>
+          <div className="calendar-header-right">
             <div className="calendar-stats">
               <span className="stat-item">
                 <span className="stat-label">Meetings:</span>
@@ -397,6 +332,16 @@ function CalendarPage() {
             </div>
           </div>
         </div>
+        {isZenModeActive && (
+          <div className="zen-mode-banner">
+            <div className="zen-banner-text">
+              <strong>Zen Mode Active</strong>
+              <span>
+                {autoTriggeredReason || 'Showing only Meetings, Urgent & High Priority Tasks'}
+              </span>
+            </div>
+          </div>
+        )}
         {error && (
           <div className="calendar-warning" style={{ 
             padding: 'var(--spacing-md)', 
@@ -410,8 +355,8 @@ function CalendarPage() {
             <button 
               onClick={() => {
                 setError(null);
-                const startDate = moment(currentDate).startOf('month').toDate();
-                const endDate = moment(currentDate).endOf('month').toDate();
+                const startDate = moment(currentDate).startOf('week').toDate();
+                const endDate = moment(currentDate).endOf('week').toDate();
                 fetchEvents(startDate, endDate);
               }}
               style={{
@@ -429,28 +374,23 @@ function CalendarPage() {
             </button>
           </div>
         )}
-        <div className="calendar-container">
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 600 }}
-            view={view}
-            onView={handleViewChange}
-            date={currentDate}
-            onNavigate={handleNavigate}
-            eventPropGetter={eventStyleGetter}
-            components={{
-              event: EventComponent
-            }}
-            onSelectEvent={handleSelectEvent}
-            popup
-            showMultiDayTimes
-            formats={{
-              eventTimeRangeFormat: () => ''
-            }}
-          />
+        <div className="calendar-main">
+          <div className="calendar-container">
+            {loading ? (
+              <div className="calendar-loading">
+                <div className="loading-spinner"></div>
+                <p>Loading calendar events...</p>
+              </div>
+            ) : (
+              <CustomCalendar
+                events={events}
+                currentDate={currentDate}
+                view={view}
+                onEventClick={handleSelectEvent}
+                onNavigate={handleNavigate}
+              />
+            )}
+          </div>
         </div>
       </div>
     </Layout>

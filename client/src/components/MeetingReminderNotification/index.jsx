@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWellnessIntervention } from '../../contexts/WellnessInterventionContext';
+import breathingIcon from '../../assets/icons/breathing.png';
+import anxietyIcon from '../../assets/icons/anxiety.png';
+import videoIcon from '../../assets/icons/videocall.png';
 import './MeetingReminderNotification.css';
 
 function MeetingReminderNotification() {
@@ -168,9 +171,11 @@ function MeetingReminderNotification() {
         <div className="meeting-reminder-actions">
           {isZenModeActive && recommendedExercise && (
             <button className="exercise-btn" onClick={handleTryExercise}>
-              <span>
-                {recommendedExercise === 'breathing' ? '🫁' : '🧘'}
-              </span>
+              <img 
+                src={recommendedExercise === 'breathing' ? breathingIcon : anxietyIcon} 
+                alt={recommendedExercise === 'breathing' ? 'Breathing' : 'Anxiety Relief'}
+                className="exercise-icon"
+              />
               {recommendedExercise === 'breathing' ? 'Breathing Exercise' : 'Anxiety Relief'}
             </button>
           )}
@@ -181,7 +186,8 @@ function MeetingReminderNotification() {
               rel="noopener noreferrer"
               className="join-btn"
             >
-              <span>🎥</span> Join Meeting
+              <img src={videoIcon} alt="Video" className="exercise-icon" />
+              Join Meeting
             </a>
           )}
         </div>

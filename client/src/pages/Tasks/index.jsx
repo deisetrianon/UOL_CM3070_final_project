@@ -3,20 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import confetti from 'canvas-confetti';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import { useDialog } from '../../contexts/DialogContext';
 import Layout from '../../components/Layout';
+import refreshIcon from '../../assets/icons/refresh.png';
+import importantIcon from '../../assets/icons/important.png';
+import boardIcon from '../../assets/icons/board.png';
+import listIcon from '../../assets/icons/list.png';
+import pomodoroIcon from '../../assets/icons/pomodoro.png';
 import './Tasks.css';
 
 const COLUMNS = {
-  todo: { id: 'todo', title: 'To Do', icon: '📋' },
-  in_progress: { id: 'in_progress', title: 'In Progress', icon: '🔄' },
-  done: { id: 'done', title: 'Done', icon: '✅' }
-};
-
-const PRIORITY_COLORS = {
-  low: '#22c55e',
-  medium: '#f59e0b',
-  high: '#ef4444',
-  urgent: '#dc2626'
+  todo: { id: 'todo', title: 'To Do', icon: '📋', headerBg: '#f3f4f6' },
+  in_progress: { id: 'in_progress', title: 'In Progress', icon: refreshIcon, headerBg: '#dbeafe' },
+  done: { id: 'done', title: 'Done', icon: '✅', headerBg: '#d1fae5' }
 };
 
 const isDeadlineToday = (deadline) => {
@@ -39,6 +38,7 @@ const isPriorityTask = (task) => {
 function Tasks() {
   const navigate = useNavigate();
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
+  const { showAlert, showConfirm } = useDialog();
 
   const [tasks, setTasks] = useState({
     todo: [],
@@ -50,6 +50,8 @@ function Tasks() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [stats, setStats] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('board');
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -194,13 +196,14 @@ function Tasks() {
           [data.task.status]: [...prev[data.task.status], data.task]
         }));
         setShowAddModal(false);
+        setEditingTask(null);
         fetchStats();
       } else {
-        alert(data.error || 'Failed to create task');
+        await showAlert(data.error || 'Failed to create task', 'error');
       }
     } catch (err) {
       console.error('Error creating task:', err);
-      alert('Failed to create task');
+      await showAlert('Failed to create task', 'error');
     }
   };
 
@@ -219,16 +222,26 @@ function Tasks() {
         fetchTasks();
         setEditingTask(null);
       } else {
-        alert(data.error || 'Failed to update task');
+        await showAlert(data.error || 'Failed to update task', 'error');
       }
     } catch (err) {
       console.error('Error updating task:', err);
-      alert('Failed to update task');
+      await showAlert('Failed to update task', 'error');
     }
   };
 
   const handleDeleteTask = async (taskId) => {
-    if (!confirm('Are you sure you want to delete this task?')) return;
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this task?',
+      {
+        title: 'Delete Task',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'danger'
+      }
+    );
+    
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {
@@ -239,14 +252,16 @@ function Tasks() {
       const data = await response.json();
 
       if (data.success) {
+        setEditingTask(null);
+        setShowAddModal(false);
         fetchTasks();
         fetchStats();
       } else {
-        alert(data.error || 'Failed to delete task');
+        await showAlert(data.error || 'Failed to delete task', 'error');
       }
     } catch (err) {
       console.error('Error deleting task:', err);
-      alert('Failed to delete task');
+      await showAlert('Failed to delete task', 'error');
     }
   };
 
@@ -267,16 +282,85 @@ function Tasks() {
     };
   };
 
-  // Filtering tasks when Zen Mode is active - show only high priority, urgent, or deadline today
-  const filteredTasks = useMemo(() => {
-    if (!isZenModeActive) return tasks;
+  const handleStartPomodoro = (e) => {
+    e.stopPropagation();
+    const WORK_DURATION = 25 * 60; // 25 minutes
+    const now = Date.now();
     
-    return {
-      todo: tasks.todo?.filter(isPriorityTask) || [],
-      in_progress: tasks.in_progress?.filter(isPriorityTask) || [],
-      done: tasks.done?.filter(isPriorityTask) || []
+    const existingState = localStorage.getItem('pomodoro_timer_state');
+    let sessionCount = 0;
+    let currentMode = 'work';
+    
+    if (existingState) {
+      try {
+        const parsed = JSON.parse(existingState);
+        sessionCount = parsed.sessionCount || 0;
+        currentMode = parsed.mode || 'work';
+      } catch (e) {
+        console.error('Error parsing pomodoro state:', e);
+      }
+    }
+    
+    const timerState = {
+      mode: currentMode,
+      timeLeft: currentMode === 'work' ? WORK_DURATION : 5 * 60,
+      isActive: true,
+      sessionCount: sessionCount,
+      startTimestamp: now,
+      originalDuration: currentMode === 'work' ? WORK_DURATION : 5 * 60
     };
-  }, [tasks, isZenModeActive]);
+    
+    localStorage.setItem('pomodoro_timer_state', JSON.stringify(timerState));
+    
+    window.dispatchEvent(new CustomEvent('pomodoro-start'));
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'pomodoro_timer_state',
+      newValue: JSON.stringify(timerState)
+    }));
+  };
+
+  // Filtering tasks based on active filter and Zen Mode
+  const filteredTasks = useMemo(() => {
+    let filtered = { ...tasks };
+    
+    if (activeFilter === 'today') {
+      const now = new Date();
+      
+      const filterByToday = (taskList) => {
+        if (!taskList || !Array.isArray(taskList)) return [];
+        return taskList.filter(task => {
+          if (!task || !task.deadline) return false;
+          
+          try {
+            const deadlineDate = new Date(task.deadline);
+
+            if (isNaN(deadlineDate.getTime())) return false;
+            
+            const diffDays = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
+            return diffDays === 0;
+          } catch (e) {
+            return false;
+          }
+        });
+      };
+      
+      filtered = {
+        todo: filterByToday(tasks.todo || []),
+        in_progress: filterByToday(tasks.in_progress || []),
+        done: filterByToday(tasks.done || [])
+      };
+    }
+    
+    if (isZenModeActive) {
+      return {
+        todo: filtered.todo?.filter(isPriorityTask) || [],
+        in_progress: filtered.in_progress?.filter(isPriorityTask) || [],
+        done: filtered.done?.filter(isPriorityTask) || []
+      };
+    }
+    
+    return filtered;
+  }, [tasks, isZenModeActive, activeFilter]);
 
   const zenModeTaskStats = useMemo(() => {
     if (!isZenModeActive) return null;
@@ -296,32 +380,47 @@ function Tasks() {
         <div className="tasks-header-section">
           <div className="tasks-header-left">
             <h1>Task Board</h1>
-            {stats && (
-              <div className="task-stats">
-                <span className="stat">
-                  <span className="stat-value">{stats.pending}</span>
-                  <span className="stat-label">Pending</span>
-                </span>
-                <span className="stat">
-                  <span className="stat-value">{stats.completed}</span>
-                  <span className="stat-label">Done</span>
-                </span>
-                {stats.overdue > 0 && (
-                  <span className="stat overdue">
-                    <span className="stat-value">{stats.overdue}</span>
-                    <span className="stat-label">Overdue</span>
-                  </span>
-                )}
-              </div>
-            )}
+            <div className="tasks-nav-buttons">
+              <button 
+                className={`nav-btn ${activeFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('all')}
+              >
+                All Tasks
+              </button>
+              <button 
+                className={`nav-btn ${activeFilter === 'today' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('today')}
+              >
+                Today
+              </button>
+            </div>
           </div>
-          <button className="add-task-btn" onClick={() => setShowAddModal(true)}>
-            + New Task
-          </button>
+          <div className="tasks-header-right">
+            <div className="view-toggle">
+              <button 
+                className={`view-btn ${viewMode === 'board' ? 'active' : ''}`}
+                onClick={() => setViewMode('board')}
+                title="Board View"
+              >
+                <img src={boardIcon} alt="Board View" className="view-icon" />
+              </button>
+              <button 
+                className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                onClick={() => setViewMode('list')}
+                title="List View"
+              >
+                <img src={listIcon} alt="List View" className="view-icon" />
+              </button>
+            </div>
+            <button className="add-task-btn" onClick={() => setShowAddModal(true)}>
+              New Task
+            </button>
+          </div>
         </div>
       {error && (
         <div className="error-banner">
-          <span>⚠️ {error}</span>
+          <img src={importantIcon} alt="Warning" className="warning-icon" />
+          <span>{error}</span>
           <button onClick={fetchTasks}>Retry</button>
         </div>
       )}
@@ -343,20 +442,14 @@ function Tasks() {
           <div className="loading-spinner"></div>
           <p>Loading tasks...</p>
         </div>
-      ) : (
+      ) : viewMode === 'board' ? (
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="task-board">
             {Object.values(COLUMNS).map((column) => (
-              <div key={column.id} className="task-column">
-                <div className="column-header">
-                  <span className="column-icon">{column.icon}</span>
+              <div key={column.id} className="task-column" data-column={column.id}>
+                <div className="column-header" style={{ backgroundColor: column.headerBg }}>
                   <h2>{column.title}</h2>
-                  <span className="task-count">
-                    {filteredTasks[column.id]?.length || 0}
-                    {isZenModeActive && tasks[column.id]?.length !== filteredTasks[column.id]?.length && (
-                      <span className="hidden-count"> / {tasks[column.id]?.length || 0}</span>
-                    )}
-                  </span>
+                  <span className="task-count-pill">{filteredTasks[column.id]?.length || 0}</span>
                 </div>
                 <Droppable droppableId={column.id}>
                   {(provided, snapshot) => (
@@ -365,6 +458,15 @@ function Tasks() {
                       {...provided.droppableProps}
                       className={`task-list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
                     >
+                      <button 
+                        className="add-task-in-column-btn"
+                        onClick={() => {
+                          setEditingTask({ status: column.id });
+                          setShowAddModal(true);
+                        }}
+                      >
+                        Add task
+                      </button>
                       {filteredTasks[column.id]?.map((task, index) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
                           {(provided, snapshot) => (
@@ -375,32 +477,38 @@ function Tasks() {
                               className={`task-card ${snapshot.isDragging ? 'dragging' : ''} ${task.isUrgent ? 'urgent' : ''}`}
                               onClick={() => setEditingTask(task)}
                             >
-                              <div className="task-card-header">
-                                <span 
-                                  className="priority-indicator"
-                                  style={{ backgroundColor: PRIORITY_COLORS[task.priority] }}
-                                  title={`${task.priority} priority`}
-                                />
-                                {task.isUrgent && <span className="urgent-badge">🔥 Urgent</span>}
-                              </div>                            
                               <h3 className="task-title">{task.title}</h3>                              
                               {task.description && (
                                 <p className="task-description">{task.description}</p>
                               )}
+                              <div className="task-tags">
+                                {task.isUrgent && <span className="tag tag-urgent">Urgent</span>}
+                                {task.priority === 'high' && !task.isUrgent && <span className="tag tag-high-priority">High Priority</span>}
+                              </div>
                               <div className="task-card-footer">
                                 {task.deadline && (
                                   <span className={`deadline ${formatDeadline(task.deadline)?.class}`}>
-                                    📅 {formatDeadline(task.deadline)?.text}
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '4px' }}>
+                                      <rect x="2" y="3" width="10" height="9" rx="1" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+                                      <line x1="4" y1="1" x2="4" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                                      <line x1="7" y1="1" x2="7" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                                      <line x1="10" y1="1" x2="10" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                                    </svg>
+                                    {formatDeadline(task.deadline)?.text}
                                   </span>
-                                )}                               
-                                {task.labels?.length > 0 && (
-                                  <div className="task-labels">
-                                    {task.labels.slice(0, 2).map((label, i) => (
-                                      <span key={i} className="label">{label}</span>
-                                    ))}
-                                  </div>
                                 )}
                               </div>
+                              {task.isUrgent && column.id === 'in_progress' && (
+                                <div className="start-pomodoro-btn-container">
+                                  <button
+                                    className="start-pomodoro-btn"
+                                    onClick={handleStartPomodoro}
+                                  >
+                                    <img src={pomodoroIcon} alt="Start Pomodoro" />
+                                    Start Pomodoro
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           )}
                         </Draggable>
@@ -422,6 +530,62 @@ function Tasks() {
             ))}
           </div>
         </DragDropContext>
+      ) : (
+        <div className="task-list-view">
+          <div className="list-view-content">
+            {Object.values(COLUMNS).map((column) => {
+              const columnTasks = filteredTasks[column.id] || [];
+              if (columnTasks.length === 0) return null;
+              
+              return (
+                <div key={column.id} className="list-view-section" data-column={column.id}>
+                  <div className="list-section-header" style={{ backgroundColor: column.headerBg }}>
+                    <h3>{column.title}</h3>
+                    <span className="task-count-pill">{columnTasks.length}</span>
+                  </div>
+                  <div className="list-view-tasks">
+                    {columnTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="list-task-item"
+                        onClick={() => setEditingTask(task)}
+                      >
+                        <div className="list-task-main">
+                          <h4 className="list-task-title">{task.title}</h4>
+                          {task.description && (
+                            <p className="list-task-description">{task.description}</p>
+                          )}
+                        </div>
+                        <div className="list-task-meta">
+                          <div className="list-task-tags">
+                            {task.isUrgent && <span className="tag tag-urgent">Urgent</span>}
+                            {task.priority === 'high' && !task.isUrgent && <span className="tag tag-high-priority">High Priority</span>}
+                          </div>
+                          {task.deadline && (
+                            <span className={`list-task-deadline ${formatDeadline(task.deadline)?.class}`}>
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '4px' }}>
+                                <rect x="2" y="3" width="10" height="9" rx="1" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+                                <line x1="4" y1="1" x2="4" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                                <line x1="7" y1="1" x2="7" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                                <line x1="10" y1="1" x2="10" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                              </svg>
+                              {formatDeadline(task.deadline)?.text}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {Object.values(COLUMNS).every(column => (filteredTasks[column.id]?.length || 0) === 0) && (
+              <div className="empty-list-view">
+                <p>No tasks found</p>
+              </div>
+            )}
+          </div>
+        </div>
       )}
       {(showAddModal || editingTask) && (
         <TaskModal
@@ -430,8 +594,8 @@ function Tasks() {
             setShowAddModal(false);
             setEditingTask(null);
           }}
-          onSave={editingTask ? handleUpdateTask : handleCreateTask}
-          onDelete={editingTask ? handleDeleteTask : null}
+          onSave={editingTask && editingTask.id ? handleUpdateTask : handleCreateTask}
+          onDelete={editingTask && editingTask.id ? handleDeleteTask : null}
         />
       )}
       </div>
@@ -444,13 +608,13 @@ function Tasks() {
  * Used for creating and editing tasks
  */
 function TaskModal({ task, onClose, onSave, onDelete }) {
+  const { showAlert } = useDialog();
   const [formData, setFormData] = useState({
     title: task?.title || '',
     description: task?.description || '',
     priority: task?.priority || 'medium',
     isUrgent: task?.isUrgent || false,
-    deadline: task?.deadline ? new Date(task.deadline).toISOString().split('T')[0] : '',
-    labels: task?.labels?.join(', ') || ''
+    deadline: task?.deadline ? new Date(task.deadline).toISOString().split('T')[0] : ''
   });
   const [saving, setSaving] = useState(false);
 
@@ -458,7 +622,7 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
     e.preventDefault();
     
     if (!formData.title.trim()) {
-      alert('Title is required');
+      await showAlert('Title is required', 'warning');
       return;
     }
 
@@ -470,10 +634,10 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
       priority: formData.priority,
       isUrgent: formData.isUrgent,
       deadline: formData.deadline || null,
-      labels: formData.labels.split(',').map(l => l.trim()).filter(l => l)
+      status: task?.status || 'todo'
     };
 
-    if (task) {
+    if (task && task.id) {
       await onSave(task.id, taskData);
     } else {
       await onSave(taskData);
@@ -486,7 +650,7 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="task-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{task ? 'Edit Task' : 'New Task'}</h2>
+          <h2>{task && task.id ? 'Edit Task' : 'New Task'}</h2>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -544,15 +708,6 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
               <span>🔥 Mark as Urgent</span>
             </label>
           </div>
-          <div className="form-group">
-            <label>Labels (comma-separated)</label>
-            <input
-              type="text"
-              value={formData.labels}
-              onChange={(e) => setFormData({ ...formData, labels: e.target.value })}
-              placeholder="work, personal, project..."
-            />
-          </div>
           <div className="modal-actions">
             {task && onDelete && (
               <button 
@@ -568,7 +723,7 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
                 Cancel
               </button>
               <button type="submit" className="save-btn" disabled={saving}>
-                {saving ? 'Saving...' : (task ? 'Update' : 'Create Task')}
+                {saving ? 'Saving...' : (task && task.id ? 'Update' : 'Create Task')}
               </button>
             </div>
           </div>

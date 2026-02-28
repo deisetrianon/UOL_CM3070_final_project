@@ -1,7 +1,7 @@
+import { useEffect } from 'react';
 import { useWellnessIntervention } from '../../contexts/WellnessInterventionContext';
 import BreathingExercise from './BreathingExercise';
 import MindfulnessExercise from './MindfulnessExercise';
-import PomodoroTimer from './PomodoroTimer';
 import StretchingGuide from './StretchingGuide';
 import AnxietyRelief from './AnxietyRelief';
 import MentalHealthResources from './MentalHealthResources';
@@ -9,6 +9,18 @@ import './InterventionModal.css';
 
 function InterventionModal() {
   const { activeIntervention, closeIntervention } = useWellnessIntervention();
+
+  useEffect(() => {
+    if (activeIntervention) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeIntervention]);
 
   if (!activeIntervention) {
     return null;
@@ -20,8 +32,6 @@ function InterventionModal() {
         return <BreathingExercise onClose={closeIntervention} />;
       case 'mindfulness':
         return <MindfulnessExercise onClose={closeIntervention} />;
-      case 'pomodoro':
-        return <PomodoroTimer onClose={closeIntervention} />;
       case 'stretching':
         return <StretchingGuide onClose={closeIntervention} />;
       case 'anxietyRelief':
@@ -39,7 +49,9 @@ function InterventionModal() {
         <button className="intervention-close-btn" onClick={closeIntervention} title="Close">
           ✕
         </button>
-        {renderIntervention()}
+        <div className="intervention-modal-content">
+          {renderIntervention()}
+        </div>
       </div>
     </div>
   );

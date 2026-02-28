@@ -57,20 +57,30 @@ function ZenModeToggle({ className = '' }) {
 
   return (
     <div className={`zen-mode-wrapper ${className}`}>
-      <button 
-        className={`zen-mode-toggle ${isZenModeActive ? 'active' : ''}`}
-        onClick={toggleZenMode}
-      >
-        <span className="zen-label">Zen Mode</span>
-        <span className={`zen-indicator ${isZenModeActive ? 'on' : 'off'}`} />
-      </button>
-      {autoZenModeEnabled && (
-        <span 
-          className={`zen-auto-badge ${isZenModeActive && autoTriggeredReason && !isManuallyToggled ? 'active-auto' : 'available-auto'}`}
+      <label className="zen-toggle-container">
+        <div className="zen-labels-row">
+          <span className="zen-label">Zen</span>
+          {autoZenModeEnabled && (
+            <span 
+              className={`zen-auto-badge ${isZenModeActive && autoTriggeredReason && !isManuallyToggled ? 'active-auto' : 'available-auto'}`}
+            >
+              AUTO
+            </span>
+          )}
+        </div>
+        <button 
+          className={`zen-mode-toggle ${isZenModeActive ? 'active' : ''}`}
+          onClick={toggleZenMode}
+          type="button"
+          role="switch"
+          aria-checked={isZenModeActive}
+          aria-label="Toggle Zen Mode"
         >
-          Auto
-        </span>
-      )}
+          <span className="zen-toggle-track">
+            <span className="zen-toggle-handle"></span>
+          </span>
+        </button>
+      </label>
       {statusMessage && (
         <div className={`zen-status-message ${statusMessage.type}`}>
           <span className="status-text">{statusMessage.text}</span>

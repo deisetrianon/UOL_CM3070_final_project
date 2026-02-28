@@ -25,14 +25,14 @@
   flex-direction: column;
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  border: 1px solid rgba(124, 58, 237, 0.25);
   border-radius: 16px;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.12),
-    0 0 0 1px rgba(59, 130, 246, 0.08);
+    0 0 0 1px rgba(124, 58, 237, 0.08);
   position: relative;
   max-width: 420px;
   min-width: 360px;
@@ -52,17 +52,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.3);
   border-radius: 12px;
   padding: 4px;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
 }
 
 .calendar-month {
   font-size: 0.625rem;
   font-weight: 700;
-  color: #3b82f6;
+  color: #7c3aed;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   line-height: 1;
@@ -72,7 +72,7 @@
 .calendar-day {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e40af;
+  color: #6d28d9;
   line-height: 1;
 }
 
@@ -84,7 +84,7 @@
 .meeting-reminder-text h4 {
   font-size: 1rem;
   font-weight: 700;
-  color: #3b82f6;
+  color: #7c3aed;
   margin: 0 0 var(--spacing-sm) 0;
   letter-spacing: -0.01em;
 }
@@ -103,8 +103,6 @@
 
 .meeting-reminder-text .anxiety-message {
   font-size: 0.8125rem;
-  color: #f59e0b;
-  font-style: italic;
   margin: var(--spacing-xs) 0 0 0;
   line-height: 1.5;
 }
@@ -133,6 +131,14 @@
   transition: all 0.2s ease;
   flex: 1;
   min-width: 0;
+}
+
+.exercise-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1);
 }
 
 .exercise-btn:hover {
@@ -168,7 +174,7 @@
   justify-content: center;
   gap: 6px;
   padding: 10px 16px;
-  background: #3b82f6;
+  background: #7c3aed;
   border: none;
   border-radius: 10px;
   font-size: 0.8125rem;
@@ -182,9 +188,10 @@
 }
 
 .join-btn:hover {
-  background: #2563eb;
+  background: #6d28d9;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+  color: white;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
 }
 
 .join-btn:active {

@@ -213,24 +213,32 @@ router.get('/statistics', requireAuth, async (req, res) => {
       queryEndDate
     );
 
+    const averageScore = statistics.averageScore != null ? statistics.averageScore : 0;
+    const maxScore = statistics.maxScore != null ? statistics.maxScore : 0;
+    const minScore = statistics.minScore != null ? statistics.minScore : 0;
+    const totalEntries = statistics.totalEntries || 0;
+    const highStressCount = statistics.highStressCount || 0;
+    const moderateStressCount = statistics.moderateStressCount || 0;
+    const normalStressCount = statistics.normalStressCount || 0;
+
     res.json({
       success: true,
       statistics: {
-        averageScore: Math.round(statistics.averageScore * 100) / 100,
-        maxScore: statistics.maxScore,
-        minScore: statistics.minScore,
-        totalEntries: statistics.totalEntries,
-        highStressCount: statistics.highStressCount,
-        moderateStressCount: statistics.moderateStressCount,
-        normalStressCount: statistics.normalStressCount,
-        highStressPercentage: statistics.totalEntries > 0
-          ? Math.round((statistics.highStressCount / statistics.totalEntries) * 100 * 100) / 100
+        averageScore: totalEntries > 0 ? Math.round(averageScore * 100) / 100 : 0,
+        maxScore: maxScore,
+        minScore: minScore,
+        totalEntries: totalEntries,
+        highStressCount: highStressCount,
+        moderateStressCount: moderateStressCount,
+        normalStressCount: normalStressCount,
+        highStressPercentage: totalEntries > 0
+          ? Math.round((highStressCount / totalEntries) * 100 * 100) / 100
           : 0,
-        moderateStressPercentage: statistics.totalEntries > 0
-          ? Math.round((statistics.moderateStressCount / statistics.totalEntries) * 100 * 100) / 100
+        moderateStressPercentage: totalEntries > 0
+          ? Math.round((moderateStressCount / totalEntries) * 100 * 100) / 100
           : 0,
-        normalStressPercentage: statistics.totalEntries > 0
-          ? Math.round((statistics.normalStressCount / statistics.totalEntries) * 100 * 100) / 100
+        normalStressPercentage: totalEntries > 0
+          ? Math.round((normalStressCount / totalEntries) * 100 * 100) / 100
           : 0
       }
     });

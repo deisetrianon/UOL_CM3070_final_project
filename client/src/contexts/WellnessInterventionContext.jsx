@@ -27,7 +27,7 @@ const GENERAL_COOLDOWN = 2 * 60 * 1000; // 2 minutes between any interventions
 
 export function WellnessInterventionProvider({ children }) {
   const { stressLevel, stressScore } = useStressFusion();
-  const { isZenModeActive } = useZenMode();
+  const { isZenModeActive, autoTriggeredReason, autoZenModeEnabled } = useZenMode();
   const { isAuthenticated } = useAuth();
 
   const [activeIntervention, setActiveIntervention] = useState(null);
@@ -36,6 +36,17 @@ export function WellnessInterventionProvider({ children }) {
   const [lastInterventionTime, setLastInterventionTime] = useState(null);
   const [lastInterventionType, setLastInterventionType] = useState(null);
   const interventionCooldownsRef = useRef({});
+  const zenModeAutoEnabledTimeRef = useRef(null);
+
+  // Tracking when Zen Mode is auto-enabled to prevent immediate intervention triggers
+  useEffect(() => {
+    if (isZenModeActive && autoTriggeredReason && !zenModeAutoEnabledTimeRef.current) {
+      zenModeAutoEnabledTimeRef.current = Date.now();
+      console.log('[WellnessIntervention] Zen Mode auto-enabled, blocking interventions for 10 seconds');
+    } else if (!isZenModeActive || !autoTriggeredReason) {
+      zenModeAutoEnabledTimeRef.current = null;
+    }
+  }, [isZenModeActive, autoTriggeredReason]);
 
   // Tracking prolonged high stress
   useEffect(() => {
@@ -74,6 +85,11 @@ export function WellnessInterventionProvider({ children }) {
       return false;
     }
 
+    if (!isManual && isZenModeActive && autoTriggeredReason) {
+      console.log(`[WellnessIntervention] Blocked ${type} - Zen Mode was auto-enabled`);
+      return false;
+    }
+
     const now = Date.now();
     setActiveIntervention({ type, reason, timestamp: now });
     
@@ -91,7 +107,7 @@ export function WellnessInterventionProvider({ children }) {
 
     console.log(`[WellnessIntervention] Triggered ${type}:`, reason, isManual ? '(manual)' : '(auto)');
     return true;
-  }, [canTriggerIntervention]);
+  }, [canTriggerIntervention, isZenModeActive, autoTriggeredReason]);
 
   // Auto-triggering interventions based on stress if none are active
   useEffect(() => {
@@ -100,9 +116,25 @@ export function WellnessInterventionProvider({ children }) {
     }
 
     const now = Date.now();
-    const isModerate = stressLevel === 'moderate' && stressScore >= MODERATE_STRESS_THRESHOLD;
+    
     const isHigh = stressLevel === 'high' && stressScore >= HIGH_STRESS_THRESHOLD;
+    const isModerate = stressLevel === 'moderate' && stressScore >= MODERATE_STRESS_THRESHOLD;
     const isProlonged = highStressStartTime && (now - highStressStartTime) >= PROLONGED_STRESS_DURATION;
+    
+    if (zenModeAutoEnabledTimeRef.current && (now - zenModeAutoEnabledTimeRef.current) < 30000) {
+      console.log('[WellnessIntervention] Blocked - Zen Mode was recently auto-enabled');
+      return;
+    }
+
+    if (isZenModeActive && autoTriggeredReason) {
+      console.log('[WellnessIntervention] Blocked - Zen Mode is auto-enabled');
+      return;
+    }
+
+    if (autoZenModeEnabled && (isHigh || isModerate)) {
+      console.log('[WellnessIntervention] Blocked - Auto Zen Mode is enabled for this stress level');
+      return;
+    }
 
     if (isHigh) {
       if (canTriggerIntervention('breathing')) {
@@ -114,12 +146,8 @@ export function WellnessInterventionProvider({ children }) {
       if (canTriggerIntervention('mindfulness')) {
         triggerIntervention('mindfulness', 'You\'ve been under stress for a while. Take a mindful break.');
       }
-    } else if (isModerate && isZenModeActive) {
-      if (canTriggerIntervention('breathing')) {
-        triggerIntervention('breathing', 'Moderate stress detected. A quick breathing exercise might help.');
-      }
     }
-  }, [stressLevel, stressScore, highStressStartTime, isZenModeActive, activeIntervention, canTriggerIntervention, triggerIntervention]);
+  }, [stressLevel, stressScore, highStressStartTime, activeIntervention, canTriggerIntervention, triggerIntervention, isZenModeActive, autoTriggeredReason, autoZenModeEnabled]);
 
   // Logging intervention to stress logs
   const logIntervention = useCallback(async (type) => {

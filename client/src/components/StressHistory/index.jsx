@@ -11,15 +11,18 @@ import {
   Area,
   AreaChart
 } from 'recharts';
+import importantIcon from '../../assets/icons/important.png';
+import happyIcon from '../../assets/icons/happy.png';
+import neutralFaceIcon from '../../assets/icons/neutral-face.png';
+import stressIcon from '../../assets/icons/stress.png';
 import './StressHistory.css';
 
 // Displaying a graphical visualization of the user's stress indicator history
-function StressHistory() {
+function StressHistory({ timeRange = 7 }) {
   const [history, setHistory] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [timeRange, setTimeRange] = useState(7); // Default time range: 7 days
 
   const fetchHistory = useCallback(async (days = 7) => {
     try {
@@ -61,13 +64,68 @@ function StressHistory() {
 
       const data = await response.json();
 
-      if (data.success) {
+      if (data.success && data.statistics) {
         setStatistics(data.statistics);
+      } else {
+        console.error('[StressHistory] Statistics fetch failed:', data);
+        setStatistics(null);
       }
     } catch (err) {
       console.error('[StressHistory] Error fetching statistics:', err);
+      setStatistics(null);
     }
   }, []);
+
+  const calculateStatisticsFromHistory = useCallback((historyData) => {
+    if (!historyData || historyData.length === 0) {
+      return null;
+    }
+
+    const scores = historyData.map(log => log.stressScore).filter(score => score != null);
+    if (scores.length === 0) {
+      return null;
+    }
+
+    const averageScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const maxScore = Math.max(...scores);
+    const minScore = Math.min(...scores);
+    const totalEntries = historyData.length;
+
+    const highStressCount = historyData.filter(log => log.stressLevel === 'high').length;
+    const moderateStressCount = historyData.filter(log => log.stressLevel === 'moderate').length;
+    const normalStressCount = historyData.filter(log => log.stressLevel === 'normal').length;
+
+    return {
+      averageScore: Math.round(averageScore * 100) / 100,
+      maxScore: maxScore,
+      minScore: minScore,
+      totalEntries: totalEntries,
+      highStressCount: highStressCount,
+      moderateStressCount: moderateStressCount,
+      normalStressCount: normalStressCount,
+      highStressPercentage: totalEntries > 0
+        ? Math.round((highStressCount / totalEntries) * 100 * 100) / 100
+        : 0,
+      moderateStressPercentage: totalEntries > 0
+        ? Math.round((moderateStressCount / totalEntries) * 100 * 100) / 100
+        : 0,
+      normalStressPercentage: totalEntries > 0
+        ? Math.round((normalStressCount / totalEntries) * 100 * 100) / 100
+        : 0
+    };
+  }, []);
+
+  useEffect(() => {
+    if (history.length > 0) {
+      if (!statistics || (statistics.totalEntries === 0 && history.length > 0)) {
+        const calculatedStats = calculateStatisticsFromHistory(history);
+        if (calculatedStats && calculatedStats.totalEntries > 0) {
+          console.log('[StressHistory] Using calculated statistics as fallback');
+          setStatistics(calculatedStats);
+        }
+      }
+    }
+  }, [history.length, calculateStatisticsFromHistory]);
 
   useEffect(() => {
     fetchHistory(timeRange);
@@ -143,7 +201,9 @@ function StressHistory() {
     return (
       <div className="stress-history-container">
         <div className="stress-history-error">
-          <p>⚠️ {error}</p>
+          <p>
+            <img src={importantIcon} alt="Warning" className="warning-icon" /> {error}
+          </p>
           <button onClick={() => fetchHistory(timeRange)} className="retry-button">
             Retry
           </button>
@@ -167,45 +227,31 @@ function StressHistory() {
 
   return (
     <div className="stress-history-container">
-      <div className="stress-history-header">
-        <div className="time-range-selector">
-          <button
-            className={timeRange === 1 ? 'active' : ''}
-            onClick={() => setTimeRange(1)}
-          >
-            1 Day
-          </button>
-          <button
-            className={timeRange === 7 ? 'active' : ''}
-            onClick={() => setTimeRange(7)}
-          >
-            7 Days
-          </button>
-          <button
-            className={timeRange === 30 ? 'active' : ''}
-            onClick={() => setTimeRange(30)}
-          >
-            30 Days
-          </button>
-        </div>
-      </div>
       {statistics && (
         <div className="stress-statistics">
           <div className="stat-card">
             <div className="stat-label">Average Score</div>
-            <div className="stat-value">{statistics.averageScore.toFixed(1)}</div>
+            <div className="stat-value">
+              {statistics.averageScore != null ? statistics.averageScore.toFixed(1) : '0.0'}
+            </div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Maximum</div>
-            <div className="stat-value stat-max">{statistics.maxScore}</div>
+            <div className="stat-value stat-max">
+              {statistics.maxScore != null ? statistics.maxScore : 0}
+            </div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Minimum</div>
-            <div className="stat-value stat-min">{statistics.minScore}</div>
+            <div className="stat-value stat-min">
+              {statistics.minScore != null ? statistics.minScore : 0}
+            </div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Total Entries</div>
-            <div className="stat-value">{statistics.totalEntries}</div>
+            <div className="stat-value">
+              {statistics.totalEntries != null ? statistics.totalEntries : 0}
+            </div>
           </div>
         </div>
       )}
@@ -271,8 +317,8 @@ function StressHistory() {
           <div className="breakdown-bars">
             <div className="breakdown-item">
               <div className="breakdown-label">
-                <span className="breakdown-color" style={{ backgroundColor: '#22c55e' }}></span>
-                Normal
+                <img src={happyIcon} alt="Low Stress" className="breakdown-icon breakdown-icon-low" />
+                Low
               </div>
               <div className="breakdown-bar-container">
                 <div
@@ -286,7 +332,7 @@ function StressHistory() {
             </div>
             <div className="breakdown-item">
               <div className="breakdown-label">
-                <span className="breakdown-color" style={{ backgroundColor: '#f59e0b' }}></span>
+                <img src={neutralFaceIcon} alt="Moderate Stress" className="breakdown-icon breakdown-icon-moderate" />
                 Moderate
               </div>
               <div className="breakdown-bar-container">
@@ -301,7 +347,7 @@ function StressHistory() {
             </div>
             <div className="breakdown-item">
               <div className="breakdown-label">
-                <span className="breakdown-color" style={{ backgroundColor: '#ef4444' }}></span>
+                <img src={stressIcon} alt="High Stress" className="breakdown-icon breakdown-icon-high" />
                 High
               </div>
               <div className="breakdown-bar-container">

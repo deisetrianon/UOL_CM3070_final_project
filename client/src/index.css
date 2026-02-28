@@ -19,7 +19,6 @@
   --color-info: #0ea5e9;
   
   --font-primary: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
   
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -87,7 +86,7 @@ body::before {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
+  font-family: var(--font-primary);
   font-weight: 500;
   line-height: 1.2;
   color: var(--color-text-primary);
@@ -163,11 +162,11 @@ input::placeholder, textarea::placeholder {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent-primary);
+  background: var(--color-accent-gradient);
 }
 
 ::selection {
-  background: var(--color-accent-primary);
+  background: var(--color-accent-gradient);
   color: var(--color-text-primary);
 }
 

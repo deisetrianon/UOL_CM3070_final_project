@@ -1,16 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useZenMode } from '../../contexts/ZenModeContext';
+import emailIcon from '../../assets/icons/email.png';
+import tasksIcon from '../../assets/icons/tasks.png';
+import chartIcon from '../../assets/icons/chart.png';
+import calendarIcon from '../../assets/icons/calendar.png';
+import inboxIcon from '../../assets/icons/inbox.png';
+import starredIcon from '../../assets/icons/starred.png';
+import importantIcon from '../../assets/icons/important.png';
+import sentIcon from '../../assets/icons/sent.png';
+import draftIcon from '../../assets/icons/drafts.png';
+import trashIcon from '../../assets/icons/trash.png';
+import spamIcon from '../../assets/icons/spam.png';
+import BurnoutSection from './BurnoutSection';
 import './Sidebar.css';
 
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isZenModeActive } = useZenMode();
   const [expandedSections, setExpandedSections] = useState({
-    emails: true,
-    tasks: true,
-    wellness: true,
-    calendar: true
+    emails: true
   });
+
+  useEffect(() => {
+    if (isZenModeActive) {
+      setExpandedSections({
+        emails: false
+      });
+    } else {
+      setExpandedSections({
+        emails: true
+      });
+    }
+  }, [isZenModeActive]);
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
@@ -23,14 +46,20 @@ function Sidebar() {
     return location.pathname === path;
   };
 
+  const hasExpandedSection = Object.values(expandedSections).some(expanded => expanded);
+  const sidebarClassName = isZenModeActive 
+    ? `app-sidebar zen-mode-collapsed ${hasExpandedSection ? 'expanded-section' : ''}`
+    : 'app-sidebar';
+
   return (
-    <aside className="app-sidebar">
+    <aside className={sidebarClassName}>
       <nav className="sidebar-nav">
         <div className="sidebar-section">
           <button 
             className="sidebar-section-header"
             onClick={() => toggleSection('emails')}
           >
+            <img src={emailIcon} alt="Emails" className="section-icon" />
             <span className="section-title">Emails</span>
             <span className={`section-arrow ${expandedSections.emails ? 'expanded' : ''}`}>
               ▼
@@ -42,49 +71,49 @@ function Sidebar() {
                 className={`sidebar-item ${isActive('/home') && !location.search ? 'active' : ''}`}
                 onClick={() => navigate('/home')}
               >
-                <span className="item-icon">📥</span>
+                <img src={inboxIcon} alt="Inbox" className="item-icon" />
                 <span className="item-text">Inbox</span>
               </button>
               <button
                 className={`sidebar-item ${location.search.includes('STARRED') ? 'active' : ''}`}
                 onClick={() => navigate('/home?label=STARRED')}
               >
-                <span className="item-icon">⭐</span>
+                <img src={starredIcon} alt="Starred" className="item-icon" />
                 <span className="item-text">Starred</span>
               </button>
               <button
                 className={`sidebar-item ${location.search.includes('IMPORTANT') ? 'active' : ''}`}
                 onClick={() => navigate('/home?label=IMPORTANT')}
               >
-                <span className="item-icon">🏷️</span>
+                <img src={importantIcon} alt="Important" className="item-icon" />
                 <span className="item-text">Important</span>
               </button>
               <button
                 className={`sidebar-item ${location.search.includes('SENT') ? 'active' : ''}`}
                 onClick={() => navigate('/home?label=SENT')}
               >
-                <span className="item-icon">📤</span>
+                <img src={sentIcon} alt="Sent" className="item-icon" />
                 <span className="item-text">Sent</span>
               </button>
               <button
                 className={`sidebar-item ${location.search.includes('DRAFT') ? 'active' : ''}`}
                 onClick={() => navigate('/home?label=DRAFT')}
               >
-                <span className="item-icon">📝</span>
+                <img src={draftIcon} alt="Drafts" className="item-icon" />
                 <span className="item-text">Drafts</span>
               </button>
               <button
                 className={`sidebar-item ${location.search.includes('TRASH') ? 'active' : ''}`}
                 onClick={() => navigate('/home?label=TRASH')}
               >
-                <span className="item-icon">🗑️</span>
+                <img src={trashIcon} alt="Trash" className="item-icon" />
                 <span className="item-text">Trash</span>
               </button>
               <button
                 className={`sidebar-item ${location.search.includes('SPAM') ? 'active' : ''}`}
                 onClick={() => navigate('/home?label=SPAM')}
               >
-                <span className="item-icon">🚫</span>
+                <img src={spamIcon} alt="Spam" className="item-icon" />
                 <span className="item-text">Spam</span>
               </button>
             </div>
@@ -92,67 +121,32 @@ function Sidebar() {
         </div>
         <div className="sidebar-section">
           <button 
-            className="sidebar-section-header"
-            onClick={() => toggleSection('tasks')}
+            className={`sidebar-section-header ${isActive('/tasks') ? 'active' : ''}`}
+            onClick={() => navigate('/tasks')}
           >
-            <span className="section-title">Task Management</span>
-            <span className={`section-arrow ${expandedSections.tasks ? 'expanded' : ''}`}>
-              ▼
-            </span>
+            <img src={tasksIcon} alt="Tasks" className="section-icon" />
+            <span className="section-title">Tasks</span>
           </button>
-          {expandedSections.tasks && (
-            <div className="sidebar-section-content">
-              <button
-                className={`sidebar-item ${isActive('/tasks') ? 'active' : ''}`}
-                onClick={() => navigate('/tasks')}
-              >
-                <span className="item-text">Task Board</span>
-              </button>
-            </div>
-          )}
         </div>
         <div className="sidebar-section">
           <button 
-            className="sidebar-section-header"
-            onClick={() => toggleSection('wellness')}
+            className={`sidebar-section-header ${isActive('/stress-history') ? 'active' : ''}`}
+            onClick={() => navigate('/stress-history')}
           >
-            <span className="section-title">Wellness</span>
-            <span className={`section-arrow ${expandedSections.wellness ? 'expanded' : ''}`}>
-              ▼
-            </span>
+            <img src={chartIcon} alt="Stress History" className="section-icon" />
+            <span className="section-title">Stress History</span>
           </button>
-          {expandedSections.wellness && (
-            <div className="sidebar-section-content">
-              <button
-                className={`sidebar-item ${isActive('/stress-history') ? 'active' : ''}`}
-                onClick={() => navigate('/stress-history')}
-              >
-                <span className="item-text">Stress History</span>
-              </button>
-            </div>
-          )}
         </div>
         <div className="sidebar-section">
           <button 
-            className="sidebar-section-header"
-            onClick={() => toggleSection('calendar')}
+            className={`sidebar-section-header ${isActive('/calendar') ? 'active' : ''}`}
+            onClick={() => navigate('/calendar')}
           >
+            <img src={calendarIcon} alt="Calendar" className="section-icon" />
             <span className="section-title">Calendar</span>
-            <span className={`section-arrow ${expandedSections.calendar ? 'expanded' : ''}`}>
-              ▼
-            </span>
           </button>
-          {expandedSections.calendar && (
-            <div className="sidebar-section-content">
-              <button
-                className={`sidebar-item ${isActive('/calendar') ? 'active' : ''}`}
-                onClick={() => navigate('/calendar')}
-              >
-                <span className="item-text">Calendar View</span>
-              </button>
-            </div>
-          )}
         </div>
+        <BurnoutSection />
       </nav>
     </aside>
   );
