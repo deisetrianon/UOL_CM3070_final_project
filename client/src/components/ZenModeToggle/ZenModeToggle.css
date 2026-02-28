@@ -161,8 +161,61 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) and (min-width: 769px) {
+  .zen-mode-wrapper {
+    gap: 6px;
+  }
+
   .zen-label {
     font-size: 0.8125rem;
+  }
+
+  .zen-mode-toggle {
+    width: 60px;
+    height: 22px;
+  }
+
+  .zen-mode-toggle.active .zen-toggle-handle {
+    transform: translateX(38px);
+  }
+
+  .zen-toggle-handle {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .zen-mode-wrapper {
+    gap: 4px;
+  }
+
+  .zen-labels-row {
+    gap: 4px;
+  }
+
+  .zen-label {
+    font-size: 0.75rem;
+  }
+
+  .zen-mode-toggle {
+    width: 56px;
+    height: 20px;
+  }
+
+  .zen-mode-toggle.active .zen-toggle-handle {
+    transform: translateX(34px);
+  }
+
+  .zen-toggle-handle {
+    width: 16px;
+    height: 16px;
+    top: 2px;
+    left: 2px;
+  }
+
+  .zen-auto-badge {
+    font-size: 0.5625rem;
+    padding: 1px 4px;
   }
 }

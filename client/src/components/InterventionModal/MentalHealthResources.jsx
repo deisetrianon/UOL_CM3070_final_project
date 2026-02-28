@@ -95,22 +95,22 @@ function MentalHealthResources({ onClose }) {
           <div className="resource-cards">
             {PROFESSIONAL_RESOURCES.map((resource, index) => (
               <div key={index} className="resource-card">
-              <h4 className="resource-title">{resource.title}</h4>
-              <p className="resource-description">{resource.description}</p>
-              <div className="resource-links">
-                {resource.links.map((link, linkIndex) => (
-                  <a
-                    key={linkIndex}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="resource-link"
-                  >
-                    {link.name} →
-                  </a>
-                ))}
+                <h4 className="resource-title">{resource.title}</h4>
+                <p className="resource-description">{resource.description}</p>
+                <div className="resource-links">
+                  {resource.links.map((link, linkIndex) => (
+                    <a
+                      key={linkIndex}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="resource-link"
+                    >
+                      {link.name} →
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
             ))}
           </div>
         </div>
