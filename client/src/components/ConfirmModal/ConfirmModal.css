@@ -70,6 +70,15 @@
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
 }
 
+.confirm-modal-icon-info,
+.confirm-modal-icon-warning,
+.confirm-modal-icon-danger {
+  img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 .confirm-modal-content {
   text-align: center;
   width: 100%;

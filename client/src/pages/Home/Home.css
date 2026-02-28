@@ -522,7 +522,7 @@
 }
 
 .email-item.selected {
-  background: rgba(59, 130, 246, 0.1);
+  background: var(--color-bg-elevated);
   border-left: 3px solid var(--color-accent-primary);
 }
 

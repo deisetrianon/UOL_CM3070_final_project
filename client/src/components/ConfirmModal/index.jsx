@@ -1,3 +1,6 @@
+import trashIcon from '../../assets/icons/trash.png';
+import importantIcon from '../../assets/icons/important.png';
+import infoIcon from '../../assets/icons/info.png';
 import './ConfirmModal.css';
 
 function ConfirmModal({ message, onConfirm, onCancel, title = 'Confirm Action', confirmText = 'Confirm', cancelText = 'Cancel', type = 'warning' }) {
@@ -6,13 +9,13 @@ function ConfirmModal({ message, onConfirm, onCancel, title = 'Confirm Action', 
   const getIcon = () => {
     switch (type) {
       case 'danger':
-        return '🗑️';
+        return <img src={trashIcon} alt="Trash" />;
       case 'warning':
-        return '⚠️';
+        return <img src={importantIcon} alt="Warning" />;
       case 'info':
-        return 'ℹ️';
+        return <img src={infoIcon} alt="Info" />;
       default:
-        return '❓';
+        return '';
     }
   };
 
