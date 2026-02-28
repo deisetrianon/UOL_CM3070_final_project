@@ -18,6 +18,7 @@ function Layout({ children }) {
 
   return (
     <div className="app-layout">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Navbar />
       <div className="layout-content">
         {isMobile && (
@@ -27,11 +28,12 @@ function Layout({ children }) {
           </>
         )}
         {!isMobile && <Sidebar />}
-        <main className="layout-main">
+        <main id="main-content" className="layout-main" role="main">
           {children}
         </main>
         {!isMobile && <WellnessPanel />}
       </div>
+      <div aria-live="polite" aria-atomic="true" className="sr-only" id="aria-live-region"></div>
     </div>
   );
 }

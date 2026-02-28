@@ -55,7 +55,7 @@ function WellnessPanel() {
   const isLoading = isAnalyzing || (cameraPermission === 'granted' && !lastAnalysisTime);
 
   return (
-    <aside className="wellness-panel">
+    <aside className="wellness-panel" role="complementary" aria-label="Wellness panel">
       <div className="wellness-panel-content">
         {cameraPermission === 'granted' && (
           <div className="current-status-section">
@@ -63,9 +63,9 @@ function WellnessPanel() {
               <h2>Current Status</h2>
             </div>
             {isLoading ? (
-              <div className="current-status-card current-status-loading">
+              <div className="current-status-card current-status-loading" role="status" aria-live="polite" aria-label="Analyzing stress level">
                 <div className="status-icon-circle">
-                  <img src={loadingIcon} alt="Loading" className="status-loading-icon" />
+                  <img src={loadingIcon} alt="" className="status-loading-icon" aria-hidden="true" />
                 </div>
                 <div className="status-content">
                   <div className="status-main">
@@ -77,14 +77,17 @@ function WellnessPanel() {
             ) : (
               <div 
                 className="current-status-card"
+                role="status"
+                aria-live="polite"
+                aria-label={`Current stress status: ${statusInfo.label}, ${stressScore}%`}
                 style={{
                   '--status-bg': statusInfo.color,
                   '--status-border': statusInfo.borderColor,
                   '--status-progress': statusInfo.progressColor
                 }}
               >
-                <div className="status-icon-circle" style={{ backgroundColor: statusInfo.circleBg }}>
-                  <img src={statusInfo.icon} alt={statusInfo.label} className="status-icon" />
+                <div className="status-icon-circle" style={{ backgroundColor: statusInfo.circleBg }} aria-hidden="true">
+                  <img src={statusInfo.icon} alt="" className="status-icon" aria-hidden="true" />
                 </div>
                 <div className="status-content">
                   <div className="status-main">
@@ -94,12 +97,13 @@ function WellnessPanel() {
                   <div className="status-details">
                     <div className="status-level-row">
                       <span className="status-level-label">Stress Level</span>
-                      <span className="status-percentage">{stressScore}%</span>
+                      <span className="status-percentage" aria-label={`${stressScore} percent`}>{stressScore}%</span>
                     </div>
-                    <div className="status-progress-bar">
+                    <div className="status-progress-bar" role="progressbar" aria-valuenow={stressScore} aria-valuemin="0" aria-valuemax="100" aria-label={`Stress level: ${stressScore} percent`}>
                       <div 
                         className="status-progress-fill"
                         style={{ width: `${stressScore}%` }}
+                        aria-hidden="true"
                       ></div>
                     </div>
                   </div>
@@ -111,48 +115,53 @@ function WellnessPanel() {
         <div className="wellness-panel-header">
           <h2>Wellness</h2>
         </div>
-        <div className="wellness-interventions">
+        <nav className="wellness-interventions" aria-label="Wellness intervention options">
           <button 
             className="wellness-option-btn"
             onClick={() => openBreathing()}
+            aria-label="Open Breathing Exercises"
             title="Breathing Exercises"
           >
-            <img src={breathingIcon} alt="Breathing Exercise" className="wellness-option-icon" />
+            <img src={breathingIcon} alt="" className="wellness-option-icon" aria-hidden="true" />
             <span className="wellness-option-label">Breathing Exercises</span>
           </button>
           <button 
             className="wellness-option-btn"
             onClick={() => openMindfulness()}
+            aria-label="Open Mindfulness Meditation"
             title="Mindfulness Meditation"
           >
-            <img src={mindfulnessIcon} alt="Mindfulness Meditation" className="wellness-option-icon" />
+            <img src={mindfulnessIcon} alt="" className="wellness-option-icon" aria-hidden="true" />
             <span className="wellness-option-label">Mindfulness</span>
           </button>
           <button 
             className="wellness-option-btn"
             onClick={() => openStretching()}
+            aria-label="Open Stretching Exercises"
             title="Stretching Exercises"
           >
-            <img src={stretchingIcon} alt="Stretching Exercises" className="wellness-option-icon" />
+            <img src={stretchingIcon} alt="" className="wellness-option-icon" aria-hidden="true" />
             <span className="wellness-option-label">Stretching</span>
           </button>
           <button 
             className="wellness-option-btn"
             onClick={() => openAnxietyRelief()}
+            aria-label="Open Anxiety Relief"
             title="Anxiety Relief"
           >
-            <img src={anxietyIcon} alt="Anxiety Relief" className="wellness-option-icon" />
+            <img src={anxietyIcon} alt="" className="wellness-option-icon" aria-hidden="true" />
             <span className="wellness-option-label">Anxiety Relief</span>
           </button>
           <button 
             className="wellness-option-btn"
             onClick={() => openMentalHealth()}
+            aria-label="Open Mental Health Resources"
             title="Mental Health Resources"
           >
-            <img src={helpIcon} alt="Mental Health Resources" className="wellness-option-icon" />
+            <img src={helpIcon} alt="" className="wellness-option-icon" aria-hidden="true" />
             <span className="wellness-option-label">Mental Health Resources</span>
           </button>
-        </div>
+        </nav>
       </div>
     </aside>
   );

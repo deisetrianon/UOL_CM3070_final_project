@@ -336,52 +336,90 @@ function PomodoroTimer() {
         className="pomodoro-header" 
         onClick={isExpanded && !isActive ? toggleExpand : undefined}
         style={{ cursor: isExpanded && !isActive ? 'pointer' : 'default' }}
+        role="button"
+        aria-label={isExpanded && !isActive ? 'Collapse Pomodoro timer' : isExpanded ? 'Pomodoro timer' : 'Expand Pomodoro timer'}
+        tabIndex={!isExpanded ? 0 : undefined}
+        onKeyDown={(e) => {
+          if (!isExpanded && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            toggleExpand();
+          }
+        }}
       >
-        <img src={pomodoroIcon} alt="Pomodoro" className="pomodoro-icon" />
+        <img src={pomodoroIcon} alt="" className="pomodoro-icon" aria-hidden="true" />
         {!isExpanded && (
-          <span className="pomodoro-mode-text">
+          <span className="pomodoro-mode-text" aria-label="Pomodoro timer">
             POMODORO
           </span>
         )}
         {isExpanded && sessionCount > 0 && (
-          <span className="pomodoro-session-count">{sessionCount}</span>
+          <span className="pomodoro-session-count" aria-label={`${sessionCount} completed session${sessionCount !== 1 ? 's' : ''}`}>
+            {sessionCount}
+          </span>
         )}
       </div>
       {isExpanded && (
         <>
-          <div className="pomodoro-time-display" onClick={(e) => e.stopPropagation()}>
+          <div 
+            className="pomodoro-time-display" 
+            onClick={(e) => e.stopPropagation()}
+            role="timer"
+            aria-live="polite"
+            aria-label={`${mode === 'work' ? 'Work' : 'Break'} time remaining: ${formatTime(timeLeft)}`}
+          >
             {formatTime(timeLeft)}
           </div>
-          <div className="pomodoro-progress-bar" onClick={(e) => e.stopPropagation()}>
+          <div 
+            className="pomodoro-progress-bar" 
+            onClick={(e) => e.stopPropagation()}
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label={`Timer progress: ${Math.round(progress)}%`}
+          >
             <div 
               className="pomodoro-progress-fill" 
               style={{ width: `${progress}%` }}
+              aria-hidden="true"
             />
           </div>
-          <div className="pomodoro-controls" onClick={(e) => e.stopPropagation()}>
+          <div className="pomodoro-controls" onClick={(e) => e.stopPropagation()} role="toolbar" aria-label="Pomodoro timer controls">
             {!isActive ? (
-              <button className="pomodoro-btn start" onClick={startTimer} title="Start">
-                ▶
+              <button 
+                className="pomodoro-btn start" 
+                onClick={startTimer} 
+                title="Start"
+                aria-label={`Start ${mode} timer`}
+              >
+                <span aria-hidden="true">▶</span>
               </button>
             ) : (
-              <button className="pomodoro-btn pause" onClick={pauseTimer} title="Pause">
-                ⏸
+              <button 
+                className="pomodoro-btn pause" 
+                onClick={pauseTimer} 
+                title="Pause"
+                aria-label="Pause timer"
+              >
+                <span aria-hidden="true">⏸</span>
               </button>
             )}
             <button 
               className="pomodoro-btn reset" 
               onClick={resetTimer} 
               title="Reset"
+              aria-label="Reset timer"
               disabled={timeLeft === (mode === 'work' ? WORK_DURATION : BREAK_DURATION) && !isActive}
             >
-              ↻
+              <span aria-hidden="true">↻</span>
             </button>
             <button 
               className="pomodoro-btn stop" 
               onClick={stopTimer} 
               title="Stop"
+              aria-label="Stop timer"
             >
-              ⏹
+              <span aria-hidden="true">⏹</span>
             </button>
           </div>
         </>

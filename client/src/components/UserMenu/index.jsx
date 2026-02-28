@@ -15,7 +15,7 @@ function UserMenu() {
     return `https://ui-avatars.com/api/?name=${name}&background=4f46e5&color=fff&size=96`;
   };
 
-  // Closing menu when clicking outside
+  // Closing menu when clicking outside or pressing Escape
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -23,9 +23,19 @@ function UserMenu() {
       }
     };
 
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleEscape);
+      };
     }
   }, [isOpen]);
 
@@ -48,42 +58,64 @@ function UserMenu() {
 
   return (
     <div className="user-menu-wrapper" ref={menuRef}>
-      <button className="user-menu-trigger" onClick={handleToggle}>
+      <button 
+        className="user-menu-trigger" 
+        onClick={handleToggle}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        aria-label={`User menu for ${user.displayName}. ${isOpen ? 'Close menu' : 'Open menu'}`}
+      >
         <img 
           src={user.picture || getFallbackAvatar()} 
-          alt={user.displayName}
+          alt=""
           className="user-avatar"
           onError={(e) => { e.target.src = getFallbackAvatar(); }}
           referrerPolicy="no-referrer"
+          aria-hidden="true"
         />
         <div className="user-info">
           <span className="user-name">{user.displayName}</span>
           <span className="user-email">{user.email}</span>
         </div>
-        <span className={`dropdown-arrow ${isOpen ? 'open' : ''}`}>▼</span>
+        <span className={`dropdown-arrow ${isOpen ? 'open' : ''}`} aria-hidden="true">▼</span>
       </button>
       {isOpen && (
-        <div className="user-menu-dropdown">
-          <div className="user-menu-header">
+        <div 
+          className="user-menu-dropdown" 
+          role="menu"
+          aria-label="User account menu"
+        >
+          <div className="user-menu-header" role="presentation">
             <img 
               src={user.picture || getFallbackAvatar()} 
-              alt={user.displayName}
+              alt=""
               className="user-avatar-large"
               onError={(e) => { e.target.src = getFallbackAvatar(); }}
               referrerPolicy="no-referrer"
+              aria-hidden="true"
             />
             <div className="user-info-large">
               <span className="user-name-large">{user.displayName}</span>
               <span className="user-email-large">{user.email}</span>
             </div>
           </div>
-          <div className="user-menu-divider"></div>
-          <button className="user-menu-item" onClick={handleSettings}>
-            <span className="menu-icon">⚙️</span>
+          <div className="user-menu-divider" role="separator" aria-hidden="true"></div>
+          <button 
+            className="user-menu-item" 
+            onClick={handleSettings}
+            role="menuitem"
+            aria-label="Go to Settings"
+          >
+            <span className="menu-icon" aria-hidden="true">⚙️</span>
             <span>Settings</span>
           </button>
-          <button className="user-menu-item logout" onClick={handleLogout}>
-            <span className="menu-icon">➜]</span>
+          <button 
+            className="user-menu-item logout" 
+            onClick={handleLogout}
+            role="menuitem"
+            aria-label="Sign out of account"
+          >
+            <span className="menu-icon" aria-hidden="true">➜]</span>
             <span>Sign out</span>
           </button>
         </div>

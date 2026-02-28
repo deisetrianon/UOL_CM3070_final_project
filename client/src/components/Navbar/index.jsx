@@ -38,29 +38,34 @@ function Navbar() {
   const stressStatus = getStressStatus();
 
   return (
-    <header className="app-navbar">
-      <div className="navbar-left">
+    <header className="app-navbar" role="banner">
+      <nav className="navbar-left" aria-label="Main navigation">
         <div className="navbar-logo">
-          <Link to="/home" className="logo-title">
+          <Link to="/home" className="logo-title" aria-label="Empathetic Workspace - Go to home">
             <span className="text-gradient">Empathetic Workspace</span>
           </Link>
         </div>
-      </div>
-      <div className="navbar-center">
+      </nav>
+      <div className="navbar-center" role="toolbar" aria-label="Wellness controls">
         <PomodoroTimer />
         {cameraPermission === 'granted' && stressStatus && (
           <div 
             className={`wellness-indicator ${stressStatus.level}`} 
+            role="status"
+            aria-live="polite"
+            aria-label={`Current stress level: ${stressStatus.label}`}
             title={`Stress level: ${stressStatus.label}`}
           >
-            <span className="stress-dot"></span>
+            <span className="stress-dot" aria-hidden="true"></span>
             <span className="stress-label">{stressStatus.label}</span>
-            {isAnalyzing && <span className="analyzing-dot"></span>}
+            {isAnalyzing && (
+              <span className="analyzing-dot" aria-label="Analyzing stress level" aria-hidden="true"></span>
+            )}
           </div>
         )}
         <ZenModeToggle />
       </div>
-      <div className="navbar-right">
+      <div className="navbar-right" role="toolbar" aria-label="User menu">
         <UserMenu />
       </div>
     </header>
