@@ -5,6 +5,8 @@ import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import Layout from '../../components/Layout';
 import importantIcon from '../../assets/icons/important.png';
+import lampIcon from '../../assets/icons/lamp.png';
+import privacyIcon from '../../assets/icons/privacy.png';
 import './Settings.css';
 
 function Settings() {
@@ -135,13 +137,14 @@ function Settings() {
     <Layout>
       <div className="settings-page">
         <div className="settings-header-section">
-          <h1>⚙️ Settings</h1>
+          <div className="settings-header-left">
+            <h1>Settings</h1>
+          </div>
+          <div className="settings-header-right">
+          </div>
         </div>
         <main className="settings-content">
         <section className="settings-section profile-section">
-          <div className="section-header">
-            <h2>👤 Profile</h2>
-          </div>
           <div className="profile-card">
             <img 
               src={user?.picture || getFallbackAvatar()} 
@@ -201,7 +204,9 @@ function Settings() {
                 </label>
               </div>
               <div className="setting-note">
-                <span className="note-icon">💡</span>
+                <span className="note-icon">
+                  <img src={lampIcon} alt="Lamp" />
+                </span>
                 <span>
                   {settings.zenMode?.autoEnabled 
                     ? "When fatigue is detected, Zen Mode will activate automatically to help you focus on priority items."
@@ -275,7 +280,10 @@ function Settings() {
             </section>
             <section className="settings-section privacy-note">
               <div className="section-header">
-                <h2>🔒 Privacy</h2>
+                <h2>
+                  <img src={privacyIcon} alt="Privacy" />
+                  Privacy
+                </h2>
               </div>
               <div className="privacy-content">
                 <p>

@@ -12,6 +12,7 @@ import sentIcon from '../../assets/icons/sent.png';
 import draftIcon from '../../assets/icons/drafts.png';
 import trashIcon from '../../assets/icons/trash.png';
 import spamIcon from '../../assets/icons/spam.png';
+import BurnoutSection from './BurnoutSection';
 import './Sidebar.css';
 
 function Sidebar() {
@@ -145,6 +146,7 @@ function Sidebar() {
             <span className="section-title">Calendar</span>
           </button>
         </div>
+        <BurnoutSection />
       </nav>
     </aside>
   );

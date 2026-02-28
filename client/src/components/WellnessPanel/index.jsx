@@ -57,55 +57,57 @@ function WellnessPanel() {
   return (
     <aside className="wellness-panel">
       <div className="wellness-panel-content">
-        <div className="current-status-section">
-          <div className="wellness-panel-header">
-            <h2>Current Status</h2>
+        {cameraPermission === 'granted' && (
+          <div className="current-status-section">
+            <div className="wellness-panel-header">
+              <h2>Current Status</h2>
+            </div>
+            {isLoading ? (
+              <div className="current-status-card current-status-loading">
+                <div className="status-icon-circle">
+                  <img src={loadingIcon} alt="Loading" className="status-loading-icon" />
+                </div>
+                <div className="status-content">
+                  <div className="status-main">
+                    <h4 className="status-label">Analyzing...</h4>
+                    <p className="status-message">Please wait while we analyze your stress level</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div 
+                className="current-status-card"
+                style={{
+                  '--status-bg': statusInfo.color,
+                  '--status-border': statusInfo.borderColor,
+                  '--status-progress': statusInfo.progressColor
+                }}
+              >
+                <div className="status-icon-circle" style={{ backgroundColor: statusInfo.circleBg }}>
+                  <img src={statusInfo.icon} alt={statusInfo.label} className="status-icon" />
+                </div>
+                <div className="status-content">
+                  <div className="status-main">
+                    <h4 className="status-label">{statusInfo.label}</h4>
+                    <p className="status-message">{statusInfo.message}</p>
+                  </div>
+                  <div className="status-details">
+                    <div className="status-level-row">
+                      <span className="status-level-label">Stress Level</span>
+                      <span className="status-percentage">{stressScore}%</span>
+                    </div>
+                    <div className="status-progress-bar">
+                      <div 
+                        className="status-progress-fill"
+                        style={{ width: `${stressScore}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-          {isLoading ? (
-            <div className="current-status-card current-status-loading">
-              <div className="status-icon-circle">
-                <img src={loadingIcon} alt="Loading" className="status-loading-icon" />
-              </div>
-              <div className="status-content">
-                <div className="status-main">
-                  <h4 className="status-label">Analyzing...</h4>
-                  <p className="status-message">Please wait while we analyze your stress level</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div 
-              className="current-status-card"
-              style={{
-                '--status-bg': statusInfo.color,
-                '--status-border': statusInfo.borderColor,
-                '--status-progress': statusInfo.progressColor
-              }}
-            >
-              <div className="status-icon-circle" style={{ backgroundColor: statusInfo.circleBg }}>
-                <img src={statusInfo.icon} alt={statusInfo.label} className="status-icon" />
-              </div>
-              <div className="status-content">
-                <div className="status-main">
-                  <h4 className="status-label">{statusInfo.label}</h4>
-                  <p className="status-message">{statusInfo.message}</p>
-                </div>
-                <div className="status-details">
-                  <div className="status-level-row">
-                    <span className="status-level-label">Stress Level</span>
-                    <span className="status-percentage">{stressScore}%</span>
-                  </div>
-                  <div className="status-progress-bar">
-                    <div 
-                      className="status-progress-fill"
-                      style={{ width: `${stressScore}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        )}
         <div className="wellness-panel-header">
           <h2>Wellness</h2>
         </div>

@@ -17,6 +17,7 @@ import Tasks from './pages/Tasks';
 import Settings from './pages/Settings';
 import StressHistoryPage from './pages/StressHistory';
 import CalendarPage from './pages/Calendar';
+import Burnout from './pages/Burnout';
 import './App.css';
 
 function App() {
@@ -68,6 +69,14 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <CalendarPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/burnout"
+                      element={
+                        <ProtectedRoute>
+                          <Burnout />
                         </ProtectedRoute>
                       }
                     />
