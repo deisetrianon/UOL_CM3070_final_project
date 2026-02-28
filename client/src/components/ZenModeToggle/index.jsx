@@ -74,7 +74,7 @@ function ZenModeToggle({ className = '' }) {
           type="button"
           role="switch"
           aria-checked={isZenModeActive}
-          aria-label="Toggle Zen Mode"
+          aria-label={`${isZenModeActive ? 'Disable' : 'Enable'} Zen Mode. ${autoZenModeEnabled ? 'Automatic mode is available.' : ''}`}
         >
           <span className="zen-toggle-track">
             <span className="zen-toggle-handle"></span>

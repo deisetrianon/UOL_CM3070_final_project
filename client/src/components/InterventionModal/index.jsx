@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useWellnessIntervention } from '../../contexts/WellnessInterventionContext';
 import BreathingExercise from './BreathingExercise';
 import MindfulnessExercise from './MindfulnessExercise';
@@ -9,18 +9,61 @@ import './InterventionModal.css';
 
 function InterventionModal() {
   const { activeIntervention, closeIntervention } = useWellnessIntervention();
+  const modalRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const previousFocusRef = useRef(null);
 
   useEffect(() => {
     if (activeIntervention) {
       document.body.style.overflow = 'hidden';
+      previousFocusRef.current = document.activeElement;
+      setTimeout(() => {
+        if (closeButtonRef.current) {
+          closeButtonRef.current.focus();
+        }
+      }, 100);
     } else {
       document.body.style.overflow = '';
+      if (previousFocusRef.current) {
+        previousFocusRef.current.focus();
+      }
     }
 
     return () => {
       document.body.style.overflow = '';
     };
   }, [activeIntervention]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!activeIntervention) return;
+
+      if (e.key === 'Escape') {
+        closeIntervention();
+      }
+
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    if (activeIntervention) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [activeIntervention, closeIntervention]);
 
   if (!activeIntervention) {
     return null;
@@ -43,12 +86,44 @@ function InterventionModal() {
     }
   };
 
+  if (!activeIntervention) {
+    return null;
+  }
+
+  const interventionNames = {
+    breathing: 'Breathing Exercise',
+    mindfulness: 'Mindfulness Meditation',
+    stretching: 'Stretching Guide',
+    anxietyRelief: 'Anxiety Relief',
+    mentalHealth: 'Mental Health Resources'
+  };
+
   return (
-    <div className="intervention-modal-overlay" onClick={closeIntervention}>
-      <div className="intervention-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="intervention-close-btn" onClick={closeIntervention} title="Close">
-          ✕
+    <div 
+      className="intervention-modal-overlay" 
+      onClick={closeIntervention}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="intervention-modal-title"
+    >
+      <div 
+        className="intervention-modal" 
+        onClick={(e) => e.stopPropagation()}
+        ref={modalRef}
+        role="document"
+      >
+        <button 
+          className="intervention-close-btn" 
+          onClick={closeIntervention} 
+          ref={closeButtonRef}
+          aria-label="Close intervention modal"
+          title="Close (Escape)"
+        >
+          <span aria-hidden="true">✕</span>
         </button>
+        <h2 id="intervention-modal-title" className="sr-only">
+          {interventionNames[activeIntervention.type] || 'Wellness Intervention'}
+        </h2>
         <div className="intervention-modal-content">
           {renderIntervention()}
         </div>

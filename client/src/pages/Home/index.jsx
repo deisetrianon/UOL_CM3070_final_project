@@ -626,26 +626,31 @@ function Home() {
               className="write-email-btn"
               onClick={openWriter}
               title="Write new email"
+              aria-label="Write new email"
             >
-              <img src={writeIcon} alt="Write" className="write-icon" /> Write
+              <img src={writeIcon} alt="" className="write-icon" aria-hidden="true" /> Write
             </button>
-            <div className="search-bar">
-            <img src={searchIcon} alt="Search" className="search-icon" />
+            <div className="search-bar" role="search" aria-label="Search emails">
+            <img src={searchIcon} alt="" className="search-icon" aria-hidden="true" />
+            <label htmlFor="email-search-input" className="sr-only">Search emails</label>
             <input 
+              id="email-search-input"
               type="text" 
               placeholder="Search emails..." 
               className="search-input"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchKeyDown}
+              aria-label="Search emails"
             />
             {(searchQuery || activeSearch) && (
               <button 
                 className="search-clear"
                 onClick={handleClearSearch}
                 title="Clear search"
+                aria-label="Clear search query"
               >
-                ✕
+                <span aria-hidden="true">✕</span>
               </button>
             )}
             <button 
@@ -653,13 +658,14 @@ function Home() {
               onClick={handleSearch}
               disabled={!searchQuery.trim()}
               title="Search"
+              aria-label="Search emails"
             >
               Search
             </button>
             </div>
           </div>
           {activeSearch && (
-            <div className="search-active-indicator">
+            <div className="search-active-indicator" role="status" aria-live="polite">
               Showing results for: <strong>"{activeSearch}"</strong>
             </div>
           )}

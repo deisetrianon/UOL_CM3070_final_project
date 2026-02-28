@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef } f
 import { useFacialAnalysis } from './FacialAnalysisContext';
 import { useStressFusion } from './StressFusionContext';
 import { useAuth } from './AuthContext';
+import { announceZenModeChange } from '../utils/accessibility';
 
 const ZenModeContext = createContext(null);
 
@@ -81,15 +82,18 @@ export function ZenModeProvider({ children }) {
 
   // Toggle Zen Mode manually
   const toggleZenMode = useCallback(() => {
+    const willBeActive = !isZenModeActive;
     setIsManuallyToggled(prev => !prev);
     setIsZenModeActive(prev => !prev);
     setShowSuggestion(false); // Hide suggestion when manually toggled
     
-    if (!isZenModeActive) {
+    if (willBeActive) {
       console.log('[ZenMode] Manually activated');
+      announceZenModeChange(true, 'Zen Mode enabled manually', false);
     } else {
       console.log('[ZenMode] Manually deactivated');
       setAutoTriggeredReason(null);
+      announceZenModeChange(false, 'Zen Mode disabled manually', false);
     }
   }, [isZenModeActive]);
 
@@ -98,10 +102,12 @@ export function ZenModeProvider({ children }) {
     if (!isZenModeActive) {
       setIsZenModeActive(true);
       setShowSuggestion(false);
+      const isAutomatic = !!reason;
       if (reason) {
         setAutoTriggeredReason(reason);
       }
       console.log('[ZenMode] Enabled:', reason || 'manual');
+      announceZenModeChange(true, reason || 'Zen Mode enabled', isAutomatic);
     }
   }, [isZenModeActive]);
 
@@ -187,8 +193,10 @@ export function ZenModeProvider({ children }) {
       // 2. It was auto-triggered (has autoTriggeredReason), not manually toggled
       // 3. Auto Zen Mode is enabled in settings
       if (isZenModeActive && autoTriggeredReason && !isManuallyToggled && autoZenModeEnabled) {
+        const reason = `Stress returned to normal (score: ${stressScore})`;
         console.log('[ZenMode] Auto-disabling - stress returned to normal (score:', stressScore, ')');
         setIsZenModeActive(false);
+        announceZenModeChange(false, reason, true);
         setAutoTriggeredReason(null);
       }
     }

@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef } f
 import { useFacialAnalysis } from './FacialAnalysisContext';
 import { useKeystroke } from './KeystrokeContext';
 import { useAuth } from './AuthContext';
+import { announceStressLevelChange } from '../utils/accessibility';
 
 const StressFusionContext = createContext(null);
 
@@ -48,6 +49,7 @@ export function StressFusionProvider({ children }) {
     lastUpdate: null
   });
   const facialHistoryRef = useRef([]);
+  const previousStressLevelRef = useRef('normal');
   const keystrokeHistoryRef = useRef([]);
   const lastSavedScoreRef = useRef(0);
   const lastSaveTimeRef = useRef(Date.now());
@@ -154,6 +156,12 @@ export function StressFusionProvider({ children }) {
       level = 'high';
     } else if (finalScore >= MODERATE_STRESS_THRESHOLD) {
       level = 'moderate';
+    }
+
+    // Announcing stress level changes to screen readers
+    if (previousStressLevelRef.current !== level) {
+      announceStressLevelChange(level, finalScore);
+      previousStressLevelRef.current = level;
     }
 
     setStressScore(finalScore);

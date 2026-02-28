@@ -380,48 +380,64 @@ function Tasks() {
         <div className="tasks-header-section">
           <div className="tasks-header-left">
             <h1>Task Board</h1>
-            <div className="tasks-nav-buttons">
+            <div className="tasks-nav-buttons" role="tablist" aria-label="Task filter options">
               <button 
                 className={`nav-btn ${activeFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('all')}
+                role="tab"
+                aria-selected={activeFilter === 'all'}
+                aria-controls="tasks-content"
+                aria-label="Show all tasks"
               >
                 All Tasks
               </button>
               <button 
                 className={`nav-btn ${activeFilter === 'today' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('today')}
+                role="tab"
+                aria-selected={activeFilter === 'today'}
+                aria-controls="tasks-content"
+                aria-label="Show today's tasks"
               >
                 Today
               </button>
             </div>
           </div>
           <div className="tasks-header-right">
-            <div className="view-toggle">
+            <div className="view-toggle" role="group" aria-label="View mode selection">
               <button 
                 className={`view-btn ${viewMode === 'board' ? 'active' : ''}`}
                 onClick={() => setViewMode('board')}
                 title="Board View"
+                aria-label="Switch to board view"
+                aria-pressed={viewMode === 'board'}
               >
-                <img src={boardIcon} alt="Board View" className="view-icon" />
+                <img src={boardIcon} alt="" className="view-icon" aria-hidden="true" />
               </button>
               <button 
                 className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                 onClick={() => setViewMode('list')}
                 title="List View"
+                aria-label="Switch to list view"
+                aria-pressed={viewMode === 'list'}
               >
-                <img src={listIcon} alt="List View" className="view-icon" />
+                <img src={listIcon} alt="" className="view-icon" aria-hidden="true" />
               </button>
             </div>
-            <button className="add-task-btn" onClick={() => setShowAddModal(true)}>
+            <button 
+              className="add-task-btn" 
+              onClick={() => setShowAddModal(true)}
+              aria-label="Create new task"
+            >
               New Task
             </button>
           </div>
         </div>
       {error && (
-        <div className="error-banner">
-          <img src={importantIcon} alt="Warning" className="warning-icon" />
+        <div className="error-banner" role="alert" aria-live="assertive">
+          <img src={importantIcon} alt="" className="warning-icon" aria-hidden="true" />
           <span>{error}</span>
-          <button onClick={fetchTasks}>Retry</button>
+          <button onClick={fetchTasks} aria-label="Retry loading tasks">Retry</button>
         </div>
       )}
       {isZenModeActive && (
@@ -464,6 +480,7 @@ function Tasks() {
                           setEditingTask({ status: column.id });
                           setShowAddModal(true);
                         }}
+                        aria-label={`Add new task to ${column.title} column`}
                       >
                         Add task
                       </button>
@@ -476,6 +493,15 @@ function Tasks() {
                               {...provided.dragHandleProps}
                               className={`task-card ${snapshot.isDragging ? 'dragging' : ''} ${task.isUrgent ? 'urgent' : ''}`}
                               onClick={() => setEditingTask(task)}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`Task: ${task.title}. ${task.isUrgent ? 'Urgent. ' : ''}${task.priority === 'high' ? 'High priority. ' : ''}${task.deadline ? `Deadline: ${formatDeadline(task.deadline)?.text}. ` : ''}Click to edit.`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  setEditingTask(task);
+                                }
+                              }}
                             >
                               <h3 className="task-title">{task.title}</h3>                              
                               {task.description && (
@@ -488,7 +514,7 @@ function Tasks() {
                               <div className="task-card-footer">
                                 {task.deadline && (
                                   <span className={`deadline ${formatDeadline(task.deadline)?.class}`}>
-                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '4px' }}>
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '4px' }} aria-hidden="true">
                                       <rect x="2" y="3" width="10" height="9" rx="1" stroke="currentColor" strokeWidth="1.2" fill="none"/>
                                       <line x1="4" y1="1" x2="4" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
                                       <line x1="7" y1="1" x2="7" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
@@ -549,6 +575,15 @@ function Tasks() {
                         key={task.id}
                         className="list-task-item"
                         onClick={() => setEditingTask(task)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Task: ${task.title}. ${task.isUrgent ? 'Urgent. ' : ''}${task.priority === 'high' ? 'High priority. ' : ''}${task.deadline ? `Deadline: ${formatDeadline(task.deadline)?.text}. ` : ''}Click to edit.`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setEditingTask(task);
+                          }
+                        }}
                       >
                         <div className="list-task-main">
                           <h4 className="list-task-title">{task.title}</h4>
@@ -563,7 +598,7 @@ function Tasks() {
                           </div>
                           {task.deadline && (
                             <span className={`list-task-deadline ${formatDeadline(task.deadline)?.class}`}>
-                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '4px' }}>
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '4px' }} aria-hidden="true">
                                 <rect x="2" y="3" width="10" height="9" rx="1" stroke="currentColor" strokeWidth="1.2" fill="none"/>
                                 <line x1="4" y1="1" x2="4" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
                                 <line x1="7" y1="1" x2="7" y2="3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
@@ -647,40 +682,56 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="task-modal" onClick={(e) => e.stopPropagation()}>
+    <div 
+      className="modal-overlay" 
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="task-modal-title"
+    >
+      <div className="task-modal" onClick={(e) => e.stopPropagation()} role="document">
         <div className="modal-header">
-          <h2>{task && task.id ? 'Edit Task' : 'New Task'}</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <h2 id="task-modal-title">{task && task.id ? 'Edit Task' : 'New Task'}</h2>
+          <button className="close-btn" onClick={onClose} aria-label="Close task modal">✕</button>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} aria-label={task && task.id ? 'Edit task form' : 'Create new task form'}>
           <div className="form-group">
-            <label>Title *</label>
+            <label htmlFor="task-title">Title <span aria-label="required">*</span></label>
             <input
+              id="task-title"
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="What needs to be done?"
               autoFocus
               maxLength={200}
+              required
+              aria-required="true"
+              aria-describedby="task-title-help"
             />
+            <span id="task-title-help" className="sr-only">Maximum 200 characters</span>
           </div>
           <div className="form-group">
-            <label>Description</label>
+            <label htmlFor="task-description">Description</label>
             <textarea
+              id="task-description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Add more details..."
               rows={3}
               maxLength={1000}
+              aria-describedby="task-description-help"
             />
+            <span id="task-description-help" className="sr-only">Maximum 1000 characters</span>
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Priority</label>
+              <label htmlFor="task-priority">Priority</label>
               <select
+                id="task-priority"
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                aria-label="Task priority level"
               >
                 <option value="low">🟢 Low</option>
                 <option value="medium">🟡 Medium</option>
@@ -689,12 +740,14 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
               </select>
             </div>
             <div className="form-group">
-              <label>Deadline</label>
+              <label htmlFor="task-deadline">Deadline</label>
               <input
+                id="task-deadline"
                 type="date"
                 value={formData.deadline}
                 onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                 min={new Date().toISOString().split('T')[0]}
+                aria-label="Task deadline date"
               />
             </div>
           </div>
@@ -704,6 +757,7 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
                 type="checkbox"
                 checked={formData.isUrgent}
                 onChange={(e) => setFormData({ ...formData, isUrgent: e.target.checked })}
+                aria-label="Mark task as urgent"
               />
               <span>🔥 Mark as Urgent</span>
             </label>
@@ -714,15 +768,16 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
                 type="button" 
                 className="delete-btn"
                 onClick={() => onDelete(task.id)}
+                aria-label="Delete this task"
               >
                 Delete
               </button>
             )}
             <div className="right-actions">
-              <button type="button" className="cancel-btn" onClick={onClose}>
+              <button type="button" className="cancel-btn" onClick={onClose} aria-label="Cancel and close task form">
                 Cancel
               </button>
-              <button type="submit" className="save-btn" disabled={saving}>
+              <button type="submit" className="save-btn" disabled={saving} aria-label={saving ? 'Saving task' : (task && task.id ? 'Update task' : 'Create new task')}>
                 {saving ? 'Saving...' : (task && task.id ? 'Update' : 'Create Task')}
               </button>
             </div>
