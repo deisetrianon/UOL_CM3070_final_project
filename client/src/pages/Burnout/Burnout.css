@@ -245,13 +245,13 @@
   margin-top: 8px;
 }
 
-.resource-links {
+.burnout-resources-card .resource-links {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.resource-link {
+.burnout-resources-card .resource-link {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -264,7 +264,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-.resource-link:hover {
+.burnout-resources-card .resource-link:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   border-color: var(--color-accent-primary);
@@ -302,7 +302,7 @@
   transition: transform 0.3s ease;
 }
 
-.resource-link:hover .resource-arrow {
+.burnout-resources-card .resource-link:hover .resource-arrow {
   transform: translateX(4px);
 }
 
@@ -347,7 +347,7 @@
     margin: 0 auto;
   }
 
-  .resource-link {
+  .burnout-resources-card .resource-link {
     flex-direction: column;
     text-align: center;
   }

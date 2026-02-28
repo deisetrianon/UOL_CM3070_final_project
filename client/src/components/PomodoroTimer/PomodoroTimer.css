@@ -193,33 +193,55 @@
   background: #c0392b;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) and (min-width: 769px) {
   .pomodoro-widget {
     padding: 6px 10px;
-    gap: 8px;
+    gap: 6px;
   }
 
   .pomodoro-time-display {
-    font-size: 16px;
-    min-width: 45px;
-  }
-
-  .pomodoro-progress-bar {
-    width: 50px;
-  }
-
-  .pomodoro-controls {
-    gap: 3px;
-  }
-
-  .pomodoro-btn {
-    padding: 4px 6px;
-    font-size: 12px;
-    min-width: 24px;
-    height: 24px;
+    font-size: 14px;
+    min-width: 42px;
   }
 
   .pomodoro-mode-text {
     font-size: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pomodoro-widget {
+    padding: 4px 8px;
+    gap: 6px;
+    height: 28px;
+  }
+
+  .pomodoro-time-display {
+    font-size: 13px;
+    min-width: 40px;
+  }
+
+  .pomodoro-progress-bar {
+    width: 35px;
+  }
+
+  .pomodoro-controls {
+    gap: 2px;
+  }
+
+  .pomodoro-btn {
+    padding: 2px 4px;
+    font-size: 10px;
+    min-width: 20px;
+    height: 20px;
+  }
+
+  .pomodoro-mode-text {
+    font-size: 9px;
+  }
+
+  .pomodoro-icon {
+    width: 14px;
+    height: 14px;
   }
 }

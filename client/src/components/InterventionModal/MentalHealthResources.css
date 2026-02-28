@@ -31,6 +31,8 @@
 .crisis-section,
 .professional-section {
   text-align: left;
+  display: flex;
+  flex-direction: column;
 }
 
 .section-title {
@@ -38,13 +40,16 @@
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
 
-  img {
-    width: 20px;
-    height: 20px;
-    margin-right: var(--spacing-sm);
-    padding-bottom: 3px;
-  }
+.section-title img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .section-description {
@@ -153,29 +158,34 @@
   line-height: 1.5;
 }
 
-.resource-links {
+.mental-health-resources .resource-links {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-sm);
   margin-top: auto;
 }
 
-.resource-link {
+.mental-health-resources .resource-link {
   display: inline-block;
   padding: 6px 12px;
   background: var(--color-accent-gradient);
-  color: white;
+  color: white !important;
   text-decoration: none;
   border-radius: var(--radius-sm);
   font-size: 0.8125rem;
   font-weight: 500;
   transition: all var(--transition-fast);
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
 }
 
-.resource-link:hover {
-  color: white;
+.mental-health-resources .resource-link:hover {
+  color: white !important;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+  text-decoration: none;
 }
 
 .resources-note {
@@ -225,11 +235,11 @@
     gap: 12px;
   }
 
-  .resource-links {
+  .mental-health-resources .resource-links {
     flex-direction: column;
   }
 
-  .resource-link {
+  .mental-health-resources .resource-link {
     width: 100%;
     text-align: center;
   }
