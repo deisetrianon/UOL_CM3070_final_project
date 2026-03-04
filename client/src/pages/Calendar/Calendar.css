@@ -332,7 +332,6 @@
   align-items: center;
 }
 
-/* Week view specific styles */
 .rbc-time-view {
   flex: 1;
   min-height: 0;

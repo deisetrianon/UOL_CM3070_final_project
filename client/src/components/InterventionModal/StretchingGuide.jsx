@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import './StretchingGuide.css';
 
-// YouTube videos from playlist: Seated Workers Stretching Exercises
-// Playlist: https://www.youtube.com/watch?v=9bWnHUogD18&list=PL7VMgrkm4wQe5PfQV9-rzJGvxNk3fl3sM
 const STRETCHING_VIDEOS = [
   { id: '9bWnHUogD18' },
   { id: 'Fo1LFQZ9Q0c' },

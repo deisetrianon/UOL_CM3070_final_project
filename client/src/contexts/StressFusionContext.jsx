@@ -3,37 +3,9 @@ import { useFacialAnalysis } from './FacialAnalysisContext';
 import { useKeystroke } from './KeystrokeContext';
 import { useAuth } from './AuthContext';
 import { announceStressLevelChange } from '../utils/accessibility';
+import { STRESS } from '../constants';
 
 const StressFusionContext = createContext(null);
-
-/**
- * Stress Fusion Context
- * Combines keystroke dynamics and facial analysis data into a unified stress score
- * 
- * Fusion Algorithm:
- * - Facial Analysis: 60% weight (more reliable, continuous monitoring)
- * - Keystroke Dynamics: 40% weight (behavioral indicator, requires typing)
- * 
- * Stress Levels:
- * - Low: 0-30
- * - Moderate: 31-60
- * - High: 61-100
- */
-
-// Weight configuration for fusion
-const FACIAL_WEIGHT = 0.6;
-const KEYSTROKE_WEIGHT = 0.4;
-// Stress level thresholds
-const MODERATE_STRESS_THRESHOLD = 30;
-const HIGH_STRESS_THRESHOLD = 60;
-// Time windows for averaging
-const FACIAL_AVERAGE_WINDOW = 5 * 60 * 1000; // 5 minutes
-const KEYSTROKE_AVERAGE_WINDOW = 2 * 60 * 1000; // 2 minutes
-
-// Interval for saving stress logs to database (5 minutes)
-const STRESS_LOG_SAVE_INTERVAL = 5 * 60 * 1000; // 5 minutes
-// Minimum score change to trigger immediate save (10 points)
-const MIN_SCORE_CHANGE_FOR_IMMEDIATE_SAVE = 10;
 
 export function StressFusionProvider({ children }) {
   const { lastResult, lastAnalysisTime } = useFacialAnalysis();
@@ -75,7 +47,6 @@ export function StressFusionProvider({ children }) {
     }
   }, []);
 
-  // Getting keystroke stress score (0-100) using the stress score from keystroke analysis
   const getKeystrokeScore = useCallback(() => {
     return keystrokeStress.stressScore || 0;
   }, [keystrokeStress]);
@@ -92,8 +63,7 @@ export function StressFusionProvider({ children }) {
     return sum / recent.length;
   }, []);
 
-  // Fusing facial and keystroke data into unified stress score
-  const fuseStressData = useCallback(() => {
+    const fuseStressData = useCallback(() => {
     let facialScore = 0;
     if (lastResult?.success && lastResult?.analysis?.stressIndicators) {
       const indicators = lastResult.analysis.stressIndicators;
@@ -103,15 +73,13 @@ export function StressFusionProvider({ children }) {
         indicators.possibleFatigue
       );
 
-      // Adding to history
       if (lastAnalysisTime) {
         facialHistoryRef.current.push({
           timestamp: lastAnalysisTime.getTime(),
           value: facialScore
         });
 
-        // Keeping only recent history (last 10 minutes)
-        const cutoff = Date.now() - (10 * 60 * 1000);
+        const cutoff = Date.now() - STRESS.HISTORY_CUTOFF;
         facialHistoryRef.current = facialHistoryRef.current.filter(
           entry => entry.timestamp > cutoff
         );
@@ -120,20 +88,18 @@ export function StressFusionProvider({ children }) {
 
     const avgFacialScore = calculateWeightedAverage(
       facialHistoryRef.current,
-      FACIAL_AVERAGE_WINDOW
+      STRESS.FACIAL_AVERAGE_WINDOW
     );
 
     const keystrokeScore = getKeystrokeScore();
 
-    // Adding to history
     if (keystrokeScore > 0) {
       keystrokeHistoryRef.current.push({
         timestamp: Date.now(),
         value: keystrokeScore
       });
 
-      // Keeping only recent history (last 5 minutes)
-      const cutoff = Date.now() - (5 * 60 * 1000);
+      const cutoff = Date.now() - STRESS.HISTORY_CUTOFF;
       keystrokeHistoryRef.current = keystrokeHistoryRef.current.filter(
         entry => entry.timestamp > cutoff
       );
@@ -141,24 +107,22 @@ export function StressFusionProvider({ children }) {
 
     const avgKeystrokeScore = calculateWeightedAverage(
       keystrokeHistoryRef.current,
-      KEYSTROKE_AVERAGE_WINDOW
+      STRESS.KEYSTROKE_AVERAGE_WINDOW
     );
 
-    // Fusion: weighted combination: if keystroke data is not available (user not typing), rely more on facial
-    const keystrokeWeight = avgKeystrokeScore > 0 ? KEYSTROKE_WEIGHT : 0;
-    const facialWeight = keystrokeWeight > 0 ? FACIAL_WEIGHT : 1.0;
+    const keystrokeWeight = avgKeystrokeScore > 0 ? STRESS.KEYSTROKE_WEIGHT : 0;
+    const facialWeight = keystrokeWeight > 0 ? STRESS.FACIAL_WEIGHT : 1.0;
 
     const combinedScore = (avgFacialScore * facialWeight) + (avgKeystrokeScore * keystrokeWeight);
-    const finalScore = Math.round(Math.min(100, Math.max(0, combinedScore)));
+    const finalScore = Math.round(Math.min(STRESS.MAX_SCORE, Math.max(STRESS.MIN_SCORE, combinedScore)));
 
-    let level = 'normal';
-    if (finalScore >= HIGH_STRESS_THRESHOLD) {
-      level = 'high';
-    } else if (finalScore >= MODERATE_STRESS_THRESHOLD) {
-      level = 'moderate';
+    let level = STRESS.LEVELS.NORMAL;
+    if (finalScore >= STRESS.HIGH_THRESHOLD) {
+      level = STRESS.LEVELS.HIGH;
+    } else if (finalScore >= STRESS.MODERATE_THRESHOLD) {
+      level = STRESS.LEVELS.MODERATE;
     }
 
-    // Announcing stress level changes to screen readers
     if (previousStressLevelRef.current !== level) {
       announceStressLevelChange(level, finalScore);
       previousStressLevelRef.current = level;
@@ -228,7 +192,6 @@ export function StressFusionProvider({ children }) {
     }
   }, [isAuthenticated]);
 
-  // Saving stress logs periodically or when significant change occurs
   useEffect(() => {
     if (!isAuthenticated || stressScore === 0) {
       return;
@@ -238,10 +201,9 @@ export function StressFusionProvider({ children }) {
     const timeSinceLastSave = now - lastSaveTimeRef.current;
     const scoreChange = Math.abs(stressScore - lastSavedScoreRef.current);
 
-    // Saving if enough time has passed OR if score changed significantly
     const shouldSave = 
-      timeSinceLastSave >= STRESS_LOG_SAVE_INTERVAL ||
-      (scoreChange >= MIN_SCORE_CHANGE_FOR_IMMEDIATE_SAVE && timeSinceLastSave >= 60000); // At least 1 minute between saves
+      timeSinceLastSave >= STRESS.STRESS_LOG_SAVE_INTERVAL ||
+      (scoreChange >= STRESS.MIN_SCORE_CHANGE_FOR_IMMEDIATE_SAVE && timeSinceLastSave >= 60000);
 
     if (shouldSave) {
       saveStressLog(
@@ -255,30 +217,26 @@ export function StressFusionProvider({ children }) {
     }
   }, [stressScore, stressLevel, fusionData, isAuthenticated, saveStressLog]);
 
-  // Updating fusion when facial analysis completes
   useEffect(() => {
     if (lastResult?.success) {
       fuseStressData();
     }
   }, [lastResult, fuseStressData]);
 
-  // Updating fusion when keystroke stress changes
   useEffect(() => {
     if (keystrokeStress.stressScore > 0) {
       fuseStressData();
     }
   }, [keystrokeStress.stressScore, fuseStressData]);
 
-  // Periodicall updating fusion (every 30 seconds) to refresh averages
   useEffect(() => {
     const interval = setInterval(() => {
       fuseStressData();
-    }, 30000); // 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [fuseStressData]);
 
-  // Resetting fusion data
   const resetFusionData = useCallback(() => {
     facialHistoryRef.current = [];
     keystrokeHistoryRef.current = [];

@@ -3,10 +3,6 @@ import { useAuth } from './AuthContext';
 
 const FacialAnalysisContext = createContext(null);
 
-/**
- * Facial Analysis Context Provider
- * Manages facial analysis state and provides methods for analyzing facial expressions
- */
 export function FacialAnalysisProvider({ children }) {
   const { registerLogoutCallback, isAuthenticated } = useAuth();
   const [cameraPermission, setCameraPermission] = useState('prompt'); // 'prompt', 'granted', 'denied'
@@ -24,7 +20,7 @@ export function FacialAnalysisProvider({ children }) {
   const intervalRef = useRef(null);
   const hasRequestedPermission = useRef(false);
   const isVideoReadyRef = useRef(false);
-  const analysisFrequencyRef = useRef(5); // Ref to avoid closure issues
+  const analysisFrequencyRef = useRef(5);
 
   const fetchFrequencyPreference = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -47,21 +43,18 @@ export function FacialAnalysisProvider({ children }) {
     }
   }, [isAuthenticated]);
 
-  // Fetching preferences on auth change
   useEffect(() => {
     if (isAuthenticated) {
       fetchFrequencyPreference();
     }
   }, [isAuthenticated, fetchFrequencyPreference]);
 
-  // Updating frequency and restarting interval if running
   const updateAnalysisFrequency = useCallback((newFrequency) => {
     const frequency = Math.max(1, Math.min(60, newFrequency));
     setAnalysisFrequency(frequency);
     analysisFrequencyRef.current = frequency;
     console.log('[FacialAnalysis] Frequency updated to:', frequency, 'minutes');
 
-    // Restarting auto-analysis with new frequency if running
     if (intervalRef.current && streamRef.current) {
       console.log('[FacialAnalysis] Restarting auto-analysis with new frequency');
       clearInterval(intervalRef.current);
@@ -74,7 +67,6 @@ export function FacialAnalysisProvider({ children }) {
     }
   }, []);
 
-  // Checking browser's camera permission state without triggering the prompt
   useEffect(() => {
     const checkExistingPermission = async () => {
       try {
@@ -82,13 +74,11 @@ export function FacialAnalysisProvider({ children }) {
         console.log('[FacialAnalysis] Browser camera permission state:', result.state);
         setCameraPermission(result.state);
         
-        // Listening for permission changes on browser settings
         result.addEventListener('change', () => {
           console.log('[FacialAnalysis] Permission state changed to:', result.state);
           setCameraPermission(result.state);
         });
       } catch (err) {
-        // Safari doesn't support permissions.query for camera. Defaults to 'prompt' and shows the modal
         console.log('[FacialAnalysis] Could not query camera permission (Safari?)');
         setCameraPermission('prompt');
       }
@@ -199,7 +189,6 @@ export function FacialAnalysisProvider({ children }) {
     return canvas.toDataURL('image/jpeg', 0.95);
   }, []);
 
-  // Performing internal analysis to avoid circular dependency
   const performAnalysisInternal = async () => {
     if (!streamRef.current || !isVideoReadyRef.current) {
       console.log('[FacialAnalysis] Stream or video not ready, skipping analysis');
@@ -241,7 +230,6 @@ export function FacialAnalysisProvider({ children }) {
 
       const result = await response.json();
       
-      // Updating state outside of the interval callback
       setLastResult(result);
       setLastAnalysisTime(new Date());
       
@@ -307,15 +295,12 @@ export function FacialAnalysisProvider({ children }) {
     }
   }, [isAnalyzing, captureFrame]);
 
-  // Starting automatic analysis with user-configured frequency
   const startAutoAnalysis = useCallback(() => {
-    // Checking if there is a stream (not cameraPermission state to avoid closure issues)
     if (!streamRef.current) {
       console.log('[FacialAnalysis] No stream available, cannot start auto-analysis');
       return;
     }
 
-    // Clearing any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -323,13 +308,11 @@ export function FacialAnalysisProvider({ children }) {
     const intervalMs = analysisFrequencyRef.current * 60 * 1000;
     console.log(`[FacialAnalysis] Starting auto-analysis (initial + every ${analysisFrequencyRef.current} minutes)`);
 
-    // Performing initial analysis immediately (with a small delay for video to stabilize)
     setTimeout(() => {
       console.log('[FacialAnalysis] Performing initial analysis');
       performAnalysisInternal();
     }, 1000);
 
-    // Setting up interval for subsequent analyses using the configured frequency
     intervalRef.current = setInterval(() => {
       console.log('[FacialAnalysis] Performing scheduled analysis');
       performAnalysisInternal();
@@ -367,20 +350,17 @@ export function FacialAnalysisProvider({ children }) {
     setShowPermissionModal(true);
   }, [cameraPermission, requestCameraPermission, startAutoAnalysis]);
 
-  // Stopping automatic analysis
   const stopAutoAnalysis = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
-    // Stopping video stream
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
 
-    // Resetting video element
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
@@ -398,18 +378,16 @@ export function FacialAnalysisProvider({ children }) {
     }
   }, [requestCameraPermission, startAutoAnalysis]);
 
-  // Handle permission modal actions - user clicked "Not Now"
   const handleDenyCamera = useCallback(() => {
     setShowPermissionModal(false);
     console.log('[FacialAnalysis] User declined camera permission in our modal');
   }, []);
 
-  // Resetting session state on logout
   const resetSession = useCallback(() => {
     console.log('[FacialAnalysis] Resetting session state');
     hasRequestedPermission.current = false;
     isVideoReadyRef.current = false;
-    analysisFrequencyRef.current = 5; // Resetting to default
+    analysisFrequencyRef.current = 5;
     setAnalysisFrequency(5);
     setShowPermissionModal(false);
     setLastResult(null);
@@ -426,7 +404,6 @@ export function FacialAnalysisProvider({ children }) {
     }
   }, [registerLogoutCallback, resetSession]);
 
-  // Cleaning up on unmount
   useEffect(() => {
     return () => {
       stopAutoAnalysis();

@@ -1,11 +1,6 @@
 import axios from 'axios';
 import config from '../config/index.js';
 
-/**
- * Azure Face API Service
- * Handles communication with Azure Cognitive Services Face API
- * Documentation: https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/quickstarts-sdk/identity-client-library
- */
 class AzureFaceService {
   constructor() {
     this.apiKey = config.azure.faceApiKey;
@@ -13,9 +8,6 @@ class AzureFaceService {
     this.detectUrl = `${this.endpoint}/face/v1.0/detect`;
   }
 
-  /**
-   * Validates that Azure credentials are configured
-   */
   validateCredentials() {
     if (!this.apiKey) {
       throw new Error('Azure Face API key is not configured');
@@ -25,19 +17,10 @@ class AzureFaceService {
     }
   }
 
-  /**
-   * Detect faces in an image using Azure Face API
-   * @param {Buffer} imageBuffer - The image data as a Buffer
-   * @returns {Promise<Object>} - Face detection results from Azure
-   */
   async detectFaces(imageBuffer) {
     this.validateCredentials();
 
     try {
-      // Query parameters for face detection
-      // returnFaceAttributes: Request specific face attributes
-      // returnFaceLandmarks: Get facial landmark positions (eyes, nose, mouth, etc.)
-      // Attributes supported by detection_03: blur, exposure, glasses, headpose, mask, occlusion, qualityforrecognition
       const params = new URLSearchParams({
         returnFaceId: 'false',
         returnFaceLandmarks: 'true',
@@ -56,7 +39,7 @@ class AzureFaceService {
             'Content-Type': 'application/octet-stream',
             'Ocp-Apim-Subscription-Key': this.apiKey
           },
-          timeout: 30000 // 30 second timeout
+          timeout: 30000
         }
       );
 
@@ -68,7 +51,6 @@ class AzureFaceService {
       };
 
     } catch (error) {
-      // Handling specific Azure API errors
       if (error.response) {
         const status = error.response.status;
         const azureError = error.response.data?.error;
@@ -90,11 +72,6 @@ class AzureFaceService {
     }
   }
 
-  /**
-   * Analyze face data to extract stress-related metrics
-   * @param {Object} faceData - Raw face detection data from Azure
-   * @returns {Object} - Processed stress indicators
-   */
   analyzeStressIndicators(faceData) {
     if (!faceData.faces || faceData.faces.length === 0) {
       return {
@@ -108,7 +85,6 @@ class AzureFaceService {
     const landmarks = face.faceLandmarks || {};
     const headPose = attributes.headPose || {};
 
-    // Calculating Eye Aspect Ratio (EAR) from landmarks: proxy for fatigue/eye strain
     let eyeAspectRatio = null;
     if (landmarks.eyeLeftTop && landmarks.eyeLeftBottom && 
         landmarks.eyeLeftInner && landmarks.eyeLeftOuter) {
@@ -117,16 +93,14 @@ class AzureFaceService {
       eyeAspectRatio = leftEyeHeight / leftEyeWidth;
     }
 
-    // Initial fatigue detection thresholds 
     const THRESHOLDS = {
       headDropPitch: -7,        // Head tilting down (degrees) - negative = looking down
       headTiltRoll: 15,         // Head tilting sideways (degrees)
       distractionYaw: 20,       // Looking away left/right (degrees)
       eyeAspectRatioLow: 0.28,  // Eyes closing threshold
-      eyeAspectRatioVeryLow: 0.22 // Eyes very closed
+      eyeAspectRatioVeryLow: 0.22
     };
 
-    // Analyzing head pose for fatigue indicators
     const pitch = headPose.pitch || 0;
     const roll = headPose.roll || 0;
     const yaw = headPose.yaw || 0;
@@ -140,31 +114,25 @@ class AzureFaceService {
       isDistracted: Math.abs(yaw) > THRESHOLDS.distractionYaw
     };
 
-    // Checking for eye occlusion: eyes closed or covered
     const occlusion = attributes.occlusion || {};
     const eyesOccluded = occlusion.eyeOccluded || false;
     const foreheadOccluded = occlusion.foreheadOccluded || false;
 
-    // Calculating fatigue score based on multiple indicators (0-100)
     let fatigueScore = 0;
     const fatigueReasons = [];
 
-    // Head dropping (looking down) - strong indicator
     if (pitch < THRESHOLDS.headDropPitch) {
       fatigueScore += 30;
       fatigueReasons.push(`Head dropping (pitch: ${pitch.toFixed(1)}°)`);
     } else if (pitch < 0) {
-      // Slight head drop adds some points
       fatigueScore += Math.abs(pitch) * 2;
     }
 
-    // Head tilted sideways - moderate indicator
     if (Math.abs(roll) > THRESHOLDS.headTiltRoll) {
       fatigueScore += 20;
       fatigueReasons.push(`Head tilted (roll: ${roll.toFixed(1)}°)`);
     }
 
-    // Eye Aspect Ratio: strong indicator when low
     if (eyeAspectRatio !== null) {
       if (eyeAspectRatio < THRESHOLDS.eyeAspectRatioVeryLow) {
         fatigueScore += 40;
@@ -175,7 +143,6 @@ class AzureFaceService {
       }
     }
 
-    // Eyes occluded: covered or closed according to Azure
     if (eyesOccluded) {
       fatigueScore += 35;
       fatigueReasons.push('Eyes occluded/covered');

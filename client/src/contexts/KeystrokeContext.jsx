@@ -1,21 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { KEYSTROKE } from '../constants';
 
 const KeystrokeContext = createContext(null);
-
-/**
- * Keystroke Dynamics Context
- * Captures and analyzes keystroke patterns to detect stress indicators
- * 
- * - Dwell Time: time between keydown and keyup (long = fatigue/hesitation)
- * - Flight Time: time between keyup and next keydown (short = rapid/anxious typing)
- * - Panic Typing: erratic rhythm + high speed
- */
-const ROLLING_WINDOW_SIZE = 50; // Number of keystrokes to analyze
-const BASELINE_DEVIATION_THRESHOLD = 0.15; // 15% deviation triggers stress event
-const MIN_KEYSTROKES_FOR_ANALYSIS = 10; // Minimum keystrokes before analysis
-// Baseline values (milliseconds)
-const BASELINE_DWELL_TIME = 100; // Average time key is held down
-const BASELINE_FLIGHT_TIME = 150; // Average time between keystrokes
 
 export function KeystrokeProvider({ children }) {
   const [keystrokeData, setKeystrokeData] = useState({
@@ -31,8 +17,8 @@ export function KeystrokeProvider({ children }) {
     panicTyping: false,
     dwellTimeDeviation: 0,
     flightTimeDeviation: 0,
-    averageDwellTime: BASELINE_DWELL_TIME,
-    averageFlightTime: BASELINE_FLIGHT_TIME,
+    averageDwellTime: KEYSTROKE.BASELINE_DWELL_TIME_MS,
+    averageFlightTime: KEYSTROKE.BASELINE_FLIGHT_TIME_MS,
     stressScore: 0
   });
 
@@ -51,30 +37,23 @@ export function KeystrokeProvider({ children }) {
     return Math.abs((current - baseline) / baseline);
   }, []);
 
-  /**
-   * Detecting panic typing: erratic rhythm + high speed
-   * 
-   * - Very short flight times: rapid typing (< 80ms = very rapid)
-   * - High variance in flight times: erratic rhythm (> 50% of average = erratic)
-   * - Short dwell times: quick key presses (< 80ms = very quick)
-   */
   const detectPanicTyping = useCallback((flightTimes, dwellTimes) => {
-    if (flightTimes.length < MIN_KEYSTROKES_FOR_ANALYSIS) return false;
+    if (flightTimes.length < KEYSTROKE.MIN_KEYSTROKES_FOR_ANALYSIS) return false;
 
-    const recentFlight = flightTimes.slice(-ROLLING_WINDOW_SIZE);
-    const recentDwell = dwellTimes.slice(-ROLLING_WINDOW_SIZE);
+    const recentFlight = flightTimes.slice(-KEYSTROKE.ROLLING_WINDOW_SIZE);
+    const recentDwell = dwellTimes.slice(-KEYSTROKE.ROLLING_WINDOW_SIZE);
 
-    const avgFlight = calculateRollingAverage(recentFlight, ROLLING_WINDOW_SIZE);
-    const avgDwell = calculateRollingAverage(recentDwell, ROLLING_WINDOW_SIZE);
+    const avgFlight = calculateRollingAverage(recentFlight, KEYSTROKE.ROLLING_WINDOW_SIZE);
+    const avgDwell = calculateRollingAverage(recentDwell, KEYSTROKE.ROLLING_WINDOW_SIZE);
 
     const flightVariance = recentFlight.reduce((sum, val) => {
       return sum + Math.pow(val - avgFlight, 2);
     }, 0) / recentFlight.length;
     const flightStdDev = Math.sqrt(flightVariance);
 
-    const isRapid = avgFlight < 80;
-    const isErratic = flightStdDev > (avgFlight * 0.5);
-    const isQuickPresses = avgDwell < 80;
+    const isRapid = avgFlight < KEYSTROKE.PANIC_TYPING_FLIGHT_TIME_MS;
+    const isErratic = flightStdDev > (avgFlight * KEYSTROKE.PANIC_TYPING_VARIANCE_THRESHOLD);
+    const isQuickPresses = avgDwell < KEYSTROKE.PANIC_TYPING_DWELL_TIME_MS;
 
     return isRapid && (isErratic || isQuickPresses);
   }, [calculateRollingAverage]);
@@ -82,7 +61,7 @@ export function KeystrokeProvider({ children }) {
   const analyzeKeystrokes = useCallback(() => {
     const history = keystrokeHistoryRef.current;
     
-    if (history.length < MIN_KEYSTROKES_FOR_ANALYSIS) {
+    if (history.length < KEYSTROKE.MIN_KEYSTROKES_FOR_ANALYSIS) {
       setStressIndicators(prev => ({
         ...prev,
         hasStressEvent: false,
@@ -104,20 +83,14 @@ export function KeystrokeProvider({ children }) {
       return;
     }
 
-    // Calculating rolling averages
-    const avgDwellTime = calculateRollingAverage(dwellTimes, ROLLING_WINDOW_SIZE);
-    const avgFlightTime = calculateRollingAverage(flightTimes, ROLLING_WINDOW_SIZE);
-    // Calculating deviations from baseline
-    const dwellDeviation = calculateDeviation(avgDwellTime, BASELINE_DWELL_TIME);
-    const flightDeviation = calculateDeviation(avgFlightTime, BASELINE_FLIGHT_TIME);
-    // Detecting stress events
-    const hasDwellStress = dwellDeviation > BASELINE_DEVIATION_THRESHOLD;
-    const hasFlightStress = flightDeviation > BASELINE_DEVIATION_THRESHOLD;
+    const avgDwellTime = calculateRollingAverage(dwellTimes, KEYSTROKE.ROLLING_WINDOW_SIZE);
+    const avgFlightTime = calculateRollingAverage(flightTimes, KEYSTROKE.ROLLING_WINDOW_SIZE);
+    const dwellDeviation = calculateDeviation(avgDwellTime, KEYSTROKE.BASELINE_DWELL_TIME_MS);
+    const flightDeviation = calculateDeviation(avgFlightTime, KEYSTROKE.BASELINE_FLIGHT_TIME_MS);
+    const hasDwellStress = dwellDeviation > KEYSTROKE.BASELINE_DEVIATION_THRESHOLD;
+    const hasFlightStress = flightDeviation > KEYSTROKE.BASELINE_DEVIATION_THRESHOLD;
     const hasStressEvent = hasDwellStress || hasFlightStress;
-    // Detecting panic typing
     const panicTyping = detectPanicTyping(flightTimes, dwellTimes);
-
-    // Calculating stress score (0-100) by combining multiple indicators
     let stressScore = 0;
     if (hasDwellStress) stressScore += 30;
     if (hasFlightStress) stressScore += 30;
@@ -171,12 +144,10 @@ export function KeystrokeProvider({ children }) {
       flightTime
     });
 
-    // Keeping only last ROLLING_WINDOW_SIZE * 2 entries
-    if (keystrokeHistoryRef.current.length > ROLLING_WINDOW_SIZE * 2) {
-      keystrokeHistoryRef.current = keystrokeHistoryRef.current.slice(-ROLLING_WINDOW_SIZE * 2);
+    if (keystrokeHistoryRef.current.length > KEYSTROKE.ROLLING_WINDOW_SIZE * 2) {
+      keystrokeHistoryRef.current = keystrokeHistoryRef.current.slice(-KEYSTROKE.ROLLING_WINDOW_SIZE * 2);
     }
 
-    // Updating state
     setKeystrokeData(prev => ({
       ...prev,
       lastKeydown: timestamp,
@@ -193,7 +164,6 @@ export function KeystrokeProvider({ children }) {
     const timestamp = Date.now();
     lastKeyupRef.current = timestamp;
 
-    // Finding the most recent keydown for this key
     const history = keystrokeHistoryRef.current;
     const lastEntry = history[history.length - 1];
 
@@ -202,13 +172,11 @@ export function KeystrokeProvider({ children }) {
       lastEntry.dwellTime = dwellTime;
       lastEntry.keyup = timestamp;
 
-      // Updating state
       setKeystrokeData(prev => ({
         ...prev,
         lastKeyup: timestamp
       }));
 
-      // Analyzing after each keystroke
       analyzeKeystrokes();
     }
   }, [analyzeKeystrokes]);
@@ -216,7 +184,6 @@ export function KeystrokeProvider({ children }) {
 
   useEffect(() => {
     const handleKeydownWrapper = (e) => {
-      // Not capturing if user is typing in an input/textarea
       const target = e.target;
       const isInput = target.tagName === 'INPUT' || 
                      target.tagName === 'TEXTAREA' || 
@@ -247,7 +214,6 @@ export function KeystrokeProvider({ children }) {
     };
   }, [handleKeydown, handleKeyup]);
 
-  // Resetting keystroke data
   const resetKeystrokeData = useCallback(() => {
     keystrokeHistoryRef.current = [];
     lastKeydownRef.current = null;
@@ -264,8 +230,8 @@ export function KeystrokeProvider({ children }) {
       panicTyping: false,
       dwellTimeDeviation: 0,
       flightTimeDeviation: 0,
-      averageDwellTime: BASELINE_DWELL_TIME,
-      averageFlightTime: BASELINE_FLIGHT_TIME,
+      averageDwellTime: KEYSTROKE.BASELINE_DWELL_TIME_MS,
+      averageFlightTime: KEYSTROKE.BASELINE_FLIGHT_TIME_MS,
       stressScore: 0
     });
     console.log('[Keystroke] Data reset');

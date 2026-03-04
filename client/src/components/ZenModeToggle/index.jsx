@@ -2,14 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import './ZenModeToggle.css';
 
-/**
- * Zen Mode Toggle Component
- * Displays a toggle button for activating Zen Mode across the application
- * 
- * When active, filters the UI to show only priority items:
- * - Emails: starred, important
- * - Tasks: high priority, urgent, or deadline today
- */
 function ZenModeToggle({ className = '' }) {
   const { isZenModeActive, autoTriggeredReason, autoZenModeEnabled, isManuallyToggled, toggleZenMode } = useZenMode();
   const [statusMessage, setStatusMessage] = useState(null);
@@ -19,7 +11,6 @@ function ZenModeToggle({ className = '' }) {
     manuallyToggled: isManuallyToggled 
   });
 
-  // Detecting state changes and showing zen mode status message
   useEffect(() => {
     const prev = prevStateRef.current;
     const current = { 
@@ -43,7 +34,6 @@ function ZenModeToggle({ className = '' }) {
         }
       }
 
-      // Clearing message after 3 seconds
       const timer = setTimeout(() => {
         setStatusMessage(null);
       }, 3000);

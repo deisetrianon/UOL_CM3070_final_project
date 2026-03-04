@@ -6,7 +6,7 @@ function AlertModal({ message, onClose, type = 'info' }) {
   const previousFocusRef = useRef(null);
 
   useEffect(() => {
-      if (message) {t
+    if (message) {
       previousFocusRef.current = document.activeElement;
       setTimeout(() => {
         if (buttonRef.current) {

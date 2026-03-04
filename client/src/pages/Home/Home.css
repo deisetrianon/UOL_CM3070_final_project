@@ -184,6 +184,7 @@
   flex-direction: column;
   overflow: hidden;
   min-width: 0;
+  border-radius: var(--radius-lg);
 }
 
 .email-header {
@@ -343,7 +344,6 @@
   text-align: center;
 }
 
-/* Bottom Pagination Footer */
 .pagination-footer {
   display: flex;
   align-items: center;

@@ -132,7 +132,6 @@ select:focus-visible,
   outline-style: solid;
 }
 
-/* Ensuring focus indicators are visible even in high contrast mode */
 @media (prefers-contrast: high) {
   button:focus-visible,
   a:focus-visible,

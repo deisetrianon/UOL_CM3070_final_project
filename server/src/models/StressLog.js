@@ -1,10 +1,5 @@
 import mongoose from 'mongoose';
 
-/**
- * StressLog Schema
- * Stores historical stress indicator data for visualization and analysis
- * Each log entry represents a snapshot of the user's stress state at a specific time
- */
 const stressLogSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -58,19 +53,10 @@ const stressLogSchema = new mongoose.Schema({
   collection: 'stresslogs'
 });
 
-// Compound indexes for efficient queries
-stressLogSchema.index({ userId: 1, timestamp: -1 }); // Fetching user's recent history
-stressLogSchema.index({ userId: 1, timestamp: 1 }); // Date range queries
-stressLogSchema.index({ timestamp: -1 }); // Cleanup operations
+stressLogSchema.index({ userId: 1, timestamp: -1 });
+stressLogSchema.index({ userId: 1, timestamp: 1 });
+stressLogSchema.index({ timestamp: -1 });
 
-/**
- * Getting stress history for a user
- * @param {ObjectId} userId - User ID
- * @param {Date} startDate - Start date for history range
- * @param {Date} endDate - End date for history range
- * @param {Number} limit - Maximum number of records to return
- * @returns {Promise<Array>} Array of stress log entries
- */
 stressLogSchema.statics.getUserHistory = async function(userId, startDate = null, endDate = null, limit = 1000) {
   const query = { userId };
   
@@ -86,13 +72,6 @@ stressLogSchema.statics.getUserHistory = async function(userId, startDate = null
     .lean();
 };
 
-/**
- * Getting aggregated statistics
- * @param {ObjectId} userId - User ID
- * @param {Date} startDate - Start date for statistics range
- * @param {Date} endDate - End date for statistics range
- * @returns {Promise<Object>} Aggregated statistics
- */
 stressLogSchema.statics.getUserStatistics = async function(userId, startDate = null, endDate = null) {
   const query = { userId };
   
@@ -145,7 +124,6 @@ stressLogSchema.statics.getUserStatistics = async function(userId, startDate = n
   };
 };
 
-// Cleaning up old logs
 stressLogSchema.statics.cleanupOldLogs = async function(daysToKeep = 90) {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);

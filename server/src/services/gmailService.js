@@ -9,11 +9,6 @@ class GmailService {
     );
   }
 
-  /**
-   * Set credentials for the OAuth2 client
-   * @param {string} accessToken - User's access token
-   * @param {string} refreshToken - User's refresh token (optional)
-   */
   setCredentials(accessToken, refreshToken = null) {
     const credentials = { access_token: accessToken };
     if (refreshToken) {
@@ -22,13 +17,6 @@ class GmailService {
     this.oauth2Client.setCredentials(credentials);
   }
 
-  /**
-   * Fetch user's emails from Gmail
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {Object} options
-   * @returns {Promise<Object>}
-   */
   async getEmails(accessToken, refreshToken, options = {}) {
     const {
       maxResults = 20,
@@ -61,7 +49,6 @@ class GmailService {
         };
       }
 
-      // Fetching full details for each message
       const emailPromises = listResponse.data.messages.map(async (message) => {
         const fullMessage = await gmail.users.messages.get({
           userId: 'me',
@@ -83,7 +70,6 @@ class GmailService {
     } catch (error) {
       console.error('[Gmail] Error fetching emails:', error.message);
       
-      // Handling token expiry
       if (error.code === 401 || error.message?.includes('invalid_grant')) {
         throw new Error('TOKEN_EXPIRED');
       }
@@ -92,13 +78,6 @@ class GmailService {
     }
   }
 
-  /**
-   * Get a single email with full body content
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {string} messageId
-   * @returns {Promise<Object>}
-   */
   async getEmail(accessToken, refreshToken, messageId) {
     this.setCredentials(accessToken, refreshToken);
     
@@ -118,12 +97,6 @@ class GmailService {
     }
   }
 
-  /**
-   * Get user's Gmail profile
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @returns {Promise<Object>}
-   */
   async getProfile(accessToken, refreshToken) {
     this.setCredentials(accessToken, refreshToken);
     
@@ -146,12 +119,6 @@ class GmailService {
     }
   }
 
-  /**
-   * Getting user's Gmail labels
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @returns {Promise<Object>}
-   */
   async getLabels(accessToken, refreshToken) {
     this.setCredentials(accessToken, refreshToken);
     const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
@@ -165,7 +132,6 @@ class GmailService {
         return { labels: [] };
       }
 
-      // Parsing labels to a more usable format. Also filtering out labels that are hidden from label list
       const labels = response.data.labels
         .filter(label => label.labelListVisibility !== 'hide')
         .map(label => ({
@@ -177,7 +143,6 @@ class GmailService {
           color: label.color
         }));
 
-      // Ensuring essential system labels are always included
       const essentialLabelIds = ['TRASH', 'SPAM'];
       const existingLabelIds = labels.map(l => l.id);
       
@@ -209,11 +174,6 @@ class GmailService {
     }
   }
 
-  /**
-   * Parse email metadata from Gmail API response
-   * @param {Object} message - Raw Gmail message
-   * @returns {Object} - Parsed email metadata
-   */
   parseEmailMetadata(message) {
     const headers = message.payload?.headers || [];
     
@@ -222,13 +182,11 @@ class GmailService {
       return header?.value || '';
     };
 
-    // Parsing sender name and email
     const fromHeader = getHeader('From');
     const fromMatch = fromHeader.match(/^(?:"?(.+?)"?\s*)?<?([^<>]+@[^<>]+)>?$/);
     const senderName = fromMatch?.[1]?.trim() || fromMatch?.[2] || fromHeader;
     const senderEmail = fromMatch?.[2] || fromHeader;
 
-    // Parsing date
     const dateStr = getHeader('Date');
     const date = dateStr ? new Date(dateStr) : new Date();
 
@@ -251,11 +209,6 @@ class GmailService {
     };
   }
 
-  /**
-   * Parse full email content from Gmail API response
-   * @param {Object} message - Raw Gmail message with full content
-   * @returns {Object} - Parsed email with body
-   */
   parseFullEmail(message) {
     const metadata = this.parseEmailMetadata(message);
     let body = '';
@@ -283,13 +236,6 @@ class GmailService {
     };
   }
 
-  /**
-   * Marking an email as read (removing UNREAD label)
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {string} messageId
-   * @returns {Promise<Object>}
-   */
   async markAsRead(accessToken, refreshToken, messageId) {
     this.setCredentials(accessToken, refreshToken);
     const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
@@ -319,14 +265,6 @@ class GmailService {
     }
   }
 
-  /**
-   * Toggling star on an email (adding/removing STARRED label)
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {string} messageId
-   * @param {boolean} isStarred - Current starred state
-   * @returns {Promise<Object>}
-   */
   async toggleStar(accessToken, refreshToken, messageId, isStarred) {
     this.setCredentials(accessToken, refreshToken);
     const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
@@ -359,13 +297,6 @@ class GmailService {
     }
   }
 
-  /**
-   * Sending an email
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {Object} emailData - { to, subject, body, cc, bcc, replyTo, fromName, fromEmail }
-   * @returns {Promise<Object>}
-   */
   async sendEmail(accessToken, refreshToken, emailData) {
     this.setCredentials(accessToken, refreshToken);
     const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
@@ -401,7 +332,6 @@ class GmailService {
         body
       ].join('\n');
 
-      // Encoding the message in base64url format
       const encodedMessage = Buffer.from(rawMessage)
         .toString('base64')
         .replace(/\+/g, '-')
@@ -431,14 +361,6 @@ class GmailService {
     }
   }
 
-  /**
-   * Replying to an email
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {string} messageId - ID of the email to reply to
-   * @param {Object} replyData - { body, replyAll, fromName, fromEmail }
-   * @returns {Promise<Object>}
-   */
   async replyToEmail(accessToken, refreshToken, messageId, replyData) {
     this.setCredentials(accessToken, refreshToken);
     const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
@@ -475,7 +397,6 @@ class GmailService {
       if (replyData.replyAll) {
         const originalCc = getHeader('Cc') || '';
         
-        // Building reply-all recipients
         const allRecipients = [
           ...originalTo.split(',').map(e => e.trim()),
           ...originalCc.split(',').map(e => e.trim())
@@ -493,7 +414,6 @@ class GmailService {
         ? `From: "${replyData.fromName}" <${senderEmail}>`
         : `From: ${senderEmail}`;
 
-      // Building email headers
       const replyHeaders = [
         fromHeader,
         `To: ${replyTo}`,
@@ -502,7 +422,6 @@ class GmailService {
 
       if (replyCc) replyHeaders.push(`Cc: ${replyCc}`);
       
-      // Adding threading headers
       if (originalMessageId) {
         replyHeaders.push(`In-Reply-To: ${originalMessageId}`);
         replyHeaders.push(`References: ${originalReferences ? `${originalReferences} ` : ''}${originalMessageId}`);
@@ -516,7 +435,6 @@ class GmailService {
         replyData.body
       ].join('\n');
 
-      // Encoding the message in base64url format
       const encodedMessage = Buffer.from(rawMessage)
         .toString('base64')
         .replace(/\+/g, '-')
@@ -547,13 +465,6 @@ class GmailService {
     }
   }
 
-  /**
-   * Deleting an email (move to trash)
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {string} messageId
-   * @returns {Promise<Object>}
-   */
   async deleteEmail(accessToken, refreshToken, messageId) {
     this.setCredentials(accessToken, refreshToken);
     const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });

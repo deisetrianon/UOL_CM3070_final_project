@@ -14,12 +14,10 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
-// Saving a new stress log entry
 router.post('/', requireAuth, async (req, res) => {
   try {
     const { stressScore, stressLevel, componentScores, metadata } = req.body;
 
-    // Validating required fields
     if (stressScore === undefined || stressScore === null) {
       return res.status(400).json({
         success: false,
@@ -36,7 +34,6 @@ router.post('/', requireAuth, async (req, res) => {
       });
     }
 
-    // Validating stress score range
     if (stressScore < 0 || stressScore > 100) {
       return res.status(400).json({
         success: false,
@@ -82,16 +79,6 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-/**
- * GET /api/stress-logs
- * Get stress history for the authenticated user
- * 
- * Query parameters:
- * - startDate: ISO date string (optional) - start of date range
- * - endDate: ISO date string (optional) - end of date range
- * - limit: number (optional, default: 1000) - maximum number of records
- * - days: number (optional) - number of days to look back (alternative to date range)
- */
 router.get('/', requireAuth, async (req, res) => {
   try {
     const { startDate, endDate, limit, days } = req.query;
@@ -100,7 +87,6 @@ router.get('/', requireAuth, async (req, res) => {
     let queryEndDate = null;
     const queryLimit = limit ? parseInt(limit, 10) : 1000;
 
-    // Handling days parameter
     if (days) {
       const daysNum = parseInt(days, 10);
       if (daysNum > 0) {
@@ -109,7 +95,6 @@ router.get('/', requireAuth, async (req, res) => {
         queryStartDate.setDate(queryStartDate.getDate() - daysNum);
       }
     } else {
-      // Handling explicit date range
       if (startDate) {
         queryStartDate = new Date(startDate);
         if (isNaN(queryStartDate.getTime())) {
@@ -161,15 +146,6 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
-/**
- * GET /api/stress-logs/statistics
- * Get aggregated statistics for the authenticated user
- * 
- * Query parameters:
- * - startDate: ISO date string (optional) - start of date range
- * - endDate: ISO date string (optional) - end of date range
- * - days: number (optional) - number of days to look back
- */
 router.get('/statistics', requireAuth, async (req, res) => {
   try {
     const { startDate, endDate, days } = req.query;

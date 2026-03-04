@@ -1,21 +1,15 @@
 import mongoose from 'mongoose';
 import config from '../config/index.js';
 
-// Handling connection to MongoDB Atlas with retry logic
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 5000; // 5 seconds
+const RETRY_DELAY = 5000;
 
-/**
- * Connect to MongoDB
- * @returns {Promise<mongoose.Connection>}
- */
 export const connectDB = async () => {
   let retries = 0;
 
   while (retries < MAX_RETRIES) {
     try {
       const conn = await mongoose.connect(config.mongodbUri, {
-        // Mongoose 8+ uses these options by default
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
       });
@@ -50,10 +44,6 @@ export const connectDB = async () => {
   }
 };
 
-/**
- * Disconnect from MongoDB
- * @returns {Promise<void>}
- */
 export const disconnectDB = async () => {
   try {
     await mongoose.disconnect();

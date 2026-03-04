@@ -17,7 +17,6 @@ import neutralFaceIcon from '../../assets/icons/neutral-face.png';
 import stressIcon from '../../assets/icons/stress.png';
 import './StressHistory.css';
 
-// Displaying a graphical visualization of the user's stress indicator history
 function StressHistory({ timeRange = 7 }) {
   const [history, setHistory] = useState([]);
   const [statistics, setStatistics] = useState(null);
@@ -36,7 +35,6 @@ function StressHistory({ timeRange = 7 }) {
       const data = await response.json();
 
       if (data.success) {
-        // Sorting by timestamp (oldest first) for chart
         const sortedHistory = data.history
           .map(log => ({
             ...log,

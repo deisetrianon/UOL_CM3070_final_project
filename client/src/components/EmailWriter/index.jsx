@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useEmailForm } from './useEmailForm';
 import './EmailWriter.css';
 
 function EmailWriter({ 
@@ -10,18 +11,28 @@ function EmailWriter({
   isReply = false,
   replyAll = false
 }) {
-  const [to, setTo] = useState(initialTo);
-  const [cc, setCc] = useState('');
-  const [bcc, setBcc] = useState('');
-  const [subject, setSubject] = useState(initialSubject);
-  const [body, setBody] = useState(initialBody);
-  const [showCcBcc, setShowCcBcc] = useState(false);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    to,
+    cc,
+    bcc,
+    subject,
+    body,
+    showCcBcc,
+    error,
+    setTo,
+    setCc,
+    setBcc,
+    setSubject,
+    setBody,
+    setShowCcBcc,
+    setError,
+    validate,
+    getFormData,
+  } = useEmailForm(initialTo, initialSubject, initialBody);
 
   const handleSend = async () => {
-    if (!to.trim() || !subject.trim() || !body.trim()) {
-      setError('Please fill in all required fields (To, Subject, Body)');
+    if (!validate()) {
       return;
     }
 
@@ -29,13 +40,7 @@ function EmailWriter({
     setError(null);
 
     try {
-      await onSend({
-        to: to.trim(),
-        subject: subject.trim(),
-        body: body.trim(),
-        cc: cc.trim() || undefined,
-        bcc: bcc.trim() || undefined
-      });
+      await onSend(getFormData());
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to send email');
