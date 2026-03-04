@@ -1,20 +1,11 @@
 import mongoose from 'mongoose';
 
-/**
- * User Schema
- * Stores authenticated user data from Google OAuth
- * 
- * Emails are not stored for privacy reasons.
- * Only user profile information and auth tokens are persisted.
- */
 const userSchema = new mongoose.Schema({
-  // Google OAuth ID: unique identifier from Google
   googleId: {
     type: String,
     required: true,
     unique: true
   },
-  // User profile information from Google
   email: {
     type: String,
     required: true,
@@ -37,17 +28,15 @@ const userSchema = new mongoose.Schema({
   },
   picture: {
     type: String,
-    trim: true
-  },
-  // OAuth tokens for Gmail API access
-  tokens: {
+      trim: true
+    },
+    tokens: {
     accessToken: {
       type: String,
       required: true
     },
     refreshToken: {
       type: String
-      // Refresh token may not always be provided by Google
     },
     tokenExpiry: {
       type: Date
@@ -71,7 +60,7 @@ const userSchema = new mongoose.Schema({
       },
       frequency: {
         type: Number,
-        default: 5, // minutes between analyses
+        default: 5,
         min: 1,
         max: 60
       }
@@ -111,16 +100,8 @@ const userSchema = new mongoose.Schema({
   collection: 'users'
 });
 
-// Additional indexes for common queries. Email and googleId already have indexes via 'unique: true'
 userSchema.index({ lastLoginAt: -1 });
 
-/**
- * Method to find or create a user from Google OAuth data
- * @param {Object} googleProfile 
- * @param {string} accessToken 
- * @param {string} refreshToken 
- * @returns {Promise<User>}
- */
 userSchema.statics.findOrCreateFromGoogle = async function(googleProfile, accessToken, refreshToken) {
   const { id, emails, displayName, name, photos } = googleProfile;
   
@@ -132,7 +113,6 @@ userSchema.statics.findOrCreateFromGoogle = async function(googleProfile, access
   let user = await this.findOne({ googleId: id });
 
   if (user) {
-    // Updating existing user with fresh tokens and profile data
     user.email = email || user.email;
     user.displayName = displayName || user.displayName;
     user.firstName = firstName || user.firstName;
@@ -145,12 +125,11 @@ userSchema.statics.findOrCreateFromGoogle = async function(googleProfile, access
       user.tokens.refreshToken = refreshToken;
     }
     
-    user.tokens.tokenExpiry = new Date(Date.now() + 3600 * 1000); // 1 hour
+    user.tokens.tokenExpiry = new Date(Date.now() + 3600 * 1000);
     
     await user.save();
     console.log(`[User] Updated existing user: ${email}`);
   } else {
-    // Creating a new user
     user = await this.create({
       googleId: id,
       email,
@@ -171,11 +150,6 @@ userSchema.statics.findOrCreateFromGoogle = async function(googleProfile, access
   return user;
 };
 
-/**
- * Method to get user data safe for client
- * Excludes sensitive token information
- * @returns {Object}
- */
 userSchema.methods.toClientJSON = function() {
   return {
     id: this._id,
@@ -195,11 +169,6 @@ userSchema.methods.toClientJSON = function() {
   };
 };
 
-/**
- * Method to get data needed for session/API calls
-Includes tokens for Gmail API access
- * @returns {Object}
- */
 userSchema.methods.toSessionJSON = function() {
   return {
     id: this._id.toString(),
@@ -215,11 +184,6 @@ userSchema.methods.toSessionJSON = function() {
   };
 };
 
-/**
- * Method to update stress metrics after facial analysis
- * @param {number} fatigueScore 
- * @returns {Promise<User>}
- */
 userSchema.methods.updateStressMetrics = async function(fatigueScore) {
   this.stressMetrics.lastAnalysis = new Date();
   this.stressMetrics.lastFatigueScore = fatigueScore;

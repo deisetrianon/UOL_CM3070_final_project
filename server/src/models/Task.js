@@ -1,10 +1,5 @@
 import mongoose from 'mongoose';
 
-/**
- * Task Schema
- * Stores user tasks for the Task Manager feature
- * Tasks are organized in columns (Kanban-style) and support drag-and-drop
- */
 const taskSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -42,7 +37,6 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     index: true
   },
-  // Position within the column for drag-and-drop ordering
   position: {
     type: Number,
     default: 0
@@ -67,7 +61,6 @@ const taskSchema = new mongoose.Schema({
   collection: 'tasks'
 });
 
-// Compound indexes for common queries
 taskSchema.index({ userId: 1, status: 1 });
 taskSchema.index({ userId: 1, deadline: 1 });
 taskSchema.index({ userId: 1, status: 1, position: 1 });
@@ -102,7 +95,6 @@ taskSchema.statics.getUrgentTasks = async function(userId) {
   }).sort({ deadline: 1 });
 };
 
-// Moving task to a new position/column
 taskSchema.methods.moveTo = async function(newStatus, newPosition) {
   const oldStatus = this.status;
   const wasCompleted = oldStatus !== 'done' && newStatus === 'done';
@@ -119,7 +111,6 @@ taskSchema.methods.moveTo = async function(newStatus, newPosition) {
   return this.save();
 };
 
-// Converting task to client-safe JSON
 taskSchema.methods.toClientJSON = function() {
   return {
     id: this._id.toString(),
@@ -151,7 +142,6 @@ taskSchema.virtual('isDueSoon').get(function() {
   return this.deadline > now && this.deadline <= tomorrow;
 });
 
-// Ensuring virtuals are included in JSON output
 taskSchema.set('toJSON', { virtuals: true });
 taskSchema.set('toObject', { virtuals: true });
 

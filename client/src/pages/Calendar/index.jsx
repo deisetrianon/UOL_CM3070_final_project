@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import { useDialog } from '../../contexts/DialogContext';
+import { getDateRange } from '../../utils/date';
+import { API_ENDPOINTS } from '../../constants';
+import { apiGet } from '../../utils/api';
 import Layout from '../../components/Layout';
 import CustomCalendar from '../../components/CustomCalendar';
 import importantIcon from '../../assets/icons/important.png';
@@ -61,42 +64,23 @@ function CalendarPage() {
     }
   }, [applyZenModeFilter]);
 
-  // Fetch combined events (Google Calendar + Tasks)
   const fetchEvents = useCallback(async (startDate, endDate) => {
     try {
       setLoading(true);
       setError(null);
 
-      const timeMin = moment(startDate).startOf('day').toISOString();
-      const timeMax = moment(endDate).endOf('day').toISOString();
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const timeMin = startOfDay.toISOString();
+      const timeMax = endOfDay.toISOString();
 
-      const response = await fetch(
-        `/api/calendar/combined?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}`,
-        {
-          credentials: 'include'
-        }
-      );
-
-      if (!response.ok) {
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (e) {
-          const text = await response.text();
-          if (text) errorMessage = text;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const contentType = response.headers.get('content-type');
-
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        throw new Error(`Unexpected response format: ${text || 'Empty response'}`);
-      }
-
-      const data = await response.json();
+      const data = await apiGet(API_ENDPOINTS.CALENDAR.COMBINED, {
+        timeMin,
+        timeMax
+      });
 
       if (data.success) {
         const formattedEvents = data.events.map(event => ({
@@ -127,7 +111,6 @@ function CalendarPage() {
         setCalendarEventsCount(data.calendarEventsCount || 0);
         setTaskEventsCount(data.taskEventsCount || 0);
         
-        // Applying filters (Zen Mode + user filter)
         applyFilters(formattedEvents, filter, isZenModeActive);
 
         if (data.calendarError) {
@@ -151,20 +134,10 @@ function CalendarPage() {
     }
   }, [filter, isZenModeActive, applyFilters]);
 
-  // Fetching events when date or view changes
   useEffect(() => {
-    let startDate, endDate;
-    
-    if (view === 'month') {
-      startDate = moment(currentDate).startOf('month').toDate();
-      endDate = moment(currentDate).endOf('month').toDate();
-    } else if (view === 'week') {
-      startDate = moment(currentDate).startOf('week').toDate();
-      endDate = moment(currentDate).endOf('week').toDate();
-    } else if (view === 'day') {
-      startDate = moment(currentDate).startOf('day').toDate();
-      endDate = moment(currentDate).endOf('day').toDate();
-    }
+    const dateRange = getDateRange(view, currentDate);
+    const startDate = dateRange.startDate;
+    const endDate = dateRange.endDate;
     
     fetchEvents(startDate, endDate);
   }, [currentDate, view, fetchEvents]);
@@ -174,7 +147,6 @@ function CalendarPage() {
     applyFilters(allEvents, newFilter, isZenModeActive);
   };
 
-  // Re-applying filters when Zen Mode changes
   useEffect(() => {
     applyFilters(allEvents, filter, isZenModeActive);
   }, [isZenModeActive, allEvents, filter, applyFilters]);
@@ -251,9 +223,8 @@ function CalendarPage() {
 
   if (error) {
     const handleRetry = () => {
-      const startDate = moment(currentDate).startOf('week').toDate();
-      const endDate = moment(currentDate).endOf('week').toDate();
-      fetchEvents(startDate, endDate);
+      const dateRange = getDateRange('week', currentDate);
+      fetchEvents(dateRange.startDate, dateRange.endDate);
     };
 
     return (
@@ -355,9 +326,8 @@ function CalendarPage() {
             <button 
               onClick={() => {
                 setError(null);
-                const startDate = moment(currentDate).startOf('week').toDate();
-                const endDate = moment(currentDate).endOf('week').toDate();
-                fetchEvents(startDate, endDate);
+                const dateRange = getDateRange('week', currentDate);
+                fetchEvents(dateRange.startDate, dateRange.endDate);
               }}
               style={{
                 marginTop: 'var(--spacing-sm)',

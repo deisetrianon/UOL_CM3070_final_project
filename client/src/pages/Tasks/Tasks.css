@@ -242,7 +242,6 @@
   color: var(--color-text-secondary);
 }
 
-/* Zen Mode Active State */
 .tasks-page.zen-mode-active .task-board {
   background: rgba(34, 197, 94, 0.02);
 }

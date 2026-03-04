@@ -12,17 +12,14 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Getting the intended destination or default to /home
   const from = location.state?.from?.pathname || '/home';
 
-  // Redirecting if already authenticated
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate, from]);
 
-  // Checking for auth error in URL
   const searchParams = new URLSearchParams(location.search);
   const authError = searchParams.get('error');
   

@@ -5,7 +5,6 @@ import config from './config/index.js';
 import passport from './config/passport.js';
 import { connectDB, isConnected, getConnectionStatus } from './database/connection.js';
 
-// Routes
 import facialAnalysisRoutes from './routes/facialAnalysis.js';
 import authRoutes from './routes/auth.js';
 import gmailRoutes from './routes/gmail.js';
@@ -17,7 +16,6 @@ import calendarRoutes from './routes/calendar.js';
 const app = express();
 const PORT = config.port;
 
-// CORS configuration: allow credentials for session cookies
 app.use(cors({
   origin: config.clientUrl,
   credentials: true,
@@ -28,20 +26,18 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Session configuration
 app.use(session({
   secret: config.sessionSecret,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: config.nodeEnv === 'production',  // HTTPS only in future production
+    secure: config.nodeEnv === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,  // 24 hours
+    maxAge: 24 * 60 * 60 * 1000,
     sameSite: config.nodeEnv === 'production' ? 'strict' : 'lax'
   }
 }));
 
-// Initializing Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -62,7 +58,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint
 app.get('/', (req, res) => {
   res.json({
     name: 'Empathetic Workspace API',
@@ -81,7 +76,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/gmail', gmailRoutes);
 app.use('/api/facial-analysis', facialAnalysisRoutes);
@@ -90,7 +84,6 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/stress-logs', stressLogsRoutes);
 app.use('/api/calendar', calendarRoutes);
 
-// Error handlers
 app.use((req, res) => {
   res.status(404).json({
     error: 'Not Found',
@@ -106,7 +99,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Starting the server
 const startServer = async () => {
   try {
     console.log('\n[Server] Connecting to MongoDB...');
@@ -135,7 +127,6 @@ const startServer = async () => {
   }
 };
 
-// Handling graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n[Server] Shutting down gracefully...');
   try {
@@ -158,7 +149,6 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-// Start the server
 startServer();
 
 export default app;

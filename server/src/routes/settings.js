@@ -13,10 +13,6 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
-/**
- * GET /api/settings
- * Get user preferences/settings
- */
 router.get('/', requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -53,10 +49,6 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
-/**
- * PUT /api/settings
- * Update user preferences/settings
- */
 router.put('/', requireAuth, async (req, res) => {
   try {
     const { notifications, facialAnalysis, zenMode } = req.body;
@@ -74,7 +66,6 @@ router.put('/', requireAuth, async (req, res) => {
       user.preferences = {};
     }
 
-    // Updating notifications preferences
     if (notifications !== undefined) {
       user.preferences.notifications = {
         ...user.preferences.notifications,
@@ -82,7 +73,6 @@ router.put('/', requireAuth, async (req, res) => {
       };
     }
 
-    // Updating facial analysis preferences
     if (facialAnalysis !== undefined) {
       user.preferences.facialAnalysis = {
         ...user.preferences.facialAnalysis,
@@ -90,7 +80,6 @@ router.put('/', requireAuth, async (req, res) => {
       };
     }
 
-    // Updating zen mode preferences
     if (zenMode !== undefined) {
       user.preferences.zenMode = {
         ...user.preferences.zenMode,
@@ -120,10 +109,6 @@ router.put('/', requireAuth, async (req, res) => {
   }
 });
 
-/**
- * PATCH /api/settings/zen-mode
- * Quick toggle for auto Zen Mode
- */
 router.patch('/zen-mode', requireAuth, async (req, res) => {
   try {
     const { autoEnabled } = req.body;

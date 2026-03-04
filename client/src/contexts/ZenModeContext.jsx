@@ -6,18 +6,6 @@ import { announceZenModeChange } from '../utils/accessibility';
 
 const ZenModeContext = createContext(null);
 
-/**
- * ZenMode Provider (Context)
- * Manages the Zen Mode state globally across the application
- * 
- * Zen Mode can be activated:
- * 1. Manually by the user clicking the toggle
- * 2. Automatically when fatigue level is moderate or high (if auto is enabled in settings)
- * 
- * When active, the UI filters to show only:
- * - Emails: starred, important
- * - Tasks: high priority, urgent, or deadline is today
- */
 export function ZenModeProvider({ children }) {
   const [isZenModeActive, setIsZenModeActive] = useState(false);
   const [isManuallyToggled, setIsManuallyToggled] = useState(false);
@@ -59,7 +47,6 @@ export function ZenModeProvider({ children }) {
     }
   }, [isAuthenticated, fetchPreferences]);
 
-  // Resetting state on logout
   const resetState = useCallback(() => {
     setIsZenModeActive(false);
     setIsManuallyToggled(false);
@@ -72,7 +59,6 @@ export function ZenModeProvider({ children }) {
     console.log('[ZenMode] State reset on logout');
   }, []);
 
-  // Registering logout callback
   useEffect(() => {
     if (registerLogoutCallback) {
       const unregister = registerLogoutCallback(resetState);
@@ -80,7 +66,6 @@ export function ZenModeProvider({ children }) {
     }
   }, [registerLogoutCallback, resetState]);
 
-  // Toggle Zen Mode manually
   const toggleZenMode = useCallback(() => {
     const willBeActive = !isZenModeActive;
     setIsManuallyToggled(prev => !prev);
@@ -97,7 +82,6 @@ export function ZenModeProvider({ children }) {
     }
   }, [isZenModeActive]);
 
-  // Enable Zen Mode, which can be called externally.
   const enableZenMode = useCallback((reason = null) => {
     if (!isZenModeActive) {
       setIsZenModeActive(true);
@@ -118,12 +102,10 @@ export function ZenModeProvider({ children }) {
     console.log('[ZenMode] Disabled');
   }, []);
 
-  // Dismissing suggestion notification
   const dismissSuggestion = useCallback(() => {
     setShowSuggestion(false);
     setSuggestionReason(null);
-    // Setting cooldown to not show suggestion again for 10 minutes
-    lastSuggestionTime.current = Date.now();
+        lastSuggestionTime.current = Date.now();
     console.log('[ZenMode] Suggestion dismissed');
   }, []);
 
@@ -150,13 +132,11 @@ export function ZenModeProvider({ children }) {
     }
   }, []);
 
-  // Auto-triggering or auto-disabling Zen Mode based on unified stress level
   useEffect(() => {
     if (!preferencesLoaded) {
-      return; // Awaiting preferences to load
+      return;
     }
 
-    // Using unified stress level from fusion (combines facial + keystroke)
     const isStressed = stressLevel === 'moderate' || stressLevel === 'high';
 
     if (isStressed) {
@@ -171,9 +151,8 @@ export function ZenModeProvider({ children }) {
         }
       } else {
         if (!isZenModeActive && !showSuggestion) {
-          // Checking cooldown: 10 minutes between suggestions
           const now = Date.now();
-          const cooldownMs = 10 * 60 * 1000; // 10 minutes
+          const cooldownMs = 10 * 60 * 1000;
           
           if (!lastSuggestionTime.current || (now - lastSuggestionTime.current) > cooldownMs) {
             setSuggestionReason(
@@ -187,11 +166,6 @@ export function ZenModeProvider({ children }) {
         }
       }
     } else {
-      // Stress is normal - auto-disable Zen Mode if it was auto-triggered
-      // Only auto-disable if:
-      // 1. Zen Mode is currently active
-      // 2. It was auto-triggered (has autoTriggeredReason), not manually toggled
-      // 3. Auto Zen Mode is enabled in settings
       if (isZenModeActive && autoTriggeredReason && !isManuallyToggled && autoZenModeEnabled) {
         const reason = `Stress returned to normal (score: ${stressScore})`;
         console.log('[ZenMode] Auto-disabling - stress returned to normal (score:', stressScore, ')');

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   LineChart,
   Line,
@@ -17,16 +17,15 @@ import neutralFaceIcon from '../../assets/icons/neutral-face.png';
 import stressIcon from '../../assets/icons/stress.png';
 import './StressHistory.css';
 
-// Displaying a graphical visualization of the user's stress indicator history
 function StressHistory({ timeRange = 7 }) {
   const [history, setHistory] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const currentTimeRangeRef = useRef(timeRange);
 
   const fetchHistory = useCallback(async (days = 7) => {
     try {
-      setLoading(true);
       setError(null);
 
       const response = await fetch(`/api/stress-logs?days=${days}`, {
@@ -36,7 +35,10 @@ function StressHistory({ timeRange = 7 }) {
       const data = await response.json();
 
       if (data.success) {
-        // Sorting by timestamp (oldest first) for chart
+        if (currentTimeRangeRef.current !== days) {
+          return;
+        }
+        
         const sortedHistory = data.history
           .map(log => ({
             ...log,
@@ -46,13 +48,15 @@ function StressHistory({ timeRange = 7 }) {
 
         setHistory(sortedHistory);
       } else {
-        setError(data.error || 'Failed to fetch stress history');
+        if (currentTimeRangeRef.current === days) {
+          setError(data.error || 'Failed to fetch stress history');
+        }
       }
     } catch (err) {
       console.error('[StressHistory] Error fetching history:', err);
-      setError('Failed to load stress history. Please try again.');
-    } finally {
-      setLoading(false);
+      if (currentTimeRangeRef.current === days) {
+        setError('Failed to load stress history. Please try again.');
+      }
     }
   }, []);
 
@@ -65,14 +69,31 @@ function StressHistory({ timeRange = 7 }) {
       const data = await response.json();
 
       if (data.success && data.statistics) {
-        setStatistics(data.statistics);
+        setStatistics(prevStats => {
+          if (currentTimeRangeRef.current !== days) {
+            return prevStats;
+          }
+          
+          if (data.statistics.totalEntries > 0) {
+            return data.statistics;
+          }
+          
+          if (prevStats && prevStats.totalEntries > 0) {
+            return prevStats; 
+          }
+          return data.statistics;
+        });
       } else {
         console.error('[StressHistory] Statistics fetch failed:', data);
-        setStatistics(null);
+        if (currentTimeRangeRef.current === days) {
+          setStatistics(null);
+        }
       }
     } catch (err) {
       console.error('[StressHistory] Error fetching statistics:', err);
-      setStatistics(null);
+      if (currentTimeRangeRef.current === days) {
+        setStatistics(null);
+      }
     }
   }, []);
 
@@ -117,7 +138,9 @@ function StressHistory({ timeRange = 7 }) {
 
   useEffect(() => {
     if (history.length > 0) {
-      if (!statistics || (statistics.totalEntries === 0 && history.length > 0)) {
+      const shouldRecalculate = (!statistics || statistics.totalEntries === 0) && 
+                                currentTimeRangeRef.current === timeRange;
+      if (shouldRecalculate) {
         const calculatedStats = calculateStatisticsFromHistory(history);
         if (calculatedStats && calculatedStats.totalEntries > 0) {
           console.log('[StressHistory] Using calculated statistics as fallback');
@@ -125,11 +148,20 @@ function StressHistory({ timeRange = 7 }) {
         }
       }
     }
-  }, [history.length, calculateStatisticsFromHistory]);
+  }, [history.length, statistics, calculateStatisticsFromHistory, timeRange]);
 
   useEffect(() => {
-    fetchHistory(timeRange);
-    fetchStatistics(timeRange);
+    currentTimeRangeRef.current = timeRange;
+    setLoading(true);
+    setHistory([]);
+    setStatistics(null);
+
+    Promise.all([
+      fetchHistory(timeRange),
+      fetchStatistics(timeRange)
+    ]).finally(() => {
+      setLoading(false);
+    });
   }, [timeRange, fetchHistory, fetchStatistics]);
 
   const formatTimestamp = (timestamp) => {

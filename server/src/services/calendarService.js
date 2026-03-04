@@ -23,13 +23,6 @@ class CalendarService {
     return credentials.access_token;
   }
 
-  /**
-   * Fetching calendar events from Google Calendar
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {Object} options
-   * @returns {Promise<Object>}
-   */
   async getEvents(accessToken, refreshToken, options = {}) {
     const {
       timeMin = new Date().toISOString(),
@@ -145,11 +138,6 @@ class CalendarService {
     }
   }
 
-  /**
-   * Parsing Google Calendar event to a standardized format
-   * @param {Object} event - Google Calendar event object
-   * @returns {Object} Parsed event
-   */
   parseEvent(event) {
     const start = event.start?.dateTime || event.start?.date;
     const end = event.end?.dateTime || event.end?.date;
@@ -183,13 +171,6 @@ class CalendarService {
     };
   }
 
-  /**
-   * Fetching events from all user's calendars
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {Object} options
-   * @returns {Promise<Object>} Combined events from all calendars
-   */
   async getAllEvents(accessToken, refreshToken, options = {}) {
     const {
       timeMin = new Date().toISOString(),
@@ -253,12 +234,6 @@ class CalendarService {
     }
   }
 
-  /**
-   * Fetching calendar list (all user's calendars)
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @returns {Promise<Object>} Object with calendars array and optionally accessToken
-   */
   async getCalendarList(accessToken, refreshToken) {
     this.setCredentials(accessToken, refreshToken);
     const calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });

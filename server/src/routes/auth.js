@@ -4,15 +4,10 @@ import config from '../config/index.js';
 
 const router = Router();
 
-// Checking if Google OAuth is configured
 const isGoogleConfigured = () => {
   return !!(config.google.clientId && config.google.clientSecret);
 };
 
-/**
- * GET /api/auth/google
- * Initiates Google OAuth flow
- */
 router.get('/google', (req, res, next) => {
   if (!isGoogleConfigured()) {
     return res.redirect(`${config.clientUrl}/login?error=oauth_not_configured`);
@@ -32,10 +27,6 @@ router.get('/google', (req, res, next) => {
   })(req, res, next);
 });
 
-/**
- * GET /api/auth/google/callback
- * Handles Google OAuth callback
- */
 router.get('/google/callback', (req, res, next) => {
   if (!isGoogleConfigured()) {
     return res.redirect(`${config.clientUrl}/login?error=oauth_not_configured`);
@@ -48,7 +39,6 @@ router.get('/google/callback', (req, res, next) => {
       console.error('[Auth] OAuth callback error:', err);    
       let errorType = 'auth_failed';
 
-      // Determining error type for better user feedback
       if (err.oauthError) {
         const oauthErr = err.oauthError;
         if (oauthErr.code === 'ETIMEDOUT' || oauthErr.code === 'ECONNREFUSED') {
@@ -68,10 +58,6 @@ router.get('/google/callback', (req, res, next) => {
   });
 });
 
-/**
- * GET /api/auth/user
- * Returns current authenticated user info
- */
 router.get('/user', (req, res) => {
   if (req.isAuthenticated() && req.user) {
     res.json({
@@ -95,10 +81,6 @@ router.get('/user', (req, res) => {
   }
 });
 
-/**
- * GET /api/auth/status
- * Check authentication status (lightweight)
- */
 router.get('/status', (req, res) => {
   res.json({
     isAuthenticated: req.isAuthenticated(),
@@ -106,10 +88,6 @@ router.get('/status', (req, res) => {
   });
 });
 
-/**
- * POST /api/auth/logout
- * Logs out the current user
- */
 router.post('/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
@@ -134,10 +112,6 @@ router.post('/logout', (req, res) => {
   });
 });
 
-/**
- * GET /api/auth/config
- * Returns OAuth configuration status (for debugging)
- */
 router.get('/config', (req, res) => {
   res.json({
     configured: isGoogleConfigured(),

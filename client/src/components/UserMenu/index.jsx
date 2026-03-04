@@ -9,13 +9,11 @@ function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // Getting fallback avatar
   const getFallbackAvatar = () => {
     const name = encodeURIComponent(user?.displayName || user?.email || 'User');
     return `https://ui-avatars.com/api/?name=${name}&background=4f46e5&color=fff&size=96`;
   };
 
-  // Closing menu when clicking outside or pressing Escape
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {

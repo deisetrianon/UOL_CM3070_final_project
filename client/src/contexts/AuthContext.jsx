@@ -2,17 +2,12 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 
 const AuthContext = createContext(null);
 
-/**
- * Authentication Context Provider
- * Manages user authentication state and provides auth methods
- */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Callbacks to run on logout, for other contexts to clean up
   const logoutCallbacksRef = useRef([]);
 
   const checkAuth = useCallback(async () => {
@@ -109,7 +104,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Hook to use authentication context
 export function useAuth() {
   const context = useContext(AuthContext);
   

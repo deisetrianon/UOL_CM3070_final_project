@@ -106,7 +106,6 @@ function Settings() {
     setSettings(newSettings);
     await saveSettings(newSettings);
     
-    // Refreshing zen context if changing zen mode settings
     if (category === 'zenMode') {
       refetchZenPreferences();
     }
@@ -122,7 +121,6 @@ function Settings() {
       }
     };
     
-    // Updating the FacialAnalysisContext immediately so the interval restarts
     updateAnalysisFrequency(frequency);
     setSettings(newSettings);
     saveSettings(newSettings);

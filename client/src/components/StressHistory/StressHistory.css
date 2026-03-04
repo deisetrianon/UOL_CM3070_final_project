@@ -139,15 +139,15 @@
 }
 
 .breakdown-icon-low {
-  filter: brightness(0) saturate(100%) invert(48%) sepia(96%) saturate(2000%) hue-rotate(100deg) brightness(95%) contrast(100%); /* Green #22c55e */
+  filter: brightness(0) saturate(100%) invert(48%) sepia(96%) saturate(2000%) hue-rotate(100deg) brightness(95%) contrast(100%);
 }
 
 .breakdown-icon-moderate {
-  filter: brightness(0) saturate(100%) invert(60%) sepia(90%) saturate(500%) hue-rotate(0deg) brightness(95%) contrast(90%); /* Orange #f59e0b */
+  filter: brightness(0) saturate(100%) invert(60%) sepia(90%) saturate(500%) hue-rotate(0deg) brightness(95%) contrast(90%);
 }
 
 .breakdown-icon-high {
-  filter: brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(2000%) hue-rotate(340deg) brightness(95%) contrast(100%); /* Red #ef4444 */
+  filter: brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(2000%) hue-rotate(340deg) brightness(95%) contrast(100%);
 }
 
 .breakdown-bar-container {

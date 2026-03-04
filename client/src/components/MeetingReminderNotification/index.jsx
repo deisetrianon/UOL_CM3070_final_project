@@ -17,7 +17,6 @@ function MeetingReminderNotification() {
   const [recommendedExercise, setRecommendedExercise] = useState(null); // 'breathing' or 'anxietyRelief'
   const dismissedMeetingsRef = useRef(new Set());
 
-  // Checking for upcoming meetings every minute
   useEffect(() => {
     if (!isAuthenticated || !isZenModeActive) {
       setUpcomingMeeting(null);
@@ -30,7 +29,6 @@ function MeetingReminderNotification() {
         const now = new Date();
         const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000);
         
-        // Fetching events for the next 10 minutes
         const timeMin = now.toISOString();
         const timeMax = tenMinutesFromNow.toISOString();
 
@@ -62,7 +60,6 @@ function MeetingReminderNotification() {
           
           if (!isGoogleMeet) return false;
           
-          // Checking if it starts within 10 minutes
           const eventStart = new Date(event.start);
           if (isNaN(eventStart.getTime())) return false;
           
@@ -74,7 +71,6 @@ function MeetingReminderNotification() {
 
         if (upcomingMeetEvent) {
           setUpcomingMeeting(upcomingMeetEvent);
-          // Randomly choosing between breathing and anxiety relief exercise
           const exerciseType = Math.random() < 0.5 ? 'breathing' : 'anxietyRelief';
           setRecommendedExercise(exerciseType);
           setIsVisible(true);
@@ -88,9 +84,7 @@ function MeetingReminderNotification() {
       }
     };
 
-    // Checking immediately
     checkUpcomingMeetings();
-    // Then checking every minute
     const interval = setInterval(checkUpcomingMeetings, 60 * 1000);
 
     return () => clearInterval(interval);
@@ -123,7 +117,7 @@ function MeetingReminderNotification() {
     const minutes = Math.floor(timeUntil / (60 * 1000));
     
     if (minutes <= 0) {
-      return 'starting now';
+      return 'now';
     } else if (minutes === 1) {
       return 'in 1 minute';
     } else {

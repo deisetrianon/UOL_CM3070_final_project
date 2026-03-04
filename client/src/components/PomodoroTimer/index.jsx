@@ -1,83 +1,22 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import { useDialog } from '../../contexts/DialogContext';
+import { POMODORO } from '../../constants';
+import { formatTime } from '../../utils/date';
+import { loadPomodoroState, savePomodoroState, calculatePomodoroProgress } from '../../utils/pomodoro';
 import pomodoroIcon from '../../assets/icons/pomodoro.png';
 import './PomodoroTimer.css';
 
-const WORK_DURATION = 25 * 60; // 25 minutes in seconds
-const BREAK_DURATION = 5 * 60; // 5 minutes in seconds
-const STORAGE_KEY = 'pomodoro_timer_state';
-
-const loadInitialState = () => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const state = JSON.parse(saved);
-      const now = Date.now();
-      
-      if (state.isActive && state.startTimestamp && state.originalDuration) {
-        const elapsed = Math.floor((now - state.startTimestamp) / 1000);
-        const remainingTime = state.originalDuration - elapsed;
-        
-        if (remainingTime > 0) {
-          return {
-            mode: state.mode,
-            timeLeft: remainingTime,
-            isActive: true,
-            sessionCount: state.sessionCount || 0,
-            startTimestamp: state.startTimestamp,
-            originalDuration: state.originalDuration
-          };
-        } else {
-          return {
-            mode: state.mode,
-            timeLeft: state.mode === 'work' ? WORK_DURATION : BREAK_DURATION,
-            isActive: false,
-            sessionCount: state.sessionCount || 0,
-            startTimestamp: null,
-            originalDuration: null,
-            expired: true,
-            expiredMode: state.mode,
-            expiredCount: state.sessionCount || 0
-          };
-        }
-      } else {
-        return {
-          mode: state.mode,
-          timeLeft: state.timeLeft || (state.mode === 'work' ? WORK_DURATION : BREAK_DURATION),
-          isActive: false,
-          sessionCount: state.sessionCount || 0,
-          startTimestamp: null,
-          originalDuration: null,
-          expired: false
-        };
-      }
-    }
-  } catch (error) {
-    console.error('[Pomodoro] Error loading initial state:', error);
-  }
-  
-  // Default state
-  return {
-    mode: 'work',
-    timeLeft: WORK_DURATION,
-    isActive: false,
-    sessionCount: 0,
-    startTimestamp: null,
-    originalDuration: null,
-    expired: false
-  };
-};
+const { WORK_DURATION_SECONDS, BREAK_DURATION_SECONDS, STORAGE_KEY } = POMODORO;
 
 function PomodoroTimer() {
   const { enableZenMode } = useZenMode();
   const { showAlert } = useDialog();
-  const initialState = loadInitialState();
+  const initialState = loadPomodoroState();
   const [mode, setMode] = useState(initialState.mode);
   const [timeLeft, setTimeLeft] = useState(initialState.timeLeft);
   const [isActive, setIsActive] = useState(initialState.isActive);
   const [sessionCount, setSessionCount] = useState(initialState.sessionCount);
-  const [breakAlertShown, setBreakAlertShown] = useState(false);
   const [isExpanded, setIsExpanded] = useState(initialState.isActive); // Auto-expanding if timer is active
   const intervalRef = useRef(null);
   const startTimeRef = useRef(initialState.startTimestamp);
@@ -86,12 +25,10 @@ function PomodoroTimer() {
   const handleTimerExpired = useCallback(async (expiredMode, count) => {
     if (expiredMode === 'work') {
       setMode('break');
-      setTimeLeft(BREAK_DURATION);
+      setTimeLeft(BREAK_DURATION_SECONDS);
       setSessionCount(count + 1);
       setIsActive(false);
-      setBreakAlertShown(false);
       
-      // Enabling Zen Mode automatically during break
       enableZenMode('Pomodoro break - time to rest');
       
       if ('Notification' in window && Notification.permission === 'granted') {
@@ -103,13 +40,11 @@ function PomodoroTimer() {
         showAlert('🍅 Work session complete! Time for a break.\n\nZen Mode has been enabled to help you rest.', 'success');
       }
       
-      // Clearing saved state
       localStorage.removeItem(STORAGE_KEY);
     } else {
       setMode('work');
-      setTimeLeft(WORK_DURATION);
+      setTimeLeft(WORK_DURATION_SECONDS);
       setIsActive(false);
-      setBreakAlertShown(false);
       
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('Break complete! Ready to focus?');
@@ -123,14 +58,12 @@ function PomodoroTimer() {
     handleTimerExpired(mode, sessionCount);
   }, [handleTimerExpired, mode, sessionCount]);
 
-  // Auto-expanding when timer becomes active
   useEffect(() => {
     if (isActive) {
       setIsExpanded(true);
     }
   }, [isActive]);
 
-  // Handling timer expiration on mount if timer expired while away
   useEffect(() => {
     if (initialState.expired) {
       setTimeout(() => {
@@ -139,7 +72,6 @@ function PomodoroTimer() {
     }
   }, []);
 
-  // Listening for external Pomodoro start events
   useEffect(() => {
     const handlePomodoroStart = () => {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -179,7 +111,6 @@ function PomodoroTimer() {
     };
   }, []);
 
-  // Saving state to localStorage when timer starts, pauses, or timeLeft changes
   useEffect(() => {
     if (isActive && startTimeRef.current && originalDurationRef.current) {
       const state = {
@@ -207,7 +138,6 @@ function PomodoroTimer() {
 
   useEffect(() => {
     if (isActive && timeLeft > 0 && startTimeRef.current && originalDurationRef.current) {
-      // Recalculating timeLeft from startTimestamp every second for accuracy
       intervalRef.current = setInterval(() => {
         const now = Date.now();
         const elapsed = Math.floor((now - startTimeRef.current) / 1000);
@@ -221,7 +151,6 @@ function PomodoroTimer() {
         }
       }, 1000);
       
-      // Saving state every 10 seconds while timer is running
       const saveInterval = setInterval(() => {
         if (startTimeRef.current && originalDurationRef.current) {
           const now = Date.now();
@@ -265,7 +194,7 @@ function PomodoroTimer() {
 
   const startTimer = () => {
     const now = Date.now();
-    const originalDuration = mode === 'work' ? WORK_DURATION : BREAK_DURATION;
+    const originalDuration = mode === 'work' ? WORK_DURATION_SECONDS : BREAK_DURATION_SECONDS;
     setIsActive(true);
     setIsExpanded(true); 
     startTimeRef.current = now;
@@ -297,21 +226,13 @@ function PomodoroTimer() {
   const stopTimer = () => {
     setIsActive(false);
     setMode('work');
-    setTimeLeft(WORK_DURATION);
+    setTimeLeft(WORK_DURATION_SECONDS);
     setSessionCount(0);
     setBreakAlertShown(false);
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const progress = mode === 'work'
-    ? ((WORK_DURATION - timeLeft) / WORK_DURATION) * 100
-    : ((BREAK_DURATION - timeLeft) / BREAK_DURATION) * 100;
+  const progress = calculatePomodoroProgress(mode, timeLeft);
 
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -320,7 +241,6 @@ function PomodoroTimer() {
   }, []);
 
   const toggleExpand = () => {
-    // Allowing collapsing if timer is not active
     if (isActive) {
       return;
     }
@@ -409,7 +329,7 @@ function PomodoroTimer() {
               onClick={resetTimer} 
               title="Reset"
               aria-label="Reset timer"
-              disabled={timeLeft === (mode === 'work' ? WORK_DURATION : BREAK_DURATION) && !isActive}
+              disabled={timeLeft === (mode === 'work' ? WORK_DURATION_SECONDS : BREAK_DURATION_SECONDS) && !isActive}
             >
               <span aria-hidden="true">↻</span>
             </button>

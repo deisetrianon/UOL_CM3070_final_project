@@ -2,28 +2,9 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef } f
 import { useStressFusion } from './StressFusionContext';
 import { useZenMode } from './ZenModeContext';
 import { useAuth } from './AuthContext';
+import { STRESS, WELLNESS } from '../constants';
 
 const WellnessInterventionContext = createContext(null);
-
-/**
- * Wellness Intervention Context
- * Manages wellness intervention triggers and state based on stress levels and context
- * 
- * Intervention Types:
- * - Breathing
- * - Mindfulness
- * - Pomodoro
- * - Stretching
- * - Anxiety Relief
- * - Mental Health
- */
-
-const MODERATE_STRESS_THRESHOLD = 30;
-const HIGH_STRESS_THRESHOLD = 60;
-const PROLONGED_STRESS_DURATION = 10 * 60 * 1000; // 10 minutes
-// Cooldown periods
-const INTERVENTION_COOLDOWN = 5 * 60 * 1000; // 5 minutes between same type
-const GENERAL_COOLDOWN = 2 * 60 * 1000; // 2 minutes between any interventions
 
 export function WellnessInterventionProvider({ children }) {
   const { stressLevel, stressScore } = useStressFusion();
@@ -38,7 +19,6 @@ export function WellnessInterventionProvider({ children }) {
   const interventionCooldownsRef = useRef({});
   const zenModeAutoEnabledTimeRef = useRef(null);
 
-  // Tracking when Zen Mode is auto-enabled to prevent immediate intervention triggers
   useEffect(() => {
     if (isZenModeActive && autoTriggeredReason && !zenModeAutoEnabledTimeRef.current) {
       zenModeAutoEnabledTimeRef.current = Date.now();
@@ -48,9 +28,8 @@ export function WellnessInterventionProvider({ children }) {
     }
   }, [isZenModeActive, autoTriggeredReason]);
 
-  // Tracking prolonged high stress
   useEffect(() => {
-    if (stressLevel === 'high' && stressScore >= HIGH_STRESS_THRESHOLD) {
+    if (stressLevel === STRESS.LEVELS.HIGH && stressScore >= STRESS.HIGH_THRESHOLD) {
       if (!highStressStartTime) {
         setHighStressStartTime(Date.now());
       }
@@ -59,18 +38,16 @@ export function WellnessInterventionProvider({ children }) {
     }
   }, [stressLevel, stressScore, highStressStartTime]);
 
-  // Checking if intervention can be triggered 
   const canTriggerIntervention = useCallback((type, isManual = false) => {
     const now = Date.now();
     
-    // For manual interventions, skipping general cooldown (user-initiated)
-    if (!isManual && lastInterventionTime && (now - lastInterventionTime) < GENERAL_COOLDOWN) {
+    if (!isManual && lastInterventionTime && (now - lastInterventionTime) < WELLNESS.GENERAL_COOLDOWN) {
       return false;
     }
 
     if (!isManual) {
       const lastTime = interventionCooldownsRef.current[type];
-      if (lastTime && (now - lastTime) < INTERVENTION_COOLDOWN) {
+      if (lastTime && (now - lastTime) < WELLNESS.INTERVENTION_COOLDOWN) {
         return false;
       }
     }
@@ -78,7 +55,6 @@ export function WellnessInterventionProvider({ children }) {
     return true;
   }, [lastInterventionTime]);
 
-  // Triggering intervention based on stress level and context
   const triggerIntervention = useCallback((type, reason = null, isManual = false) => {
     if (!canTriggerIntervention(type, isManual)) {
       console.log(`[WellnessIntervention] Cooldown active for ${type}`);
@@ -93,7 +69,6 @@ export function WellnessInterventionProvider({ children }) {
     const now = Date.now();
     setActiveIntervention({ type, reason, timestamp: now });
     
-    // Updating cooldowns for automatic interventions
     if (!isManual) {
       setLastInterventionTime(now);
       setLastInterventionType(type);
@@ -109,7 +84,6 @@ export function WellnessInterventionProvider({ children }) {
     return true;
   }, [canTriggerIntervention, isZenModeActive, autoTriggeredReason]);
 
-  // Auto-triggering interventions based on stress if none are active
   useEffect(() => {
     if (activeIntervention) {
       return;
@@ -117,9 +91,9 @@ export function WellnessInterventionProvider({ children }) {
 
     const now = Date.now();
     
-    const isHigh = stressLevel === 'high' && stressScore >= HIGH_STRESS_THRESHOLD;
-    const isModerate = stressLevel === 'moderate' && stressScore >= MODERATE_STRESS_THRESHOLD;
-    const isProlonged = highStressStartTime && (now - highStressStartTime) >= PROLONGED_STRESS_DURATION;
+    const isHigh = stressLevel === STRESS.LEVELS.HIGH && stressScore >= STRESS.HIGH_THRESHOLD;
+    const isModerate = stressLevel === STRESS.LEVELS.MODERATE && stressScore >= STRESS.MODERATE_THRESHOLD;
+    const isProlonged = highStressStartTime && (now - highStressStartTime) >= WELLNESS.PROLONGED_STRESS_DURATION;
     
     if (zenModeAutoEnabledTimeRef.current && (now - zenModeAutoEnabledTimeRef.current) < 30000) {
       console.log('[WellnessIntervention] Blocked - Zen Mode was recently auto-enabled');
@@ -149,7 +123,6 @@ export function WellnessInterventionProvider({ children }) {
     }
   }, [stressLevel, stressScore, highStressStartTime, activeIntervention, canTriggerIntervention, triggerIntervention, isZenModeActive, autoTriggeredReason, autoZenModeEnabled]);
 
-  // Logging intervention to stress logs
   const logIntervention = useCallback(async (type) => {
     if (!isAuthenticated) return;
 
