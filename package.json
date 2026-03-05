@@ -1,7 +1,7 @@
 {
-  "name": "empathetic-workspace",
+  "name": "zenflow",
   "version": "1.0.0",
-  "description": "Emotion-Aware Adaptive Email and Task Manager to Reduce Workplace Stress",
+  "description": "ZenFlow - Emotion-Aware Adaptive Email and Task Manager to Reduce Workplace Stress",
   "private": true,
   "scripts": {
     "client": "npm run dev --prefix client",

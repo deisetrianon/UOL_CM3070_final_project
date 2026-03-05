@@ -50,8 +50,8 @@ function Navbar() {
     <header className="app-navbar" role="banner">
       <nav className="navbar-left" aria-label="Main navigation">
         <div className="navbar-logo">
-          <Link to="/home" className="logo-title" aria-label="Empathetic Workspace - Go to home">
-            <span className="text-gradient">Empathetic Workspace</span>
+          <Link to="/home" className="logo-title" aria-label="ZenFlow - Go to home">
+            <span className="text-gradient">ZenFlow</span>
           </Link>
         </div>
       </nav>

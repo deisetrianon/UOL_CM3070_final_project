@@ -68,7 +68,7 @@ app.get('/api/health', (req, res) => {
 
 app.get('/', (req, res) => {
   res.json({
-    name: 'Empathetic Workspace API',
+    name: 'ZenFlow API',
     version: '1.0.0',
     description: 'Emotion-Aware Adaptive Email and Task Manager Backend',
       endpoints: {
@@ -116,7 +116,7 @@ const startServer = async () => {
       console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║   Empathetic Workspace Server                              ║
+║   ZenFlow Server                                              ║
 ║                                                               ║
 ║   Server running on: http://localhost:${PORT}                 ║
 ║   Environment: ${config.nodeEnv.padEnd(12)}                            ║

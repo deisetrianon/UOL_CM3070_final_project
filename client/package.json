@@ -1,7 +1,7 @@
 {
-  "name": "empathetic-workspace-client",
+  "name": "zenflow-client",
   "version": "1.0.0",
-  "description": "Frontend for Empathetic Workspace",
+  "description": "Frontend for ZenFlow",
   "type": "module",
   "scripts": {
     "dev": "vite",

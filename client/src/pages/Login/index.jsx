@@ -62,7 +62,7 @@ function Login() {
       <div className="login-container">
         <div className="login-header">
           <h1 className="logo-text">
-            <span className="text-gradient">Empathetic Workspace</span>
+            <span className="text-gradient">ZenFlow</span>
           </h1>
           <p className="login-subtitle">Your emotion-aware productivity companion</p>
         </div>
