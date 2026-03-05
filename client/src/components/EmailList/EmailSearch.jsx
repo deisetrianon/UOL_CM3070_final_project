@@ -1,3 +1,20 @@
+/**
+ * Email Search component.
+ * Search input for filtering emails by query.
+ * Handles search input, clear functionality, and keyboard navigation.
+ * 
+ * @module components/EmailList/EmailSearch
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.searchQuery - Current search query
+ * @param {string} props.activeSearch - Active search query being applied
+ * @param {Function} props.onSearchChange - Callback when search input changes
+ * @param {Function} props.onSearch - Callback when search is executed
+ * @param {Function} props.onClearSearch - Callback when search is cleared
+ * @param {Function} props.onSearchKeyDown - Callback for keyboard events
+ * @returns {JSX.Element} Email Search component
+ */
+
 import searchIcon from '../../assets/icons/search.png';
 import './EmailList.css';
 

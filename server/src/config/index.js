@@ -1,3 +1,11 @@
+/**
+ * Application configuration module.
+ * Loads environment variables from .env file and provides centralized configuration.
+ * Manages database, Google OAuth, Azure Face API, and server settings.
+ * 
+ * @module config
+ */
+
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';

@@ -1,3 +1,20 @@
+/**
+ * Email Item component.
+ * Individual email item in the email list.
+ * Displays sender, subject, snippet, date, and action buttons (star, delete).
+ * 
+ * @module components/EmailList/EmailItem
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.email - Email object
+ * @param {boolean} props.isSelected - Whether the email is selected
+ * @param {Function} props.onSelect - Callback when email is selected/deselected
+ * @param {Function} props.onClick - Callback when email is clicked
+ * @param {Function} props.onToggleStar - Callback when star button is clicked
+ * @param {Function} props.onDelete - Callback when delete button is clicked
+ * @returns {JSX.Element} Email Item component
+ */
+
 import { formatDate } from '../../utils/date';
 import starredFilledIcon from '../../assets/icons/starred-filled.png';
 import starredIcon from '../../assets/icons/starred.png';

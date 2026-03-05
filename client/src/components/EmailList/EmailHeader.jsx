@@ -1,3 +1,14 @@
+/**
+ * Email Header component.
+ * Header bar for email list with label selection, bulk actions, and pagination controls.
+ * Shows bulk action buttons when emails are selected, otherwise shows pagination controls.
+ * 
+ * @module components/EmailList/EmailHeader
+ * @component
+ * @param {Object} props - Component props
+ * @returns {JSX.Element} Email Header component
+ */
+
 import refreshIcon from '../../assets/icons/refresh.png';
 import loadingIcon from '../../assets/icons/loading.png';
 import starredFilledIcon from '../../assets/icons/starred-filled.png';

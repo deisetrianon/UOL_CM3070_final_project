@@ -1,3 +1,11 @@
+/**
+ * Stress fusion context provider.
+ * Combines facial analysis and keystroke analysis to calculate a unified stress score.
+ * Manages stress level determination and stress log persistence.
+ * 
+ * @module StressFusionContext
+ */
+
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useFacialAnalysis } from './FacialAnalysisContext';
 import { useKeystroke } from './KeystrokeContext';
@@ -7,6 +15,13 @@ import { STRESS } from '../constants';
 
 const StressFusionContext = createContext(null);
 
+/**
+ * Stress fusion context provider component.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to wrap with stress fusion context
+ * @returns {JSX.Element} Stress fusion context provider
+ */
 export function StressFusionProvider({ children }) {
   const { lastResult, lastAnalysisTime } = useFacialAnalysis();
   const { stressIndicators: keystrokeStress } = useKeystroke();
@@ -265,6 +280,12 @@ export function StressFusionProvider({ children }) {
   );
 }
 
+/**
+ * Hook to access stress fusion context.
+ * 
+ * @returns {Object} Stress fusion context with stress level, score, and fusion data
+ * @throws {Error} If used outside StressFusionProvider
+ */
 export function useStressFusion() {
   const context = useContext(StressFusionContext);
   if (!context) {

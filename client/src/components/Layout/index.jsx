@@ -1,3 +1,15 @@
+/**
+ * Layout component.
+ * Main application layout wrapper with navbar, sidebar, and wellness panel.
+ * Handles responsive design for mobile and desktop views.
+ * 
+ * @module components/Layout
+ * @component
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to render
+ * @returns {JSX.Element} Layout component
+ */
+
 import { useState, useEffect } from 'react';
 import Navbar from '../Navbar';
 import Sidebar from '../Sidebar';

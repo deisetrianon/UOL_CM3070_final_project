@@ -1,3 +1,11 @@
+/**
+ * Wellness intervention context provider.
+ * Manages wellness interventions (breathing, mindfulness, stretching, etc.) triggered by stress levels.
+ * Handles intervention cooldowns and prevents duplicate interventions.
+ * 
+ * @module WellnessInterventionContext
+ */
+
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useStressFusion } from './StressFusionContext';
 import { useZenMode } from './ZenModeContext';
@@ -6,6 +14,13 @@ import { STRESS, WELLNESS } from '../constants';
 
 const WellnessInterventionContext = createContext(null);
 
+/**
+ * Wellness intervention context provider component.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to wrap with wellness intervention context
+ * @returns {JSX.Element} Wellness intervention context provider
+ */
 export function WellnessInterventionProvider({ children }) {
   const { stressLevel, stressScore } = useStressFusion();
   const { isZenModeActive, autoTriggeredReason, autoZenModeEnabled } = useZenMode();
@@ -210,6 +225,12 @@ export function WellnessInterventionProvider({ children }) {
   );
 }
 
+/**
+ * Hook to access wellness intervention context.
+ * 
+ * @returns {Object} Wellness intervention context with active intervention and control methods
+ * @throws {Error} If used outside WellnessInterventionProvider
+ */
 export function useWellnessIntervention() {
   const context = useContext(WellnessInterventionContext);
   if (!context) {

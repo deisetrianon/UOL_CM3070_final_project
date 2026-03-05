@@ -1,3 +1,10 @@
+/**
+ * Tasks routes.
+ * Handles task CRUD operations, task movement (drag-and-drop), and task statistics.
+ * 
+ * @module routes/tasks
+ */
+
 import { Router } from 'express';
 import Task from '../models/Task.js';
 import { requireAuth, asyncHandler, sendSuccess, sendError, sendValidationError, sendNotFound } from '../utils/response.js';

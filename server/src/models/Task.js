@@ -1,3 +1,11 @@
+/**
+ * Task model.
+ * Mongoose schema for user tasks with status, priority, deadlines, and drag-and-drop position tracking.
+ * Supports task management with status transitions and position reordering.
+ * 
+ * @module models/Task
+ */
+
 import mongoose from 'mongoose';
 
 const taskSchema = new mongoose.Schema({

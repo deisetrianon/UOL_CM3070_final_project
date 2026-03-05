@@ -1,3 +1,21 @@
+/**
+ * Task Board component.
+ * Kanban-style board view with drag-and-drop functionality for task management.
+ * Displays tasks in columns (To Do, In Progress, Done) with drag-and-drop reordering.
+ * 
+ * @module components/Tasks/TaskBoard
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.tasks - Tasks organized by status (todo, in_progress, done)
+ * @param {boolean} props.isZenModeActive - Whether Zen Mode is active
+ * @param {Array} props.allTasks - All tasks for Zen Mode filtering
+ * @param {Function} props.onDragEnd - Callback when drag operation ends
+ * @param {Function} props.onEdit - Callback when task is edited
+ * @param {Function} props.onAddTask - Callback when new task is added
+ * @param {Function} props.onStartPomodoro - Callback when Pomodoro timer is started
+ * @returns {JSX.Element} Task Board component
+ */
+
 import { DragDropContext } from '@hello-pangea/dnd';
 import TaskColumn from './TaskColumn';
 import './Tasks.css';

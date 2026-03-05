@@ -1,3 +1,19 @@
+/**
+ * Calendar Month View component.
+ * Displays a full month calendar grid with events.
+ * Shows events on their respective days with "more events" indicators.
+ * 
+ * @module components/CustomCalendar/CalendarMonthView
+ * @component
+ * @param {Object} props - Component props
+ * @param {Date} props.currentDate - Current date to display
+ * @param {Array} props.events - Array of calendar events
+ * @param {Function} props.onEventClick - Callback when an event is clicked
+ * @param {Function} props.onNavigate - Callback when navigating to different dates
+ * @param {Function} props.onShowMoreEvents - Callback when "more events" is clicked
+ * @returns {JSX.Element} Calendar Month View component
+ */
+
 import moment from 'moment';
 import { getEventColorStyle } from './calendarUtils';
 import './CustomCalendar.css';

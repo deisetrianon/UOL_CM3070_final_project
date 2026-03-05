@@ -1,6 +1,15 @@
+/**
+ * Calendar page component.
+ * Displays combined calendar view with tasks and meetings from Google Calendar.
+ * Supports filtering by event type and Zen Mode filtering.
+ * 
+ * @module pages/Calendar
+ * @component
+ * @returns {JSX.Element} Calendar page component
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import moment from 'moment';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import { useDialog } from '../../contexts/DialogContext';
 import { getDateRange } from '../../utils/date';

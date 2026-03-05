@@ -1,3 +1,25 @@
+/**
+ * Email View component.
+ * Detailed view of a selected email with full content, headers, and action buttons.
+ * Displays email body, attachments, and provides reply, reply all, delete, and star actions.
+ * 
+ * @module components/EmailList/EmailView
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.email - Email object to display
+ * @param {string|null} props.fullEmailContent - Full email HTML content
+ * @param {boolean} props.loadingEmail - Whether email content is loading
+ * @param {string} props.activeLabel - Currently active email label
+ * @param {Array} props.labels - Available email labels
+ * @param {Function} props.onBack - Callback to go back to email list
+ * @param {Function} props.onReply - Callback when reply is clicked
+ * @param {Function} props.onReplyAll - Callback when reply all is clicked
+ * @param {Function} props.onToggleStar - Callback when star is toggled
+ * @param {Function} props.onMarkAsRead - Callback when email is marked as read
+ * @param {Function} props.onDelete - Callback when email is deleted
+ * @returns {JSX.Element} Email View component
+ */
+
 import { formatDate } from '../../utils/date';
 import starredFilledIcon from '../../assets/icons/starred-filled.png';
 import starredIcon from '../../assets/icons/starred.png';

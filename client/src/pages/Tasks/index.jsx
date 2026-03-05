@@ -1,3 +1,13 @@
+/**
+ * Tasks page component.
+ * Task management interface with board and list views, drag-and-drop, and task statistics.
+ * Supports task creation, editing, deletion, and status updates.
+ * 
+ * @module pages/Tasks
+ * @component
+ * @returns {JSX.Element} Tasks page component
+ */
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';

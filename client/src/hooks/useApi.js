@@ -1,3 +1,10 @@
+/**
+ * Custom hook for making API requests with loading and error state management.
+ * Automatically handles authentication errors by redirecting to login.
+ * 
+ * @module useApi
+ * @returns {Object} API methods and state (loading, error, request, get, post, patch, delete, clearError)
+ */
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest, getErrorMessage } from '../utils/api';

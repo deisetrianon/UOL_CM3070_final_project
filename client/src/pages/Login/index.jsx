@@ -1,3 +1,13 @@
+/**
+ * Login page component.
+ * Handles user authentication via Google OAuth.
+ * Displays login interface and authentication status.
+ * 
+ * @module pages/Login
+ * @component
+ * @returns {JSX.Element} Login page component
+ */
+
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';

@@ -1,3 +1,11 @@
+/**
+ * Express server application entry point.
+ * Configures middleware, routes, and database connection.
+ * Sets up CORS, session management, and authentication.
+ * 
+ * @module server
+ */
+
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';

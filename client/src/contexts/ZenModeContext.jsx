@@ -1,3 +1,11 @@
+/**
+ * Zen Mode context provider.
+ * Manages Zen Mode state (manual and automatic activation), preferences, and suggestions.
+ * Provides a distraction-free mode that can be triggered automatically based on stress levels.
+ * 
+ * @module ZenModeContext
+ */
+
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useFacialAnalysis } from './FacialAnalysisContext';
 import { useStressFusion } from './StressFusionContext';
@@ -6,6 +14,13 @@ import { announceZenModeChange } from '../utils/accessibility';
 
 const ZenModeContext = createContext(null);
 
+/**
+ * Zen Mode context provider component.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to wrap with Zen Mode context
+ * @returns {JSX.Element} Zen Mode context provider
+ */
 export function ZenModeProvider({ children }) {
   const [isZenModeActive, setIsZenModeActive] = useState(false);
   const [isManuallyToggled, setIsManuallyToggled] = useState(false);
@@ -198,6 +213,12 @@ export function ZenModeProvider({ children }) {
   );
 }
 
+/**
+ * Hook to access Zen Mode context.
+ * 
+ * @returns {Object} Zen Mode context with state, preferences, and control methods
+ * @throws {Error} If used outside ZenModeProvider
+ */
 export function useZenMode() {
   const context = useContext(ZenModeContext);
   if (!context) {

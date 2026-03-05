@@ -1,8 +1,23 @@
+/**
+ * Keystroke analysis context provider.
+ * Monitors typing patterns (dwell time, flight time) to detect stress indicators.
+ * Calculates keystroke-based stress scores and panic typing detection.
+ * 
+ * @module KeystrokeContext
+ */
+
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { KEYSTROKE } from '../constants';
 
 const KeystrokeContext = createContext(null);
 
+/**
+ * Keystroke analysis context provider component.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to wrap with keystroke context
+ * @returns {JSX.Element} Keystroke context provider
+ */
 export function KeystrokeProvider({ children }) {
   const [keystrokeData, setKeystrokeData] = useState({
     dwellTimes: [],
@@ -250,6 +265,12 @@ export function KeystrokeProvider({ children }) {
   );
 }
 
+/**
+ * Hook to access keystroke analysis context.
+ * 
+ * @returns {Object} Keystroke context with stress indicators and keystroke data
+ * @throws {Error} If used outside KeystrokeProvider
+ */
 export function useKeystroke() {
   const context = useContext(KeystrokeContext);
   if (!context) {

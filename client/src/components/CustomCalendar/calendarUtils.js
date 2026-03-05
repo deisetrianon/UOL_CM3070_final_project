@@ -1,3 +1,16 @@
+/**
+ * Calendar utility functions.
+ * Provides helper functions for calendar event styling and date calculations.
+ * 
+ * @module components/CustomCalendar/calendarUtils
+ */
+
+/**
+ * Gets the color style for a calendar event based on its type and properties.
+ * 
+ * @param {Object} event - Calendar event object
+ * @returns {Object} CSS style object with backgroundColor and borderColor
+ */
 export function getEventColorStyle(event) {
   const isTask = event.resource?.type === 'task';
   const isGoogleMeet = event.resource?.isGoogleMeet;

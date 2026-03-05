@@ -1,3 +1,13 @@
+/**
+ * Camera Permission Modal component.
+ * Modal for requesting camera permission for facial analysis.
+ * Explains the benefits of wellness monitoring and allows users to allow or deny camera access.
+ * 
+ * @module components/CameraPermissionModal
+ * @component
+ * @returns {JSX.Element|null} Camera Permission Modal component or null if not shown
+ */
+
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import webcamIcon from '../../assets/icons/webcam.png';
 import './CameraPermissionModal.css';

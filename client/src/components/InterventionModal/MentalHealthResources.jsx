@@ -1,3 +1,15 @@
+/**
+ * Mental Health Resources component.
+ * Displays crisis hotlines, mental health resources, and support information.
+ * Provides links and contact information for mental health support services.
+ * 
+ * @module components/InterventionModal/MentalHealthResources
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback when component is closed
+ * @returns {JSX.Element} Mental Health Resources component
+ */
+
 import sirenIcon from '../../assets/icons/siren.png';
 import therapyIcon from '../../assets/icons/therapy.png';
 import './MentalHealthResources.css';

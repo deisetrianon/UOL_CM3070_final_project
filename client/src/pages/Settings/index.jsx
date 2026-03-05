@@ -1,3 +1,12 @@
+/**
+ * Settings page component.
+ * User settings interface for managing facial analysis frequency, Zen Mode preferences, and notifications.
+ * 
+ * @module pages/Settings
+ * @component
+ * @returns {JSX.Element} Settings page component
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';

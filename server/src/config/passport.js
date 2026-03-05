@@ -1,3 +1,10 @@
+/**
+ * Passport.js configuration for Google OAuth authentication.
+ * Configures authentication strategies and session serialization.
+ * 
+ * @module config/passport
+ */
+
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import config from './index.js';

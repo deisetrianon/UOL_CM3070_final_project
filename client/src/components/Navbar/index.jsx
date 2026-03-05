@@ -1,3 +1,12 @@
+/**
+ * Navbar component.
+ * Top navigation bar with facial analysis status, stress level indicator, Zen Mode toggle, Pomodoro timer, and user menu.
+ * 
+ * @module components/Navbar
+ * @component
+ * @returns {JSX.Element} Navbar component
+ */
+
 import { Link } from 'react-router-dom';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useStressFusion } from '../../contexts/StressFusionContext';

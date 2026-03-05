@@ -1,3 +1,13 @@
+/**
+ * Meeting Reminder Notification component.
+ * Displays notifications for upcoming Google Meet meetings with wellness exercise recommendations.
+ * Suggests breathing or anxiety relief exercises before meetings.
+ * 
+ * @module components/MeetingReminderNotification
+ * @component
+ * @returns {JSX.Element|null} Meeting Reminder Notification component or null if no upcoming meeting
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import { useAuth } from '../../contexts/AuthContext';

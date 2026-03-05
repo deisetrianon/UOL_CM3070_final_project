@@ -1,3 +1,11 @@
+/**
+ * Custom hook for managing pagination state with page tokens.
+ * Handles next/previous navigation and maintains page token history for backward navigation.
+ * 
+ * @module usePagination
+ * @param {number} initialPage - The initial page number (default: 1)
+ * @returns {Object} Pagination state and methods (currentPage, nextPageToken, goToNextPage, goToPrevPage, goToFirstPage, reset)
+ */
 import { useState, useCallback } from 'react';
 
 export function usePagination(initialPage = 1) {

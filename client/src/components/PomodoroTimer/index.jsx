@@ -1,3 +1,13 @@
+/**
+ * Pomodoro Timer component.
+ * Pomodoro technique timer with work and break sessions.
+ * Persists timer state to localStorage and can trigger Zen Mode on completion.
+ * 
+ * @module components/PomodoroTimer
+ * @component
+ * @returns {JSX.Element} Pomodoro Timer component
+ */
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import { useDialog } from '../../contexts/DialogContext';

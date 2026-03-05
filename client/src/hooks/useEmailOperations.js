@@ -1,3 +1,10 @@
+/**
+ * Custom hook for email operations (fetch, delete, mark as read, star, send, reply).
+ * Manages email-related API calls with loading and error state handling.
+ * 
+ * @module useEmailOperations
+ * @returns {Object} Email operations and state (loading, error, fetchEmails, fetchFullEmail, deleteEmail, markEmailAsRead, toggleStar, sendEmail, replyToEmail, EMAILS_PER_PAGE)
+ */
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_ENDPOINTS } from '../constants';

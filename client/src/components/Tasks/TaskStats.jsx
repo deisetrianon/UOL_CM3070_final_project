@@ -1,3 +1,14 @@
+/**
+ * Task Stats component.
+ * Displays task statistics including total tasks, tasks by status, and completion rate.
+ * 
+ * @module components/Tasks/TaskStats
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.stats - Task statistics object with total, todo, inProgress, done, completionRate
+ * @returns {JSX.Element|null} Task Stats component or null if no stats
+ */
+
 import './Tasks.css';
 
 function TaskStats({ stats }) {

@@ -1,3 +1,13 @@
+/**
+ * Intervention Modal component.
+ * Container modal for displaying wellness interventions (breathing, mindfulness, stretching, etc.).
+ * Manages focus and keyboard navigation for accessibility.
+ * 
+ * @module components/InterventionModal
+ * @component
+ * @returns {JSX.Element|null} Intervention Modal component or null if no active intervention
+ */
+
 import { useEffect, useRef } from 'react';
 import { useWellnessIntervention } from '../../contexts/WellnessInterventionContext';
 import BreathingExercise from './BreathingExercise';

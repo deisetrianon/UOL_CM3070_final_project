@@ -1,3 +1,13 @@
+/**
+ * Home page component.
+ * Main email management interface with inbox, search, pagination, and email operations.
+ * Displays email list, email viewer, and email composer.
+ * 
+ * @module pages/Home
+ * @component
+ * @returns {JSX.Element} Home page component
+ */
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';

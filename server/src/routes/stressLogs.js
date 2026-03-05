@@ -1,3 +1,10 @@
+/**
+ * Stress logs routes.
+ * Handles stress log creation, retrieval, and statistics calculation.
+ * 
+ * @module routes/stressLogs
+ */
+
 import express from 'express';
 import StressLog from '../models/StressLog.js';
 

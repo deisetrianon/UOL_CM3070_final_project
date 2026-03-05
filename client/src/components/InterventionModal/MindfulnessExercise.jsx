@@ -1,3 +1,15 @@
+/**
+ * Mindfulness Exercise component.
+ * Displays guided mindfulness meditation videos from YouTube.
+ * Provides different duration options for meditation sessions.
+ * 
+ * @module components/InterventionModal/MindfulnessExercise
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback when exercise is closed
+ * @returns {JSX.Element} Mindfulness Exercise component
+ */
+
 import { useState } from 'react';
 import './MindfulnessExercise.css';
 

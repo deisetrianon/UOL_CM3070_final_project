@@ -1,3 +1,13 @@
+/**
+ * Custom hook for email form management.
+ * Handles email form state, validation, and field management (To, CC, BCC, Subject, Body).
+ * 
+ * @module components/EmailWriter/useEmailForm
+ * @param {string} initialTo - Initial recipient email address
+ * @param {string} initialSubject - Initial email subject
+ * @param {string} initialBody - Initial email body
+ * @returns {Object} Email form state and methods
+ */
 import { useState, useCallback } from 'react';
 
 export function useEmailForm(initialTo = '', initialSubject = '', initialBody = '') {

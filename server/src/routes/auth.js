@@ -1,3 +1,10 @@
+/**
+ * Authentication routes.
+ * Handles Google OAuth authentication, login, logout, and user session management.
+ * 
+ * @module routes/auth
+ */
+
 import { Router } from 'express';
 import passport from '../config/passport.js';
 import config from '../config/index.js';

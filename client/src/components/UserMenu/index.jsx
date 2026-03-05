@@ -1,3 +1,13 @@
+/**
+ * User Menu component.
+ * Dropdown menu for user account actions including profile, settings, and logout.
+ * Displays user avatar and handles menu open/close state.
+ * 
+ * @module components/UserMenu
+ * @component
+ * @returns {JSX.Element} User Menu component
+ */
+
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';

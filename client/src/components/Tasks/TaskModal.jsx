@@ -1,3 +1,18 @@
+/**
+ * Task Modal component.
+ * Modal dialog for creating and editing tasks.
+ * Handles task form with title, description, priority, urgency, and deadline fields.
+ * 
+ * @module components/Tasks/TaskModal
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object|null} props.task - Task object to edit (null for new task)
+ * @param {Function} props.onClose - Callback when modal is closed
+ * @param {Function} props.onSave - Callback when task is saved
+ * @param {Function} props.onDelete - Callback when task is deleted
+ * @returns {JSX.Element} Task Modal component
+ */
+
 import { useState, useEffect } from 'react';
 import { useDialog } from '../../contexts/DialogContext';
 import './Tasks.css';

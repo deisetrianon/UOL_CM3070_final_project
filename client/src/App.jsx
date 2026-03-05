@@ -1,3 +1,13 @@
+/**
+ * Main application component.
+ * Sets up routing, context providers, and global UI components.
+ * Manages authentication-protected routes and application-wide modals.
+ * 
+ * @module App
+ * @component
+ * @returns {JSX.Element} The root application component with routing and providers
+ */
+
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { FacialAnalysisProvider } from './contexts/FacialAnalysisContext';

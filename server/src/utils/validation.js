@@ -1,13 +1,38 @@
+/**
+ * Server-side validation utility functions.
+ * Provides validation for tasks, pagination, and date ranges.
+ * 
+ * @module utils/validation
+ */
+
 import { TASK_STATUS, TASK_PRIORITY } from '../constants/index.js';
 
+/**
+ * Validates if a task status is valid.
+ * 
+ * @param {string} status - The task status to validate
+ * @returns {boolean} True if the status is valid
+ */
 export function isValidTaskStatus(status) {
   return Object.values(TASK_STATUS).includes(status) || status === 'in_progress';
 }
 
+/**
+ * Validates if a task priority is valid.
+ * 
+ * @param {string} priority - The task priority to validate
+ * @returns {boolean} True if the priority is valid
+ */
 export function isValidTaskPriority(priority) {
   return Object.values(TASK_PRIORITY).includes(priority);
 }
 
+/**
+ * Validates task data and returns validation errors if any.
+ * 
+ * @param {Object} taskData - The task data to validate
+ * @returns {Object} Validation result with isValid flag and errors object
+ */
 export function validateTaskData(taskData) {
   const errors = {};
 
@@ -42,6 +67,12 @@ export function validateTaskData(taskData) {
   };
 }
 
+/**
+ * Validates and normalizes pagination query parameters.
+ * 
+ * @param {Object} query - Query parameters with page and limit
+ * @returns {Object} Normalized pagination object with page, limit, and skip
+ */
 export function validatePagination(query) {
   const page = Math.max(1, parseInt(query.page, 10) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(query.limit, 10) || 50));
@@ -54,6 +85,13 @@ export function validatePagination(query) {
   };
 }
 
+/**
+ * Validates a date range (start and end dates).
+ * 
+ * @param {string|Date} startDate - The start date
+ * @param {string|Date} endDate - The end date
+ * @returns {Object} Validation result with isValid flag and errors object
+ */
 export function validateDateRange(startDate, endDate) {
   const errors = {};
 

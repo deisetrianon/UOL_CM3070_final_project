@@ -1,3 +1,24 @@
+/**
+ * Email Pagination component.
+ * Pagination controls for navigating through email pages.
+ * Displays current page, item range, and navigation buttons (First, Previous, Next).
+ * 
+ * @module components/EmailList/EmailPagination
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.currentPage - Current page number
+ * @param {string|null} props.nextPageToken - Token for next page
+ * @param {Array} props.pageTokenHistory - History of page tokens for backward navigation
+ * @param {number} props.totalEstimate - Estimated total number of emails
+ * @param {number} props.emailsPerPage - Number of emails per page
+ * @param {Array} props.filteredEmails - Currently displayed emails
+ * @param {Function} props.onNextPage - Callback for next page
+ * @param {Function} props.onPrevPage - Callback for previous page
+ * @param {Function} props.onFirstPage - Callback for first page
+ * @param {Object} props.zenModeEmailStats - Zen Mode email filtering statistics
+ * @returns {JSX.Element} Email Pagination component
+ */
+
 import './EmailList.css';
 
 function EmailPagination({

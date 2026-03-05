@@ -1,3 +1,16 @@
+/**
+ * Task List component.
+ * List view of tasks organized by status columns.
+ * Displays tasks in a vertical list format grouped by status.
+ * 
+ * @module components/Tasks/TaskList
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.tasks - Tasks organized by status (todo, in_progress, done)
+ * @param {Function} props.onEdit - Callback when task is clicked to edit
+ * @returns {JSX.Element} Task List component
+ */
+
 import { formatDeadline } from '../../utils/date';
 import './Tasks.css';
 

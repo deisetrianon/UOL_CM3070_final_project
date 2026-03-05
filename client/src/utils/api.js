@@ -1,3 +1,18 @@
+/**
+ * API utility functions for making HTTP requests.
+ * Provides helper functions for GET, POST, PATCH, PUT, and DELETE requests.
+ * 
+ * @module api
+ */
+
+/**
+ * Makes an HTTP request with default options including credentials and JSON headers.
+ * 
+ * @param {string} url - The URL to make the request to
+ * @param {Object} options - Request options (method, body, headers, etc.)
+ * @returns {Promise<Object>} The JSON response data
+ * @throws {Error} If the request fails or returns a non-OK status
+ */
 export async function apiRequest(url, options = {}) {
   const defaultOptions = {
     credentials: 'include',
@@ -32,6 +47,13 @@ export async function apiRequest(url, options = {}) {
   }
 }
 
+/**
+ * Makes a GET request with query parameters.
+ * 
+ * @param {string} url - The URL to make the request to
+ * @param {Object} params - Query parameters to append to the URL
+ * @returns {Promise<Object>} The JSON response data
+ */
 export async function apiGet(url, params = {}) {
   const queryString = new URLSearchParams(params).toString();
   const fullUrl = queryString ? `${url}?${queryString}` : url;
@@ -41,6 +63,13 @@ export async function apiGet(url, params = {}) {
   });
 }
 
+/**
+ * Makes a POST request with a JSON body.
+ * 
+ * @param {string} url - The URL to make the request to
+ * @param {Object} body - The request body to send as JSON
+ * @returns {Promise<Object>} The JSON response data
+ */
 export async function apiPost(url, body = {}) {
   return apiRequest(url, {
     method: 'POST',
@@ -48,6 +77,13 @@ export async function apiPost(url, body = {}) {
   });
 }
 
+/**
+ * Makes a PATCH request with a JSON body.
+ * 
+ * @param {string} url - The URL to make the request to
+ * @param {Object} body - The request body to send as JSON
+ * @returns {Promise<Object>} The JSON response data
+ */
 export async function apiPatch(url, body = {}) {
   return apiRequest(url, {
     method: 'PATCH',
@@ -55,6 +91,13 @@ export async function apiPatch(url, body = {}) {
   });
 }
 
+/**
+ * Makes a PUT request with a JSON body.
+ * 
+ * @param {string} url - The URL to make the request to
+ * @param {Object} body - The request body to send as JSON
+ * @returns {Promise<Object>} The JSON response data
+ */
 export async function apiPut(url, body = {}) {
   return apiRequest(url, {
     method: 'PUT',
@@ -62,12 +105,24 @@ export async function apiPut(url, body = {}) {
   });
 }
 
+/**
+ * Makes a DELETE request.
+ * 
+ * @param {string} url - The URL to make the request to
+ * @returns {Promise<Object>} The JSON response data
+ */
 export async function apiDelete(url) {
   return apiRequest(url, {
     method: 'DELETE',
   });
 }
 
+/**
+ * Extracts a user-friendly error message from an error object.
+ * 
+ * @param {Error|Object} error - The error object
+ * @returns {string} A user-friendly error message
+ */
 export function getErrorMessage(error) {
   if (error.message) {
     return error.message;

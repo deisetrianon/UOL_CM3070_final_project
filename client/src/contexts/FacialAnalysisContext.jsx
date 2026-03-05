@@ -1,8 +1,23 @@
+/**
+ * Facial analysis context provider.
+ * Manages camera access, facial analysis via Azure Face API, and analysis frequency settings.
+ * Provides facial stress detection capabilities to the application.
+ * 
+ * @module FacialAnalysisContext
+ */
+
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 
 const FacialAnalysisContext = createContext(null);
 
+/**
+ * Facial analysis context provider component.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to wrap with facial analysis context
+ * @returns {JSX.Element} Facial analysis context provider
+ */
 export function FacialAnalysisProvider({ children }) {
   const { registerLogoutCallback, isAuthenticated } = useAuth();
   const [cameraPermission, setCameraPermission] = useState('prompt'); // 'prompt', 'granted', 'denied'
@@ -438,6 +453,12 @@ export function FacialAnalysisProvider({ children }) {
   );
 }
 
+/**
+ * Hook to access facial analysis context.
+ * 
+ * @returns {Object} Facial analysis context with camera state, analysis results, and control methods
+ * @throws {Error} If used outside FacialAnalysisProvider
+ */
 export function useFacialAnalysis() {
   const context = useContext(FacialAnalysisContext);
   if (!context) {

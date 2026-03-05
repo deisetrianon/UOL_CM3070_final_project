@@ -1,5 +1,16 @@
+/**
+ * Gmail service.
+ * Handles Gmail API operations including email fetching, sending, replying, and label management.
+ * Manages OAuth2 authentication and token refresh for Gmail API access.
+ * 
+ * @module services/gmailService
+ */
+
 import { google } from 'googleapis';
 
+/**
+ * Gmail service class for interacting with Gmail API.
+ */
 class GmailService {
   constructor() {
     this.oauth2Client = new google.auth.OAuth2(

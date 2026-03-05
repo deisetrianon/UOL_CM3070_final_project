@@ -1,3 +1,13 @@
+/**
+ * Burnout Section component.
+ * Sidebar section linking to the burnout information page.
+ * Provides quick access to burnout resources and information.
+ * 
+ * @module components/Sidebar/BurnoutSection
+ * @component
+ * @returns {JSX.Element} Burnout Section component
+ */
+
 import { useNavigate, useLocation } from 'react-router-dom';
 import stressIcon from '../../assets/icons/stress.png';
 

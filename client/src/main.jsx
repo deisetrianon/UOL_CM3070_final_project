@@ -1,3 +1,10 @@
+/**
+ * Application entry point.
+ * Initializes React application with routing and renders the root App component.
+ * 
+ * @module main
+ */
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';

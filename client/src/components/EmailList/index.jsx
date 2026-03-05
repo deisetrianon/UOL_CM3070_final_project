@@ -1,3 +1,14 @@
+/**
+ * Email List component.
+ * Displays email list with header, items, and pagination controls.
+ * Handles email selection, bulk operations, and email display.
+ * 
+ * @module components/EmailList
+ * @component
+ * @param {Object} props - Component props
+ * @returns {JSX.Element} Email List component
+ */
+
 import EmailHeader from './EmailHeader';
 import EmailItem from './EmailItem';
 import EmailPagination from './EmailPagination';
