@@ -1,3 +1,21 @@
+/**
+ * Confirm Modal component.
+ * Displays confirmation dialogs with customizable title, message, and button text.
+ * Handles keyboard navigation and focus management for accessibility.
+ * 
+ * @module components/ConfirmModal
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.message - Confirmation message to display
+ * @param {Function} props.onConfirm - Callback when confirmed
+ * @param {Function} props.onCancel - Callback when cancelled
+ * @param {string} props.title - Modal title (default: 'Confirm Action')
+ * @param {string} props.confirmText - Confirm button text (default: 'Confirm')
+ * @param {string} props.cancelText - Cancel button text (default: 'Cancel')
+ * @param {string} props.type - Modal type ('warning', 'danger', 'info', default: 'warning')
+ * @returns {JSX.Element|null} Confirm Modal component or null if no message
+ */
+
 import { useEffect, useRef } from 'react';
 import trashIcon from '../../assets/icons/trash.png';
 import importantIcon from '../../assets/icons/important.png';

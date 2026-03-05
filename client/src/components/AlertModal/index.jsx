@@ -1,3 +1,17 @@
+/**
+ * Alert Modal component.
+ * Displays alert messages with different types (info, success, warning, error).
+ * Handles keyboard navigation and focus management for accessibility.
+ * 
+ * @module components/AlertModal
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.message - Alert message to display
+ * @param {Function} props.onClose - Callback when modal is closed
+ * @param {string} props.type - Alert type ('info', 'success', 'warning', 'error', default: 'info')
+ * @returns {JSX.Element|null} Alert Modal component or null if no message
+ */
+
 import { useEffect, useRef } from 'react';
 import './AlertModal.css';
 

@@ -1,5 +1,16 @@
+/**
+ * Google Calendar service.
+ * Handles Google Calendar API operations for fetching events and meetings.
+ * Manages OAuth2 authentication and token refresh for Calendar API access.
+ * 
+ * @module services/calendarService
+ */
+
 import { google } from 'googleapis';
 
+/**
+ * Google Calendar service class for interacting with Calendar API.
+ */
 class CalendarService {
   constructor() {
     this.oauth2Client = new google.auth.OAuth2(

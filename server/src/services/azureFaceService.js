@@ -1,6 +1,17 @@
+/**
+ * Azure Face API service.
+ * Handles facial analysis using Azure Cognitive Services Face API.
+ * Detects faces, analyzes attributes, and calculates stress indicators from facial expressions.
+ * 
+ * @module services/azureFaceService
+ */
+
 import axios from 'axios';
 import config from '../config/index.js';
 
+/**
+ * Azure Face API service class for facial analysis.
+ */
 class AzureFaceService {
   constructor() {
     this.apiKey = config.azure.faceApiKey;

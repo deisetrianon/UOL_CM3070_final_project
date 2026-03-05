@@ -1,3 +1,21 @@
+/**
+ * Task Column component.
+ * Single column in the task board (To Do, In Progress, or Done).
+ * Handles drag-and-drop functionality and displays task cards.
+ * 
+ * @module components/Tasks/TaskColumn
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.column - Column configuration (id, title, headerBg)
+ * @param {Array} props.tasks - Tasks in this column
+ * @param {boolean} props.isZenModeActive - Whether Zen Mode is active
+ * @param {Array} props.allTasks - All tasks for Zen Mode filtering
+ * @param {Function} props.onEdit - Callback when task is edited
+ * @param {Function} props.onAddTask - Callback when new task is added to this column
+ * @param {Function} props.onStartPomodoro - Callback when Pomodoro timer is started
+ * @returns {JSX.Element} Task Column component
+ */
+
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskCard from './TaskCard';
 import './Tasks.css';

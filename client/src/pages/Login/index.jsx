@@ -1,3 +1,13 @@
+/**
+ * Login page component.
+ * Handles user authentication via Google OAuth.
+ * Displays login interface and authentication status.
+ * 
+ * @module pages/Login
+ * @component
+ * @returns {JSX.Element} Login page component
+ */
+
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -52,7 +62,7 @@ function Login() {
       <div className="login-container">
         <div className="login-header">
           <h1 className="logo-text">
-            <span className="text-gradient">Empathetic Workspace</span>
+            <span className="text-gradient">ZenFlow</span>
           </h1>
           <p className="login-subtitle">Your emotion-aware productivity companion</p>
         </div>

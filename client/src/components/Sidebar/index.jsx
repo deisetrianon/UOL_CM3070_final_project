@@ -1,3 +1,13 @@
+/**
+ * Sidebar component.
+ * Navigation sidebar with page links, email label filters, and burnout section.
+ * Supports Zen Mode filtering to show only priority items.
+ * 
+ * @module components/Sidebar
+ * @component
+ * @returns {JSX.Element} Sidebar component
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useZenMode } from '../../contexts/ZenModeContext';

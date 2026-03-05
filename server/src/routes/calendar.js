@@ -1,3 +1,10 @@
+/**
+ * Calendar routes.
+ * Handles Google Calendar integration and combined calendar view with tasks.
+ * 
+ * @module routes/calendar
+ */
+
 import { Router } from 'express';
 import calendarService from '../services/calendarService.js';
 import Task from '../models/Task.js';

@@ -1,3 +1,10 @@
+/**
+ * Facial analysis routes.
+ * Handles facial analysis requests using Azure Face API.
+ * 
+ * @module routes/facialAnalysis
+ */
+
 import express from 'express';
 import azureFaceService from '../services/azureFaceService.js';
 import { asyncHandler, sendSuccess, sendError, sendValidationError } from '../utils/response.js';

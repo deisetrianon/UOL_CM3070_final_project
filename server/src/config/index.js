@@ -1,3 +1,11 @@
+/**
+ * Application configuration module.
+ * Loads environment variables from .env file and provides centralized configuration.
+ * Manages database, Google OAuth, Azure Face API, and server settings.
+ * 
+ * @module config
+ */
+
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
@@ -28,7 +36,7 @@ const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   sessionSecret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
-  mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/empathetic-workspace',
+  mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/zenflow',
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,

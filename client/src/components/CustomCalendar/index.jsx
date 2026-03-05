@@ -1,3 +1,19 @@
+/**
+ * Custom Calendar component.
+ * Displays calendar with month, week, and day views.
+ * Shows tasks and meetings with color coding and event details.
+ * 
+ * @module components/CustomCalendar
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.events - Array of calendar events
+ * @param {Date} props.currentDate - Current date to display
+ * @param {string} props.view - Calendar view ('month', 'week', or 'day', default: 'week')
+ * @param {Function} props.onEventClick - Callback when an event is clicked
+ * @param {Function} props.onNavigate - Callback when navigating to different dates
+ * @returns {JSX.Element} Custom Calendar component
+ */
+
 import { useMemo, useState } from 'react';
 import moment from 'moment';
 import CalendarMonthView from './CalendarMonthView';

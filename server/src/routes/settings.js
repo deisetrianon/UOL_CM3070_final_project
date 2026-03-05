@@ -1,3 +1,10 @@
+/**
+ * Settings routes.
+ * Handles user settings management including Zen Mode preferences and facial analysis frequency.
+ * 
+ * @module routes/settings
+ */
+
 import express from 'express';
 import User from '../models/User.js';
 

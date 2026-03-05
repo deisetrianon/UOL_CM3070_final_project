@@ -1,3 +1,18 @@
+/**
+ * Calendar Event component.
+ * Individual calendar event display with title, time, and styling.
+ * Shows Google Meet icon for video meetings.
+ * 
+ * @module components/CustomCalendar/CalendarEvent
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.event - Calendar event object
+ * @param {Object} props.style - CSS style object for positioning
+ * @param {boolean} props.isOverlapping - Whether the event overlaps with others
+ * @param {Function} props.onEventClick - Callback when event is clicked
+ * @returns {JSX.Element} Calendar Event component
+ */
+
 import moment from 'moment';
 import videoIcon from '../../assets/icons/videocall.png';
 import { getEventColorStyle } from './calendarUtils';

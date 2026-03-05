@@ -1,3 +1,12 @@
+/**
+ * Custom hook for managing search functionality.
+ * Handles search query state, active search tracking, and search execution.
+ * 
+ * @module useSearch
+ * @param {string} initialQuery - The initial search query (default: '')
+ * @param {Function|null} onSearchCallback - Optional callback function to execute on search
+ * @returns {Object} Search state and methods (searchQuery, activeSearch, isSearchActive, setSearchQuery, handleSearch, handleClearSearch, handleSearchKeyDown)
+ */
 import { useState, useCallback, useMemo } from 'react';
 
 export function useSearch(initialQuery = '', onSearchCallback = null) {

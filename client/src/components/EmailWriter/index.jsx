@@ -1,3 +1,21 @@
+/**
+ * Email Writer component.
+ * Email composition interface for creating, replying, and forwarding emails.
+ * Supports To, CC, BCC fields and email validation.
+ * 
+ * @module components/EmailWriter
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback when email writer is closed
+ * @param {Function} props.onSend - Callback when email is sent
+ * @param {string} props.initialTo - Initial recipient email address
+ * @param {string} props.initialSubject - Initial email subject
+ * @param {string} props.initialBody - Initial email body
+ * @param {boolean} props.isReply - Whether this is a reply email
+ * @param {boolean} props.replyAll - Whether to reply to all recipients
+ * @returns {JSX.Element} Email Writer component
+ */
+
 import { useState } from 'react';
 import { useEmailForm } from './useEmailForm';
 import './EmailWriter.css';

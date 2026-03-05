@@ -1,3 +1,12 @@
+/**
+ * Stress History page component.
+ * Wrapper page for stress history visualization with time range selection (1 day, 7 days, 30 days).
+ * 
+ * @module pages/StressHistory
+ * @component
+ * @returns {JSX.Element} Stress History page component
+ */
+
 import { useState } from 'react';
 import Layout from '../../components/Layout';
 import StressHistory from '../../components/StressHistory';

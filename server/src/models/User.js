@@ -1,3 +1,11 @@
+/**
+ * User model.
+ * Mongoose schema for user accounts with Google OAuth integration.
+ * Stores user profile information, preferences, and OAuth tokens.
+ * 
+ * @module models/User
+ */
+
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({

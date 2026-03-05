@@ -1,3 +1,15 @@
+/**
+ * Stress History component.
+ * Displays stress level history with charts, statistics, and stress level distribution.
+ * Supports time range filtering (1 day, 7 days, 30 days).
+ * 
+ * @module components/StressHistory
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.timeRange - Time range in days (default: 7)
+ * @returns {JSX.Element} Stress History component
+ */
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   LineChart,

@@ -1,3 +1,11 @@
+/**
+ * StressLog model.
+ * Mongoose schema for stress level logs with scores, levels, and component scores.
+ * Tracks stress history with facial and keystroke analysis components.
+ * 
+ * @module models/StressLog
+ */
+
 import mongoose from 'mongoose';
 
 const stressLogSchema = new mongoose.Schema({

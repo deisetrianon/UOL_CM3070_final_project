@@ -1,3 +1,10 @@
+/**
+ * Gmail routes.
+ * Handles Gmail API operations including email fetching, sending, replying, and label management.
+ * 
+ * @module routes/gmail
+ */
+
 import { Router } from 'express';
 import gmailService from '../services/gmailService.js';
 import { requireAuth, asyncHandler, sendSuccess, sendError, sendValidationError, sendUnauthorized } from '../utils/response.js';

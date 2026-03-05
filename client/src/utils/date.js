@@ -1,5 +1,18 @@
+/**
+ * Date and time utility functions.
+ * Provides formatting and manipulation functions for dates, times, and deadlines.
+ * 
+ * @module date
+ */
+
 import moment from 'moment';
 
+/**
+ * Formats seconds into MM:SS format.
+ * 
+ * @param {number} seconds - The number of seconds to format
+ * @returns {string} Formatted time string (MM:SS)
+ */
 export function formatTime(seconds) {
   if (!seconds || seconds < 0) return '00:00';
   
@@ -8,6 +21,13 @@ export function formatTime(seconds) {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
+/**
+ * Formats a date string using moment.js format tokens.
+ * 
+ * @param {string|Date} dateString - The date to format
+ * @param {string} format - The moment.js format string (default: 'MMM D, YYYY')
+ * @returns {string} Formatted date string
+ */
 export function formatDate(dateString, format = 'MMM D, YYYY') {
   if (!dateString) return '';
   
@@ -19,6 +39,12 @@ export function formatDate(dateString, format = 'MMM D, YYYY') {
   }
 }
 
+/**
+ * Formats a deadline date with contextual information (overdue, today, tomorrow, etc.).
+ * 
+ * @param {string|Date} deadline - The deadline date
+ * @returns {Object|null} Object with text, class, and urgency flags, or null if no deadline
+ */
 export function formatDeadline(deadline) {
   if (!deadline) return null;
   
@@ -68,6 +94,13 @@ export function formatDeadline(deadline) {
   }
 }
 
+/**
+ * Gets the start and end dates for a calendar view (month, week, or day).
+ * 
+ * @param {string} view - The view type ('month', 'week', or 'day')
+ * @param {Date|string} currentDate - The current date to base the range on
+ * @returns {Object} Object with startDate and endDate
+ */
 export function getDateRange(view, currentDate) {
   const date = moment(currentDate);
   
@@ -95,6 +128,12 @@ export function getDateRange(view, currentDate) {
   }
 }
 
+/**
+ * Checks if a date is today.
+ * 
+ * @param {string|Date} date - The date to check
+ * @returns {boolean} True if the date is today
+ */
 export function isToday(date) {
   if (!date) return false;
   return moment(date).isSame(moment(), 'day');

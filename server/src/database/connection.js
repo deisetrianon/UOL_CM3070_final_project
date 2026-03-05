@@ -1,9 +1,23 @@
+/**
+ * MongoDB database connection module.
+ * Manages database connection, reconnection logic, and connection status.
+ * Provides connection utilities with retry mechanism.
+ * 
+ * @module database/connection
+ */
+
 import mongoose from 'mongoose';
 import config from '../config/index.js';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 5000;
 
+/**
+ * Connects to MongoDB database with retry logic.
+ * 
+ * @returns {Promise<mongoose.Connection>} MongoDB connection object
+ * @throws {Error} If connection fails after max retries
+ */
 export const connectDB = async () => {
   let retries = 0;
 
@@ -44,6 +58,12 @@ export const connectDB = async () => {
   }
 };
 
+/**
+ * Disconnects from MongoDB database.
+ * 
+ * @returns {Promise<void>}
+ * @throws {Error} If disconnection fails
+ */
 export const disconnectDB = async () => {
   try {
     await mongoose.disconnect();
@@ -54,10 +74,20 @@ export const disconnectDB = async () => {
   }
 };
 
+/**
+ * Checks if the database is currently connected.
+ * 
+ * @returns {boolean} True if connected, false otherwise
+ */
 export const isConnected = () => {
   return mongoose.connection.readyState === 1;
 };
 
+/**
+ * Gets the current database connection status as a string.
+ * 
+ * @returns {string} Connection status ('disconnected', 'connected', 'connecting', 'disconnecting', or 'unknown')
+ */
 export const getConnectionStatus = () => {
   const states = {
     0: 'disconnected',

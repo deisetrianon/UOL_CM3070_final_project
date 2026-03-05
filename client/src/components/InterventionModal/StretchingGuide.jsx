@@ -1,3 +1,15 @@
+/**
+ * Stretching Guide component.
+ * Displays stretching exercise videos from YouTube for desk workers.
+ * Provides a carousel of different stretching routines.
+ * 
+ * @module components/InterventionModal/StretchingGuide
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback when guide is closed
+ * @returns {JSX.Element} Stretching Guide component
+ */
+
 import { useState } from 'react';
 import './StretchingGuide.css';
 

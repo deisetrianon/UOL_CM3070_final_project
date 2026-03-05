@@ -1,3 +1,10 @@
+/**
+ * Application constants and configuration values.
+ * Contains time constants, stress thresholds, API endpoints, and UI configuration.
+ * 
+ * @module constants
+ */
+
 export const TIME = {
   SECOND: 1,
   MINUTE: 60,

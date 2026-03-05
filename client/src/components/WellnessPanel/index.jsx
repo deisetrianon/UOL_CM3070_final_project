@@ -1,3 +1,13 @@
+/**
+ * Wellness Panel component.
+ * Displays current stress level, facial analysis status, and quick access to wellness interventions.
+ * Provides buttons for breathing exercises, mindfulness, stretching, anxiety relief, and mental health resources.
+ * 
+ * @module components/WellnessPanel
+ * @component
+ * @returns {JSX.Element} Wellness Panel component
+ */
+
 import { useWellnessIntervention } from '../../contexts/WellnessInterventionContext';
 import { useStressFusion } from '../../contexts/StressFusionContext';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';

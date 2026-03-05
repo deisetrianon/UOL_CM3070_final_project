@@ -1,9 +1,24 @@
+/**
+ * Dialog context provider.
+ * Manages alert and confirmation modal dialogs throughout the application.
+ * Provides methods to show alerts and confirmation dialogs programmatically.
+ * 
+ * @module DialogContext
+ */
+
 import { createContext, useContext, useState, useCallback } from 'react';
 import AlertModal from '../components/AlertModal';
 import ConfirmModal from '../components/ConfirmModal';
 
 const DialogContext = createContext(null);
 
+/**
+ * Dialog context provider component.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to wrap with dialog context
+ * @returns {JSX.Element} Dialog context provider
+ */
 export function DialogProvider({ children }) {
   const [alert, setAlert] = useState(null);
   const [confirm, setConfirm] = useState(null);
@@ -66,6 +81,12 @@ export function DialogProvider({ children }) {
   );
 }
 
+/**
+ * Hook to access dialog context.
+ * 
+ * @returns {Object} Dialog context with showAlert and showConfirm methods
+ * @throws {Error} If used outside DialogProvider
+ */
 export function useDialog() {
   const context = useContext(DialogContext);
   if (!context) {

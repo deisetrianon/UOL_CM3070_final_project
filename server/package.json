@@ -1,7 +1,7 @@
 {
-  "name": "empathetic-workspace-server",
+  "name": "zenflow-server",
   "version": "1.0.0",
-  "description": "Backend API for Empathetic Workspace",
+  "description": "Backend API for ZenFlow",
   "main": "src/index.js",
   "type": "module",
   "scripts": {

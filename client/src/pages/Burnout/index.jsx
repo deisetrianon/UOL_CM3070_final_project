@@ -1,3 +1,13 @@
+/**
+ * Burnout page component.
+ * Information page about burnout with symptoms, prevention strategies, and resources.
+ * Provides educational content and actionable advice for managing burnout.
+ * 
+ * @module pages/Burnout
+ * @component
+ * @returns {JSX.Element} Burnout page component
+ */
+
 import Layout from '../../components/Layout';
 import lampIcon from '../../assets/icons/lamp.png';
 import physicalIcon from '../../assets/icons/physical.png';

@@ -1,3 +1,13 @@
+/**
+ * Zen Mode Suggestion component.
+ * Displays a suggestion banner to enable Zen Mode when stress levels are high.
+ * Includes animation for showing and dismissing the suggestion.
+ * 
+ * @module components/ZenModeSuggestion
+ * @component
+ * @returns {JSX.Element|null} Zen Mode Suggestion component or null if not shown
+ */
+
 import { useState, useEffect } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import './ZenModeSuggestion.css';

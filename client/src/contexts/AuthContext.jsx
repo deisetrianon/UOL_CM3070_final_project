@@ -1,7 +1,22 @@
+/**
+ * Authentication context provider.
+ * Manages user authentication state, login/logout functionality, and authentication status checks.
+ * Provides authentication state and methods to child components.
+ * 
+ * @module AuthContext
+ */
+
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 const AuthContext = createContext(null);
 
+/**
+ * Authentication context provider component.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to wrap with auth context
+ * @returns {JSX.Element} Auth context provider
+ */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -104,6 +119,12 @@ export function AuthProvider({ children }) {
   );
 }
 
+/**
+ * Hook to access authentication context.
+ * 
+ * @returns {Object} Authentication context with user, isAuthenticated, isLoading, error, and auth methods
+ * @throws {Error} If used outside AuthProvider
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
   

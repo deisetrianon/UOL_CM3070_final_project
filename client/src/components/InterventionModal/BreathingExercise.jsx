@@ -1,3 +1,15 @@
+/**
+ * Breathing Exercise component.
+ * Interactive breathing exercise with guided techniques (4-7-8, Box Breathing).
+ * Provides visual and audio guidance for stress relief.
+ * 
+ * @module components/InterventionModal/BreathingExercise
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback when exercise is closed
+ * @returns {JSX.Element} Breathing Exercise component
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import './BreathingExercise.css';
 

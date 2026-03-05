@@ -1,7 +1,19 @@
+/**
+ * Pomodoro timer utility functions.
+ * Handles loading, saving, and calculating Pomodoro timer state from localStorage.
+ * 
+ * @module pomodoro
+ */
+
 import { POMODORO } from '../constants';
 
 const { WORK_DURATION_SECONDS, BREAK_DURATION_SECONDS, STORAGE_KEY } = POMODORO;
 
+/**
+ * Loads Pomodoro timer state from localStorage and calculates remaining time.
+ * 
+ * @returns {Object} Pomodoro state with mode, timeLeft, isActive, sessionCount, etc.
+ */
 export function loadPomodoroState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -62,6 +74,11 @@ export function loadPomodoroState() {
   };
 }
 
+/**
+ * Saves Pomodoro timer state to localStorage.
+ * 
+ * @param {Object} state - The Pomodoro state to save
+ */
 export function savePomodoroState(state) {
   try {
     const stateToSave = {
@@ -78,6 +95,13 @@ export function savePomodoroState(state) {
   }
 }
 
+/**
+ * Calculates the progress percentage of the current Pomodoro session.
+ * 
+ * @param {string} mode - The Pomodoro mode ('work' or 'break')
+ * @param {number} timeLeft - The remaining time in seconds
+ * @returns {number} Progress percentage (0-100)
+ */
 export function calculatePomodoroProgress(mode, timeLeft) {
   const totalDuration = mode === 'work' ? WORK_DURATION_SECONDS : BREAK_DURATION_SECONDS;
   return ((totalDuration - timeLeft) / totalDuration) * 100;

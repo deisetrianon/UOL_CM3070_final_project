@@ -1,3 +1,22 @@
+/**
+ * Calendar Day View component.
+ * Displays a single day view with time slots and events.
+ * Shows events positioned by their start and end times.
+ * 
+ * @module components/CustomCalendar/CalendarDayView
+ * @component
+ * @param {Object} props - Component props
+ * @param {Date} props.currentDate - Current date to display
+ * @param {Array} props.timeSlots - Array of hour numbers for time slots
+ * @param {Array} props.events - Array of calendar events
+ * @param {Function} props.onEventClick - Callback when an event is clicked
+ * @param {Function} props.calculateEventLayout - Function to calculate event positioning
+ * @param {Function} props.getEventsForDay - Function to get events for a specific day
+ * @param {Function} props.isToday - Function to check if a date is today
+ * @param {Function} props.formatTime - Function to format time for display
+ * @returns {JSX.Element} Calendar Day View component
+ */
+
 import moment from 'moment';
 import CalendarEvent from './CalendarEvent';
 import './CustomCalendar.css';

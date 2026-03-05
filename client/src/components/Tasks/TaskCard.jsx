@@ -1,3 +1,21 @@
+/**
+ * Task Card component.
+ * Individual task card displayed in task columns.
+ * Shows task title, description, priority, deadline, and Pomodoro timer button for urgent tasks.
+ * 
+ * @module components/Tasks/TaskCard
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.task - Task object
+ * @param {string} props.columnId - ID of the column this card belongs to
+ * @param {Function} props.onEdit - Callback when task is clicked to edit
+ * @param {Function} props.onStartPomodoro - Callback when Pomodoro timer is started
+ * @param {boolean} props.isDragging - Whether the card is currently being dragged
+ * @param {Object} props.dragProps - Drag and drop props from react-beautiful-dnd
+ * @param {Object} ref - Forwarded ref for drag and drop
+ * @returns {JSX.Element} Task Card component
+ */
+
 import { forwardRef } from 'react';
 import { formatDeadline } from '../../utils/date';
 import pomodoroIcon from '../../assets/icons/pomodoro.png';

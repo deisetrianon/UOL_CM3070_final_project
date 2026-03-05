@@ -1,3 +1,19 @@
+/**
+ * More Events Modal component.
+ * Modal displaying all events for a specific day when there are too many to show in the calendar.
+ * Shows event list with times and allows clicking to view event details.
+ * 
+ * @module components/CustomCalendar/MoreEventsModal
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.events - Array of events to display
+ * @param {moment.Moment} props.selectedDay - The day these events belong to
+ * @param {Function} props.onEventClick - Callback when an event is clicked
+ * @param {Function} props.onClose - Callback when modal is closed
+ * @param {Function} props.getEventColorStyle - Function to get event color styling
+ * @returns {JSX.Element} More Events Modal component
+ */
+
 import moment from 'moment';
 import videoIcon from '../../assets/icons/videocall.png';
 import './CustomCalendar.css';

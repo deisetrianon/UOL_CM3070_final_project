@@ -1,3 +1,10 @@
+/**
+ * Server-side constants and configuration values.
+ * Contains HTTP status codes, API messages, task statuses, and priorities.
+ * 
+ * @module constants
+ */
+
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,

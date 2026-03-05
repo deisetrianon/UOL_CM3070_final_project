@@ -1,3 +1,15 @@
+/**
+ * Anxiety Relief component.
+ * Provides anxiety relief techniques and guided exercises via YouTube videos.
+ * Includes grounding techniques, breathing exercises, muscle relaxation techniques, and anxiety relief music.
+ * 
+ * @module components/InterventionModal/AnxietyRelief
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Callback when component is closed
+ * @returns {JSX.Element} Anxiety Relief component
+ */
+
 import { useState } from 'react';
 import './AnxietyRelief.css';
 

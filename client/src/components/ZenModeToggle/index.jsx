@@ -1,3 +1,15 @@
+/**
+ * Zen Mode Toggle component.
+ * Toggle button for enabling/disabling Zen Mode with status messages.
+ * Shows whether Zen Mode is active, auto-triggered, or manually toggled.
+ * 
+ * @module components/ZenModeToggle
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.className - Additional CSS classes
+ * @returns {JSX.Element} Zen Mode Toggle component
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import './ZenModeToggle.css';
