@@ -209,7 +209,6 @@ function PomodoroTimer() {
     setIsExpanded(true); 
     startTimeRef.current = now;
     originalDurationRef.current = originalDuration;
-    setBreakAlertShown(false);
     
     const state = {
       mode,
@@ -228,8 +227,7 @@ function PomodoroTimer() {
 
   const resetTimer = () => {
     setIsActive(false);
-    setTimeLeft(mode === 'work' ? WORK_DURATION : BREAK_DURATION);
-    setBreakAlertShown(false);
+    setTimeLeft(mode === 'work' ? WORK_DURATION_SECONDS : BREAK_DURATION_SECONDS);
     localStorage.removeItem(STORAGE_KEY);
   };
 
@@ -238,7 +236,6 @@ function PomodoroTimer() {
     setMode('work');
     setTimeLeft(WORK_DURATION_SECONDS);
     setSessionCount(0);
-    setBreakAlertShown(false);
     localStorage.removeItem(STORAGE_KEY);
   };
 

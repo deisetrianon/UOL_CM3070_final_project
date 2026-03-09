@@ -61,7 +61,7 @@ function EmailList({
     );
   }
 
-  if (filteredEmails.length === 0) {
+  if (!filteredEmails || filteredEmails.length === 0) {
     return (
       <div className="email-list-empty">
         <p>No emails found</p>

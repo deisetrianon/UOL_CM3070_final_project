@@ -53,11 +53,11 @@
   font-size: 2rem;
   flex-shrink: 0;
   line-height: 1;
+}
 
-  img {
-    width: 25px;
-    height: 25px;
-  }
+.intro-icon img {
+  width: 25px;
+  height: 25px;
 }
 
 .burnout-intro-card p {

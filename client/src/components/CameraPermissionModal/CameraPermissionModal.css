@@ -168,12 +168,12 @@
   font-size: 0.9375rem;
   font-weight: 600;
   transition: all var(--transition-fast);
+}
 
-  img {
-    width: 15px;
-    height: 15px;
-    filter: invert(1);
-  }
+.allow-btn img {
+  width: 15px;
+  height: 15px;
+  filter: invert(1);
 }
 
 .allow-btn:hover {
