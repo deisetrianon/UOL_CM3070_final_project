@@ -201,4 +201,5 @@ class AzureFaceService {
   }
 }
 
+export { AzureFaceService };
 export default new AzureFaceService();
