@@ -1,0 +1,83 @@
+import { describe, it, expect } from 'vitest';
+import { getEventColorStyle } from '../calendarUtils';
+
+describe('calendarUtils', () => {
+  describe('getEventColorStyle', () => {
+    it('should return urgent task style', () => {
+      const event = {
+        resource: {
+          type: 'task',
+          taskIsUrgent: true,
+        },
+      };
+
+      const style = getEventColorStyle(event);
+
+      expect(style.backgroundColor).toContain('234, 67, 53');
+      expect(style.borderLeftColor).toBe('#ea4335');
+    });
+
+    it('should return high priority task style', () => {
+      const event = {
+        resource: {
+          type: 'task',
+          taskPriority: 'high',
+        },
+      };
+
+      const style = getEventColorStyle(event);
+
+      expect(style.backgroundColor).toContain('251, 188, 4');
+      expect(style.borderLeftColor).toBe('#fbbc04');
+    });
+
+    it('should return medium priority task style', () => {
+      const event = {
+        resource: {
+          type: 'task',
+          taskPriority: 'medium',
+        },
+      };
+
+      const style = getEventColorStyle(event);
+
+      expect(style.backgroundColor).toContain('66, 133, 244');
+      expect(style.borderLeftColor).toBe('#4285f4');
+    });
+
+    it('should return Google Meet style', () => {
+      const event = {
+        resource: {
+          isGoogleMeet: true,
+        },
+      };
+
+      const style = getEventColorStyle(event);
+
+      expect(style.backgroundColor).toContain('52, 168, 83');
+      expect(style.borderLeftColor).toBe('#34a853');
+    });
+
+    it('should return calendar color style', () => {
+      const event = {
+        resource: {
+          calendarColor: '#ff0000',
+        },
+      };
+
+      const style = getEventColorStyle(event);
+
+      expect(style.backgroundColor).toContain('255, 0, 0');
+      expect(style.borderLeftColor).toBe('#ff0000');
+    });
+
+    it('should return default style for regular events', () => {
+      const event = {};
+
+      const style = getEventColorStyle(event);
+
+      expect(style.backgroundColor).toContain('66, 133, 244');
+      expect(style.borderLeftColor).toBe('#4285f4');
+    });
+  });
+});

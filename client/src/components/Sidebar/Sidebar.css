@@ -52,10 +52,10 @@
 .sidebar-section-header.active {
   background: var(--color-accent-gradient);
   color: white;
+}
 
-  .section-title {
-    color: white;
-  }
+.sidebar-section-header.active .section-title {
+  color: white;
 }
 
 .sidebar-section-header.active .section-icon {

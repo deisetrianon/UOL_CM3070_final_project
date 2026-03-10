@@ -135,8 +135,9 @@ function BreathingExercise({ onClose }) {
     <div className="breathing-exercise">
       <h2 className="breathing-title">Guided Breathing Exercise</h2>
       <div className="breathing-technique-selector">
-        <label>Technique:</label>
+        <label htmlFor="breathing-technique-select">Technique:</label>
         <select 
+          id="breathing-technique-select"
           value={technique} 
           onChange={(e) => {
             setTechnique(e.target.value);

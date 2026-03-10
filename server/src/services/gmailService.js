@@ -503,4 +503,5 @@ class GmailService {
   }
 }
 
+export { GmailService };
 export default new GmailService();

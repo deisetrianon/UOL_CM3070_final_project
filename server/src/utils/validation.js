@@ -75,7 +75,8 @@ export function validateTaskData(taskData) {
  */
 export function validatePagination(query) {
   const page = Math.max(1, parseInt(query.page, 10) || 1);
-  const limit = Math.min(100, Math.max(1, parseInt(query.limit, 10) || 50));
+  const parsedLimit = parseInt(query.limit, 10);
+  const limit = Math.min(100, Math.max(1, isNaN(parsedLimit) ? 50 : parsedLimit));
   const skip = (page - 1) * limit;
 
   return {

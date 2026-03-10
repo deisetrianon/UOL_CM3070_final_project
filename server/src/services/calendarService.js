@@ -154,8 +154,8 @@ class CalendarService {
     const end = event.end?.dateTime || event.end?.date;
     const isAllDay = !event.start?.dateTime;
 
-    const hasMeetLink = event.hangoutLink || 
-                       (event.conferenceData && event.conferenceData.entryPoints?.some(ep => ep.entryPointType === 'video'));
+    const hasMeetLink = !!(event.hangoutLink || 
+                       (event.conferenceData && event.conferenceData.entryPoints?.some(ep => ep.entryPointType === 'video')));
 
     return {
       id: event.id,
@@ -290,4 +290,5 @@ class CalendarService {
 }
 
 const calendarService = new CalendarService();
+export { CalendarService };
 export default calendarService;
