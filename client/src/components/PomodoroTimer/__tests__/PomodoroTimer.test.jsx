@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PomodoroTimer from '../index';
 import { AuthProvider } from '../../../contexts/AuthContext';
-import { DialogProvider } from '../../../contexts/DialogContext';
+import { NotificationProvider } from '../../../contexts/NotificationContext';
 import { ZenModeProvider } from '../../../contexts/ZenModeContext';
 import { FacialAnalysisProvider } from '../../../contexts/FacialAnalysisContext';
 import { KeystrokeProvider } from '../../../contexts/KeystrokeContext';
@@ -11,15 +11,15 @@ import { StressFusionProvider } from '../../../contexts/StressFusionContext';
 
 const wrapper = ({ children }) => (
   <AuthProvider>
-    <DialogProvider>
-      <FacialAnalysisProvider>
-        <KeystrokeProvider>
-          <StressFusionProvider>
-            <ZenModeProvider>{children}</ZenModeProvider>
-          </StressFusionProvider>
-        </KeystrokeProvider>
-      </FacialAnalysisProvider>
-    </DialogProvider>
+    <FacialAnalysisProvider>
+      <KeystrokeProvider>
+        <StressFusionProvider>
+          <ZenModeProvider>
+            <NotificationProvider>{children}</NotificationProvider>
+          </ZenModeProvider>
+        </StressFusionProvider>
+      </KeystrokeProvider>
+    </FacialAnalysisProvider>
   </AuthProvider>
 );
 
@@ -27,8 +27,22 @@ describe('PomodoroTimer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({ success: true }),
+    global.fetch = vi.fn((url) => {
+      if (url === '/api/settings') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            settings: {
+              notifications: { email: true, stressAlerts: true },
+            },
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true }),
+      });
     });
     vi.useFakeTimers();
   });
