@@ -46,7 +46,7 @@ const isPriorityTask = (task) => {
 function Tasks() {
   const navigate = useNavigate();
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
-  const { showAlert, showConfirm } = useDialog();
+  const { showAlert, showConfirm } = useNotification();
 
   const [tasks, setTasks] = useState({
     todo: [],

@@ -10,7 +10,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useZenMode } from '../../contexts/ZenModeContext';
-import { useDialog } from '../../contexts/DialogContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { POMODORO } from '../../constants';
 import { formatTime } from '../../utils/date';
 import { loadPomodoroState, savePomodoroState, calculatePomodoroProgress } from '../../utils/pomodoro';
@@ -21,7 +21,7 @@ const { WORK_DURATION_SECONDS, BREAK_DURATION_SECONDS, STORAGE_KEY } = POMODORO;
 
 function PomodoroTimer() {
   const { enableZenMode } = useZenMode();
-  const { showAlert } = useDialog();
+  const { showAlert, showBrowserNotification } = useNotification();
   const initialState = loadPomodoroState();
   const [mode, setMode] = useState(initialState.mode);
   const [timeLeft, setTimeLeft] = useState(initialState.timeLeft);
@@ -41,12 +41,15 @@ function PomodoroTimer() {
       
       enableZenMode('Pomodoro break - time to rest');
       
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('Work session complete! Time for a break.', {
-          body: 'Zen Mode has been enabled to help you rest.',
-          icon: '/favicon.ico'
-        });
-      } else {
+      const notification = showBrowserNotification(
+        'Work session complete! Time for a break.',
+        {
+          body: 'Zen Mode has been enabled to help you rest.'
+        },
+        'pomodoro'
+      );
+      
+      if (!notification) {
         showAlert('🍅 Work session complete! Time for a break.\n\nZen Mode has been enabled to help you rest.', 'success');
       }
       
@@ -56,9 +59,11 @@ function PomodoroTimer() {
       setTimeLeft(WORK_DURATION_SECONDS);
       setIsActive(false);
       
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('Break complete! Ready to focus?');
-      }
+      showBrowserNotification(
+        'Break complete! Ready to focus?',
+        {},
+        'pomodoro'
+      );
       
       localStorage.removeItem(STORAGE_KEY);
     }
