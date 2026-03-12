@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Navbar from '../index';
 import { AuthProvider } from '../../../contexts/AuthContext';
-import { DialogProvider } from '../../../contexts/DialogContext';
+import { NotificationProvider } from '../../../contexts/NotificationContext';
 import { FacialAnalysisProvider } from '../../../contexts/FacialAnalysisContext';
 import { KeystrokeProvider } from '../../../contexts/KeystrokeContext';
 import { StressFusionProvider } from '../../../contexts/StressFusionContext';
@@ -31,17 +31,17 @@ vi.mock('../../../contexts/StressFusionContext', async () => {
 const wrapper = ({ children }) => (
   <BrowserRouter>
     <AuthProvider>
-      <DialogProvider>
-        <FacialAnalysisProvider>
-          <KeystrokeProvider>
-            <StressFusionProvider>
-              <ZenModeProvider>
+      <FacialAnalysisProvider>
+        <KeystrokeProvider>
+          <StressFusionProvider>
+            <ZenModeProvider>
+              <NotificationProvider>
                 {children}
-              </ZenModeProvider>
-            </StressFusionProvider>
-          </KeystrokeProvider>
-        </FacialAnalysisProvider>
-      </DialogProvider>
+              </NotificationProvider>
+            </ZenModeProvider>
+          </StressFusionProvider>
+        </KeystrokeProvider>
+      </FacialAnalysisProvider>
     </AuthProvider>
   </BrowserRouter>
 );
@@ -49,8 +49,22 @@ const wrapper = ({ children }) => (
 describe('Navbar', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({ success: true }),
+    global.fetch = vi.fn((url) => {
+      if (url === '/api/settings') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            settings: {
+              notifications: { email: true, stressAlerts: true },
+            },
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true }),
+      });
     });
     
     mockUseFacialAnalysis.mockReturnValue({

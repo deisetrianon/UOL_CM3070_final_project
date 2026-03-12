@@ -16,6 +16,7 @@ ZenFlow is a comprehensive productivity application that combines email manageme
 - [Key Features Explained](#key-features-explained)
 - [API Documentation](#api-documentation)
 - [Environment Variables](#environment-variables)
+- [Testing](#testing)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
 
@@ -52,6 +53,7 @@ ZenFlow is a comprehensive productivity application that combines email manageme
   - Shows contextual notifications with wellness exercise recommendations
   - Suggests breathing exercises or anxiety relief techniques before meetings
   - Dismissible notifications with smart tracking
+  - **Smart Display Logic**: Only shows when Zen Mode is active OR when stress level is moderate/high (respects user notification preferences)
 - **Burnout Information**: Educational resources about burnout prevention
 
 ### Settings & Preferences
@@ -63,6 +65,11 @@ ZenFlow is a comprehensive productivity application that combines email manageme
 - **Zen Mode Preferences**:
   - Toggle automatic Zen Mode activation
   - View current Zen Mode status and trigger reason
+- **Notification Settings**:
+  - **Meeting Reminders**: Toggle notifications for upcoming Google Meet meetings
+  - **Stress Alerts**: Toggle alerts when high stress or fatigue is detected
+  - **Zen Mode Integration**: All notifications are automatically suppressed when Zen Mode is active (except meeting reminders which show when Zen Mode is active or stress is moderate/high)
+  - **Unified Notification System**: Centralized notification management that respects both user preferences and Zen Mode state
 - **Settings Persistence**: All preferences are saved to the server and persist across sessions
 
 ### User Experience
@@ -312,6 +319,8 @@ Zen Mode is an intelligent focus mode designed to reduce distractions during hig
 - **Auto-Deactivation**: Automatically disables when stress levels return to normal (only if it was auto-triggered)
 - **Content Filtering**: Hides non-essential emails and tasks when active
 - **Focus Enhancement**: Shows only priority items (starred emails, urgent tasks, important calendar events)
+- **Notification Suppression**: Automatically suppresses all notifications (alerts, browser notifications, confirmations) when active to minimize distractions
+  - **Exception**: Meeting reminders still show when Zen Mode is active (to provide wellness support before meetings)
 - **Manual Override**: Users can manually enable/disable Zen Mode at any time
 - **Settings Control**: Users can toggle automatic Zen Mode activation in Settings
 - **Status Indicators**: Visual and screen reader announcements indicate when Zen Mode is active, whether it was auto-triggered or manually enabled, and the reason for activation
@@ -357,7 +366,8 @@ When stress is detected, the application suggests various interventions:
   - Shows notifications 10 minutes before Google Meet calls
   - Recommends wellness exercises (breathing or anxiety relief) based on context
   - Dismissible with smart tracking to avoid duplicate notifications
-  - Only shows when Zen Mode is active
+  - **Smart Display**: Shows when Zen Mode is active OR when stress level is moderate/high (respects notification settings)
+  - Helps users prepare for meetings with wellness exercises when they need support most
 - **Event Styling**: Color-coded events by type (meetings, tasks, personal events)
 - **Combined View**: Merges calendar events and tasks for comprehensive scheduling
 
@@ -479,11 +489,11 @@ Analyzes a facial image for stress indicators.
 ### Settings Endpoints
 
 #### `GET /api/settings`
-Retrieves user settings.
+Retrieves user settings including notification preferences, facial analysis settings, and Zen Mode preferences.
 
 #### `PUT /api/settings`
 Updates user settings.
-- Body: `{ facialAnalysisEnabled, analysisFrequency, ... }`
+- Body: `{ notifications: { email, stressAlerts }, facialAnalysis: { enabled, frequency }, zenMode: { autoEnabled } }`
 
 ### Health Check
 
@@ -514,6 +524,75 @@ The `.env` file is provided in the repository at `server/.env` with all credenti
 | `AZURE_FACE_API_KEY` | Azure Face API key | None (optional) |
 | `AZURE_FACE_API_ENDPOINT` | Azure Face API endpoint | None (optional) |
 
+## Testing
+
+The application includes test suites for both client and server:
+
+- **Server Tests**: Test files covering all API routes, services, and utilities
+- **Client Tests**: Test files covering React components, hooks, contexts, and utilities
+- **Test Framework**: 
+  - **Server**: Jest with ES modules support
+  - **Client**: Vitest with React Testing Library
+- **Test Environment**: Node.js with ES modules support for server tests
+
+### Running Tests
+
+#### Run All Tests
+
+**Server tests:**
+```bash
+cd server
+npm test
+```
+
+**Client tests:**
+```bash
+cd client
+npm test
+```
+
+#### Test Commands
+
+**Server:**
+- `npm test` - Run all server tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Generate test coverage report
+
+**Client:**
+- `npm test` - Run all client tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Generate test coverage report
+
+### Test Structure
+
+#### Server Tests
+
+Server tests are located in `server/src/**/__tests__/`
+
+**Testing Approach:**
+- **Unit Tests**: Mock external dependencies (Mongoose models, external APIs)
+- **Mocking Strategy**: Comprehensive mocking of external services, authentication, and database models
+- **Console Suppression**: Expected console logs and errors are suppressed during test execution
+
+#### Client Tests
+
+Client tests are located in `client/src/**/__tests__/`
+
+**Testing Approach:**
+- **Components**: Use React Testing Library for accessible, user-centric tests
+- **Mocking**: Mock API calls, external services, and browser APIs
+- **Accessibility**: Tests verify ARIA labels and screen reader compatibility
+
+### Test Configuration
+
+- **Server Jest Configuration**: Configured for ES modules with `--experimental-vm-modules`
+- **Client Vitest Configuration**: Configured for React components with jsdom environment
+- **Test Environment**: 
+  - Server: Node.js environment
+  - Client: jsdom environment for browser simulation
+- **Mock Setup**: Global console suppression in `server/src/test/setup.js` to keep test output clean
+- **Coverage Reports**: HTML and LCOV coverage reports generated for both client and server
+
 ## Development
 
 ### Code Structure
@@ -535,23 +614,18 @@ The application follows a modular architecture:
    - Create component in appropriate directory
    - Add JSDoc comments
    - Export from index if needed
+   - Write tests in `__tests__/` directory
 
 2. **Backend Route**
    - Create route file in `server/src/routes/`
    - Add route handler functions
    - Register in `server/src/index.js`
+   - Write tests in `server/src/routes/__tests__/`
 
 3. **Database Model**
    - Create model in `server/src/models/`
    - Define schema with Mongoose
    - Export from `server/src/models/index.js`
-
-### Code Style
-
-- All files include JSDoc comments
-- Use functional components with hooks
-- Follow React best practices
-- Maintain consistent naming conventions
 
 ## Troubleshooting
 

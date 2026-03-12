@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import CalendarPage from '../Calendar';
 import { AuthProvider } from '../../contexts/AuthContext';
-import { DialogProvider } from '../../contexts/DialogContext';
+import { NotificationProvider } from '../../contexts/NotificationContext';
 import { FacialAnalysisProvider } from '../../contexts/FacialAnalysisContext';
 import { KeystrokeProvider } from '../../contexts/KeystrokeContext';
 import { StressFusionProvider } from '../../contexts/StressFusionContext';
@@ -13,17 +13,17 @@ import { WellnessInterventionProvider } from '../../contexts/WellnessInterventio
 const wrapper = ({ children }) => (
   <BrowserRouter>
     <AuthProvider>
-      <DialogProvider>
-        <FacialAnalysisProvider>
-          <KeystrokeProvider>
-            <StressFusionProvider>
-              <ZenModeProvider>
+      <FacialAnalysisProvider>
+        <KeystrokeProvider>
+          <StressFusionProvider>
+            <ZenModeProvider>
+              <NotificationProvider>
                 <WellnessInterventionProvider>{children}</WellnessInterventionProvider>
-              </ZenModeProvider>
-            </StressFusionProvider>
-          </KeystrokeProvider>
-        </FacialAnalysisProvider>
-      </DialogProvider>
+              </NotificationProvider>
+            </ZenModeProvider>
+          </StressFusionProvider>
+        </KeystrokeProvider>
+      </FacialAnalysisProvider>
     </AuthProvider>
   </BrowserRouter>
 );
@@ -40,8 +40,22 @@ vi.mock('../../utils/api', () => ({
 describe('Calendar Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({ success: true }),
+    global.fetch = vi.fn((url) => {
+      if (url === '/api/settings') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            settings: {
+              notifications: { email: true, stressAlerts: true },
+            },
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true }),
+      });
     });
   });
 

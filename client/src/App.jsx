@@ -15,7 +15,7 @@ import { KeystrokeProvider } from './contexts/KeystrokeContext';
 import { StressFusionProvider } from './contexts/StressFusionContext';
 import { ZenModeProvider } from './contexts/ZenModeContext';
 import { WellnessInterventionProvider } from './contexts/WellnessInterventionContext';
-import { DialogProvider } from './contexts/DialogContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import CameraPermissionModal from './components/CameraPermissionModal';
 import ZenModeSuggestion from './components/ZenModeSuggestion';
@@ -38,7 +38,7 @@ function App() {
           <StressFusionProvider>
             <ZenModeProvider>
               <WellnessInterventionProvider>
-                <DialogProvider>
+                <NotificationProvider>
                 <div className="app">
                   <Routes>
                     <Route path="/login" element={<Login />} />
@@ -98,7 +98,7 @@ function App() {
                   <MeetingReminderNotification />
                   <InterventionModal />
                 </div>
-                </DialogProvider>
+                </NotificationProvider>
               </WellnessInterventionProvider>
             </ZenModeProvider>
           </StressFusionProvider>

@@ -9,8 +9,9 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { useZenMode } from '../../contexts/ZenModeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import { useStressFusion } from '../../contexts/StressFusionContext';
 import { useWellnessIntervention } from '../../contexts/WellnessInterventionContext';
 import breathingIcon from '../../assets/icons/breathing.png';
 import anxietyIcon from '../../assets/icons/anxiety.png';
@@ -18,8 +19,9 @@ import videoIcon from '../../assets/icons/videocall.png';
 import './MeetingReminderNotification.css';
 
 function MeetingReminderNotification() {
-  const { isZenModeActive } = useZenMode();
   const { isAuthenticated } = useAuth();
+  const { isZenModeActive, notificationSettings } = useNotification();
+  const { stressLevel } = useStressFusion();
   const { openBreathing, openAnxietyRelief } = useWellnessIntervention();
   const [upcomingMeeting, setUpcomingMeeting] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -28,7 +30,11 @@ function MeetingReminderNotification() {
   const dismissedMeetingsRef = useRef(new Set());
 
   useEffect(() => {
-    if (!isAuthenticated || !isZenModeActive) {
+    const meetingNotificationsEnabled = notificationSettings?.email ?? true;
+    const hasStressOrZenMode = isZenModeActive || stressLevel === 'moderate' || stressLevel === 'high';
+    const shouldShow = isAuthenticated && meetingNotificationsEnabled && hasStressOrZenMode;
+    
+    if (!shouldShow) {
       setUpcomingMeeting(null);
       setIsVisible(false);
       return;
@@ -98,7 +104,7 @@ function MeetingReminderNotification() {
     const interval = setInterval(checkUpcomingMeetings, 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [isAuthenticated, isZenModeActive]);
+  }, [isAuthenticated, isZenModeActive, stressLevel, notificationSettings]);
 
   const handleDismiss = () => {
     if (upcomingMeeting) {
@@ -165,15 +171,13 @@ function MeetingReminderNotification() {
             <p className="meeting-details">
               <strong>{eventTitle}</strong> is starting {formatTimeUntil(eventStart)}.
             </p>
-            {isZenModeActive && (
-              <p className="anxiety-message">
-                Feeling anxious before a presentation or meeting? Try a quick exercise to calm your nerves.
-              </p>
-            )}
+            <p className="anxiety-message">
+              Feeling anxious before a presentation or meeting? Try a quick exercise to calm your nerves.
+            </p>
           </div>
         </div>
         <div className="meeting-reminder-actions">
-          {isZenModeActive && recommendedExercise && (
+          {recommendedExercise && (
             <button className="exercise-btn" onClick={handleTryExercise}>
               <img 
                 src={recommendedExercise === 'breathing' ? breathingIcon : anxietyIcon} 

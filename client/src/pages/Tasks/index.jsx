@@ -12,7 +12,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useZenMode } from '../../contexts/ZenModeContext';
-import { useDialog } from '../../contexts/DialogContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { isToday } from '../../utils/date';
 import { POMODORO, API_ENDPOINTS } from '../../constants';
 import { apiGet, apiPost, apiPatch, apiPut, apiDelete, getErrorMessage } from '../../utils/api';
@@ -46,7 +46,7 @@ const isPriorityTask = (task) => {
 function Tasks() {
   const navigate = useNavigate();
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
-  const { showAlert, showConfirm } = useDialog();
+  const { showAlert, showConfirm } = useNotification();
 
   const [tasks, setTasks] = useState({
     todo: [],

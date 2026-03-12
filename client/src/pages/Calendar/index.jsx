@@ -11,7 +11,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useZenMode } from '../../contexts/ZenModeContext';
-import { useDialog } from '../../contexts/DialogContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { getDateRange } from '../../utils/date';
 import { API_ENDPOINTS } from '../../constants';
 import { apiGet } from '../../utils/api';
@@ -22,7 +22,7 @@ import './Calendar.css';
 
 function CalendarPage() {
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
-  const { showAlert } = useDialog();
+  const { showAlert } = useNotification();
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]); 

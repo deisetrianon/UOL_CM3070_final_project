@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import MeetingReminderNotification from '../index';
 import { AuthProvider } from '../../../contexts/AuthContext';
-import { DialogProvider } from '../../../contexts/DialogContext';
+import { NotificationProvider } from '../../../contexts/NotificationContext';
 import { ZenModeProvider } from '../../../contexts/ZenModeContext';
 import { WellnessInterventionProvider } from '../../../contexts/WellnessInterventionContext';
 import { FacialAnalysisProvider } from '../../../contexts/FacialAnalysisContext';
@@ -23,17 +23,17 @@ vi.mock('../../../contexts/ZenModeContext', async (importOriginal) => {
 
 const wrapper = ({ children }) => (
   <AuthProvider>
-    <DialogProvider>
-      <FacialAnalysisProvider>
-        <KeystrokeProvider>
-          <StressFusionProvider>
-            <ZenModeProvider>
+    <FacialAnalysisProvider>
+      <KeystrokeProvider>
+        <StressFusionProvider>
+          <ZenModeProvider>
+            <NotificationProvider>
               <WellnessInterventionProvider>{children}</WellnessInterventionProvider>
-            </ZenModeProvider>
-          </StressFusionProvider>
-        </KeystrokeProvider>
-      </FacialAnalysisProvider>
-    </DialogProvider>
+            </NotificationProvider>
+          </ZenModeProvider>
+        </StressFusionProvider>
+      </KeystrokeProvider>
+    </FacialAnalysisProvider>
   </AuthProvider>
 );
 
@@ -50,6 +50,17 @@ describe('MeetingReminderNotification', () => {
             success: true,
             isAuthenticated: true,
             user: { id: '1', email: 'test@example.com' },
+          }),
+        });
+      }
+      if (url === '/api/settings') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            settings: {
+              notifications: { email: true, stressAlerts: true },
+            },
           }),
         });
       }
@@ -96,6 +107,17 @@ describe('MeetingReminderNotification', () => {
             success: true,
             isAuthenticated: true,
             user: { id: '1', email: 'test@example.com' },
+          }),
+        });
+      }
+      if (url === '/api/settings') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            settings: {
+              notifications: { email: true, stressAlerts: true },
+            },
           }),
         });
       }

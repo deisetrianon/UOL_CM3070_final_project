@@ -12,7 +12,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
-import { useDialog } from '../../contexts/DialogContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { useEmailOperations } from '../../hooks/useEmailOperations';
 import { usePagination } from '../../hooks/usePagination';
 import Layout from '../../components/Layout';
@@ -41,7 +41,7 @@ function Home() {
   const location = useLocation();
   const { promptForPermission } = useFacialAnalysis();
   const { isZenModeActive, autoTriggeredReason } = useZenMode();
-  const { showAlert, showConfirm } = useDialog();
+  const { showAlert, showConfirm } = useNotification();
   
   const {
     loading: emailOperationsLoading,

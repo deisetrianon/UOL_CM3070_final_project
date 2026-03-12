@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Tasks from '../Tasks';
 import { AuthProvider } from '../../contexts/AuthContext';
-import { DialogProvider } from '../../contexts/DialogContext';
+import { NotificationProvider } from '../../contexts/NotificationContext';
 import { ZenModeProvider } from '../../contexts/ZenModeContext';
 import { FacialAnalysisProvider } from '../../contexts/FacialAnalysisContext';
 import { KeystrokeProvider } from '../../contexts/KeystrokeContext';
@@ -13,17 +13,17 @@ import { WellnessInterventionProvider } from '../../contexts/WellnessInterventio
 const wrapper = ({ children }) => (
   <BrowserRouter>
     <AuthProvider>
-      <DialogProvider>
-        <FacialAnalysisProvider>
-          <KeystrokeProvider>
-            <StressFusionProvider>
-              <ZenModeProvider>
+      <FacialAnalysisProvider>
+        <KeystrokeProvider>
+          <StressFusionProvider>
+            <ZenModeProvider>
+              <NotificationProvider>
                 <WellnessInterventionProvider>{children}</WellnessInterventionProvider>
-              </ZenModeProvider>
-            </StressFusionProvider>
-          </KeystrokeProvider>
-        </FacialAnalysisProvider>
-      </DialogProvider>
+              </NotificationProvider>
+            </ZenModeProvider>
+          </StressFusionProvider>
+        </KeystrokeProvider>
+      </FacialAnalysisProvider>
     </AuthProvider>
   </BrowserRouter>
 );
@@ -51,8 +51,22 @@ describe('Tasks Page', () => {
       tasks: { todo: [], in_progress: [], done: [] },
       stats: { total: 0, completed: 0, inProgress: 0, todo: 0 },
     });
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({ success: true }),
+    global.fetch = vi.fn((url) => {
+      if (url === '/api/settings') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            settings: {
+              notifications: { email: true, stressAlerts: true },
+            },
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true }),
+      });
     });
   });
 

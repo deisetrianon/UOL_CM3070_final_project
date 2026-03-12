@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFacialAnalysis } from '../../contexts/FacialAnalysisContext';
 import { useZenMode } from '../../contexts/ZenModeContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import Layout from '../../components/Layout';
 import importantIcon from '../../assets/icons/important.png';
 import lampIcon from '../../assets/icons/lamp.png';
@@ -23,6 +24,7 @@ function Settings() {
   const navigate = useNavigate();
   const { updateAnalysisFrequency, analysisFrequency: currentFrequency } = useFacialAnalysis();
   const { refetchPreferences: refetchZenPreferences } = useZenMode();
+  const { refetchSettings: refetchNotificationSettings } = useNotification();
 
   const [settings, setSettings] = useState({
     notifications: {
@@ -117,6 +119,10 @@ function Settings() {
     
     if (category === 'zenMode') {
       refetchZenPreferences();
+    }
+    
+    if (category === 'notifications') {
+      refetchNotificationSettings();
     }
   };
 
@@ -256,8 +262,8 @@ function Settings() {
               </div>             
               <div className="setting-item">
                 <div className="setting-info">
-                  <h3>Email Notifications</h3>
-                  <p>Receive important updates via email</p>
+                  <h3>Meeting Reminders</h3>
+                  <p>Show notifications for upcoming Google Meet meetings</p>
                 </div>
                 <label className="toggle-switch">
                   <input 

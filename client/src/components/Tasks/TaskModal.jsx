@@ -14,11 +14,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useDialog } from '../../contexts/DialogContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import './Tasks.css';
 
 function TaskModal({ task, onClose, onSave, onDelete }) {
-  const { showAlert } = useDialog();
+  const { showAlert } = useNotification();
   const [formData, setFormData] = useState({
     title: task?.title || '',
     description: task?.description || '',
