@@ -670,7 +670,7 @@ The UI icons used in this project are **free** resources retrieved from **[Flati
 
 ## Demonstration Video
 
-<video src="CM3070%20-%20Final%20Project%20Demonstration%20Video.mp4" controls width="100%"></video>
+<video src="Demonstration_Video.mp4" controls width="100%"></video>
 
 ---
 
