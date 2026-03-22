@@ -19,6 +19,8 @@ ZenFlow is a comprehensive productivity application that combines email manageme
 - [Testing](#testing)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
+- [Attributions](#attributions)
+- [Demonstration Video](#demonstration-video)
 
 ## Features
 
@@ -659,6 +661,16 @@ The application follows a modular architecture:
 - Verify all environment variables are set correctly
 - Ensure all dependencies are installed
 - Check that MongoDB and external services are accessible
+
+## Attributions
+
+### Icons
+
+The UI icons used in this project are **free** resources retrieved from **[Flaticon](https://www.flaticon.com)**.
+
+## Demonstration Video
+
+<video src="Demonstration_Video.mp4" controls width="100%"></video>
 
 ---
 

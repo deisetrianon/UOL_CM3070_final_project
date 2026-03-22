@@ -14,14 +14,15 @@
  */
 
 import moment from 'moment';
-import videoIcon from '../../assets/icons/videocall.png';
 import { getEventColorStyle } from './calendarUtils';
 import './CustomCalendar.css';
 
 function CalendarEvent({ event, style, isOverlapping, onEventClick }) {
   const colorStyle = getEventColorStyle(event);
+  const isTask = event.resource?.type === 'task';
   const startTime = moment(event.start).format('h:mm');
   const endTime = moment(event.end).format('h:mm A');
+  const timeLine = `${startTime} - ${endTime}`;
   const isGoogleMeet = event.resource?.isGoogleMeet;
 
   return (
@@ -38,11 +39,11 @@ function CalendarEvent({ event, style, isOverlapping, onEventClick }) {
     >
       <div className="event-content">
         <div className="event-title">{event.title}</div>
-        <div className={`event-time ${isOverlapping ? 'overlapping' : ''}`}>{startTime} - {endTime}</div>
+        {!isTask && (
+          <div className={`event-time ${isOverlapping ? 'overlapping' : ''}`}>{timeLine}</div>
+        )}
         {isGoogleMeet && (
           <div className="event-meet-info">
-            <img src={videoIcon} alt="Google Meet" className="event-meet-icon" />
-            <span>Google Meet</span>
             {event.resource?.attendees && event.resource.attendees.length > 0 && (
               <div className="event-attendees">
                 {event.resource.attendees.slice(0, 2).map((attendee, idx) => (

@@ -20,7 +20,11 @@ import CalendarMonthView from './CalendarMonthView';
 import CalendarWeekView from './CalendarWeekView';
 import CalendarDayView from './CalendarDayView';
 import MoreEventsModal from './MoreEventsModal';
-import { getEventColorStyle } from './calendarUtils';
+import {
+  getEventColorStyle,
+  eventOccursOnCalendarDay,
+  getEventLayoutRange,
+} from './calendarUtils';
 import './CustomCalendar.css';
 
 function CustomCalendar({ events, currentDate, view = 'week', onEventClick, onNavigate }) {
@@ -45,17 +49,26 @@ function CustomCalendar({ events, currentDate, view = 'week', onEventClick, onNa
   }, []);
 
   const getEventsForDay = (day) => {
-    return events.filter(event => {
-      const eventStart = moment(event.start);
-      return eventStart.isSame(day, 'day');
-    }).sort((a, b) => moment(a.start).diff(moment(b.start)));
+    return events
+      .filter((event) => eventOccursOnCalendarDay(event, day))
+      .sort((a, b) => {
+        const startA =
+          a.resource?.type === 'task' && a.resource?.deadlineDate
+            ? day.clone().hour(6).minute(0)
+            : moment(a.start);
+        const startB =
+          b.resource?.type === 'task' && b.resource?.deadlineDate
+            ? day.clone().hour(6).minute(0)
+            : moment(b.start);
+        const d = startA.diff(startB);
+        if (d !== 0) return d;
+        return (a.title || '').localeCompare(b.title || '');
+      });
   };
 
-  const eventsOverlap = (event1, event2) => {
-    const start1 = moment(event1.start);
-    const end1 = moment(event1.end);
-    const start2 = moment(event2.start);
-    const end2 = moment(event2.end);
+  const eventsOverlap = (event1, event2, day) => {
+    const { start: start1, end: end1 } = getEventLayoutRange(event1, day);
+    const { start: start2, end: end2 } = getEventLayoutRange(event2, day);
     return start1.isBefore(end2) && start2.isBefore(end1);
   };
 
@@ -73,7 +86,7 @@ function CustomCalendar({ events, currentDate, view = 'week', onEventClick, onNa
       
       dayEvents.forEach((otherEvent, otherIndex) => {
         if (index !== otherIndex && !processed.has(otherIndex)) {
-          if (eventsOverlap(event, otherEvent)) {
+          if (eventsOverlap(event, otherEvent, day)) {
             group.push(otherEvent);
             processed.add(otherIndex);
           }
@@ -84,9 +97,8 @@ function CustomCalendar({ events, currentDate, view = 'week', onEventClick, onNa
     });
     
     return dayEvents.map((event) => {
-      const eventStart = moment(event.start);
-      const eventEnd = moment(event.end);
-      
+      const { start: eventStart, end: eventEnd } = getEventLayoutRange(event, day);
+
       if (!eventStart.isSame(day, 'day')) {
         return null;
       }

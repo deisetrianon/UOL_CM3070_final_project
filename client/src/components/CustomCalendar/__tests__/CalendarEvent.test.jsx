@@ -48,6 +48,26 @@ describe('CalendarEvent', () => {
     expect(timeElement).toBeInTheDocument();
   });
 
+  it('should render only task title without time or due date line', () => {
+    const taskEvent = {
+      id: 'task-1',
+      title: 'Ship release',
+      start: '2026-03-24T00:00:00.000Z',
+      end: '2026-03-24T01:00:00.000Z',
+      resource: { type: 'task', deadlineDate: '2026-03-24' },
+    };
+    const { container } = render(
+      <CalendarEvent
+        event={taskEvent}
+        style={mockStyle}
+        isOverlapping={false}
+        onEventClick={mockOnEventClick}
+      />
+    );
+    expect(screen.getByText('Ship release')).toBeInTheDocument();
+    expect(container.querySelector('.event-time')).toBeNull();
+  });
+
   it('should show Google Meet icon for video meetings', () => {
     const meetEvent = {
       ...mockEvent,
@@ -63,7 +83,7 @@ describe('CalendarEvent', () => {
       />
     );
 
-    expect(screen.getByText(/google meet/i)).toBeInTheDocument();
+    expect(document.querySelector('.event-meet-info')).toBeTruthy();
   });
 
   it('should call onEventClick when clicked', async () => {

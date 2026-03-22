@@ -14,6 +14,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import moment from 'moment';
 import { useNotification } from '../../contexts/NotificationContext';
 import './Tasks.css';
 
@@ -24,7 +25,7 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
     description: task?.description || '',
     priority: task?.priority || 'medium',
     isUrgent: task?.isUrgent || false,
-    deadline: task?.deadline ? new Date(task.deadline).toISOString().split('T')[0] : ''
+    deadline: task?.deadline ? moment.utc(task.deadline).format('YYYY-MM-DD') : ''
   });
   const [saving, setSaving] = useState(false);
 
@@ -34,7 +35,7 @@ function TaskModal({ task, onClose, onSave, onDelete }) {
       description: task?.description || '',
       priority: task?.priority || 'medium',
       isUrgent: task?.isUrgent || false,
-      deadline: task?.deadline ? new Date(task.deadline).toISOString().split('T')[0] : ''
+      deadline: task?.deadline ? moment.utc(task.deadline).format('YYYY-MM-DD') : ''
     });
   }, [task]);
 

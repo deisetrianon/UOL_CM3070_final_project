@@ -15,7 +15,7 @@
  */
 
 import moment from 'moment';
-import { getEventColorStyle } from './calendarUtils';
+import { getEventColorStyle, eventOccursOnCalendarDay } from './calendarUtils';
 import './CustomCalendar.css';
 
 function CalendarMonthView({ currentDate, events, onEventClick, onNavigate, onShowMoreEvents }) {
@@ -35,10 +35,21 @@ function CalendarMonthView({ currentDate, events, onEventClick, onNavigate, onSh
   }
 
   const getEventsForDay = (day) => {
-    return events.filter(event => {
-      const eventStart = moment(event.start);
-      return eventStart.isSame(day, 'day');
-    }).sort((a, b) => moment(a.start).diff(moment(b.start)));
+    return events
+      .filter((event) => eventOccursOnCalendarDay(event, day))
+      .sort((a, b) => {
+        const startA =
+          a.resource?.type === 'task' && a.resource?.deadlineDate
+            ? day.clone().hour(6).minute(0)
+            : moment(a.start);
+        const startB =
+          b.resource?.type === 'task' && b.resource?.deadlineDate
+            ? day.clone().hour(6).minute(0)
+            : moment(b.start);
+        const d = startA.diff(startB);
+        if (d !== 0) return d;
+        return (a.title || '').localeCompare(b.title || '');
+      });
   };
 
   const isToday = (day) => {

@@ -13,6 +13,15 @@ import { HTTP_STATUS } from '../constants/index.js';
 
 const router = Router();
 
+const deadlineToUtcDateString = (deadline) => {
+  const d = new Date(deadline);
+  if (Number.isNaN(d.getTime())) return null;
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 const handleCalendarError = (error, res) => {
   if (error.message === 'TOKEN_EXPIRED') {
     return sendUnauthorized(res, 'Session expired. Please log in again to refresh your calendar access');
@@ -108,11 +117,17 @@ router.get('/combined', requireAuth, asyncHandler(async (req, res) => {
   let tasks = [];
 
   try {
+    const rangeStart = new Date(defaultTimeMin);
+    const rangeEnd = new Date(defaultTimeMax);
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const bufferedStart = new Date(rangeStart.getTime() - DAY_MS);
+    const bufferedEnd = new Date(rangeEnd.getTime() + DAY_MS);
+
     tasks = await Task.find({
       userId: req.user.id,
       deadline: {
-        $gte: new Date(defaultTimeMin),
-        $lte: new Date(defaultTimeMax)
+        $gte: bufferedStart,
+        $lte: bufferedEnd
       }
     }).sort({ deadline: 1 }).lean();
   } catch (taskError) {
@@ -124,6 +139,7 @@ router.get('/combined', requireAuth, asyncHandler(async (req, res) => {
     id: `task-${task._id}`,
     title: task.title,
     description: task.description || '',
+    deadlineDate: deadlineToUtcDateString(task.deadline),
     start: new Date(task.deadline),
     end: new Date(new Date(task.deadline).getTime() + 60 * 60 * 1000),
     isAllDay: false,

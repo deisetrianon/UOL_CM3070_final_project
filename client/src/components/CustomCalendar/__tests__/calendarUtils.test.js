@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { getEventColorStyle } from '../calendarUtils';
+import moment from 'moment';
+import {
+  getEventColorStyle,
+  eventOccursOnCalendarDay,
+  getEventLayoutRange,
+} from '../calendarUtils';
 
 describe('calendarUtils', () => {
   describe('getEventColorStyle', () => {
@@ -78,6 +83,40 @@ describe('calendarUtils', () => {
 
       expect(style.backgroundColor).toContain('66, 133, 244');
       expect(style.borderLeftColor).toBe('#4285f4');
+    });
+  });
+
+  describe('eventOccursOnCalendarDay', () => {
+    it('should match task by UTC deadlineDate to local calendar column', () => {
+      const day = moment('2026-03-24');
+      const event = {
+        start: new Date('2026-03-24T00:00:00.000Z'),
+        resource: { type: 'task', deadlineDate: '2026-03-24' },
+      };
+      expect(eventOccursOnCalendarDay(event, day)).toBe(true);
+    });
+
+    it('should not place UTC-midnight task on previous local day', () => {
+      const day = moment('2026-03-23');
+      const event = {
+        start: new Date('2026-03-24T00:00:00.000Z'),
+        resource: { type: 'task', deadlineDate: '2026-03-24' },
+      };
+      expect(eventOccursOnCalendarDay(event, day)).toBe(false);
+    });
+  });
+
+  describe('getEventLayoutRange', () => {
+    it('should anchor tasks at 6:00 local (first grid slot) on the column day', () => {
+      const day = moment('2026-03-24').hour(0).minute(0);
+      const event = {
+        start: new Date('2026-03-24T00:00:00.000Z'),
+        end: new Date('2026-03-24T01:00:00.000Z'),
+        resource: { type: 'task', deadlineDate: '2026-03-24' },
+      };
+      const { start, end } = getEventLayoutRange(event, day);
+      expect(start.hour()).toBe(6);
+      expect(end.diff(start, 'minutes')).toBe(60);
     });
   });
 });
