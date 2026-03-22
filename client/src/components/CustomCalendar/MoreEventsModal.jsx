@@ -20,6 +20,8 @@ import './CustomCalendar.css';
 
 function MoreEventsModal({ events, selectedDay, onEventClick, onClose, getEventColorStyle }) {
   const formatEventTime = (event) => {
+    const isTask = event.resource?.type === 'task';
+    if (isTask) return null;
     const startTime = moment(event.start).format('h:mm A');
     const endTime = moment(event.end).format('h:mm A');
     return `${startTime} - ${endTime}`;
@@ -48,7 +50,8 @@ function MoreEventsModal({ events, selectedDay, onEventClick, onClose, getEventC
           {events.map((event) => {
             const colorStyle = getEventColorStyle(event);
             const isGoogleMeet = event.resource?.isGoogleMeet;
-            
+            const timeLabel = formatEventTime(event);
+
             return (
               <div
                 key={event.id}
@@ -59,7 +62,9 @@ function MoreEventsModal({ events, selectedDay, onEventClick, onClose, getEventC
                   onClose();
                 }}
               >
-                <div className="more-events-item-time">{formatEventTime(event)}</div>
+                {timeLabel != null && (
+                  <div className="more-events-item-time">{timeLabel}</div>
+                )}
                 <div className="more-events-item-title">{event.title}</div>
                 {isGoogleMeet && (
                   <div className="more-events-item-meet">

@@ -40,6 +40,24 @@ export function formatDate(dateString, format = 'MMM D, YYYY') {
 }
 
 /**
+ * Formats a task deadline text using the UTC calendar date
+ * Matches HTML date input values (YYYY-MM-DD) so the label is never one day off from the picker in local timezones behind UTC
+ *
+ * @param {string|Date} deadline - Task deadline
+ * @param {string} format - moment.js format
+ * @returns {string}
+ */
+export function formatDeadlineCalendarDate(deadline, format = 'MMM D, YYYY') {
+  if (!deadline) return '';
+  try {
+    return moment.utc(deadline).format(format);
+  } catch (error) {
+    console.error('[formatDeadlineCalendarDate] Error formatting deadline:', error);
+    return '';
+  }
+}
+
+/**
  * Formats a deadline date with contextual information (overdue, today, tomorrow, etc.).
  * 
  * @param {string|Date} deadline - The deadline date
@@ -49,9 +67,9 @@ export function formatDeadline(deadline) {
   if (!deadline) return null;
   
   try {
-    const deadlineDate = moment(deadline);
-    const now = moment();
-    const diffDays = deadlineDate.diff(now, 'days', true);
+    const deadlineUtc = moment.utc(deadline);
+    const nowUtc = moment.utc();
+    const diffDays = deadlineUtc.startOf('day').diff(nowUtc.startOf('day'), 'days');
     
     if (diffDays < 0) {
       return {
@@ -59,13 +77,13 @@ export function formatDeadline(deadline) {
         class: 'overdue',
         isOverdue: true,
       };
-    } else if (diffDays < 1) {
+    } else if (diffDays === 0) {
       return {
         text: 'Today',
         class: 'today',
         isUrgent: true,
       };
-    } else if (diffDays < 2) {
+    } else if (diffDays === 1) {
       return {
         text: 'Tomorrow',
         class: 'soon',
@@ -73,13 +91,13 @@ export function formatDeadline(deadline) {
       };
     } else if (diffDays < 7) {
       return {
-        text: formatDate(deadline),
+        text: formatDeadlineCalendarDate(deadline),
         class: 'upcoming',
         isUrgent: false,
       };
     } else {
       return {
-        text: formatDate(deadline),
+        text: formatDeadlineCalendarDate(deadline),
         class: 'normal',
         isUrgent: false,
       };
@@ -87,7 +105,7 @@ export function formatDeadline(deadline) {
   } catch (error) {
     console.error('[formatDeadline] Error formatting deadline:', error);
     return {
-      text: formatDate(deadline),
+      text: formatDeadlineCalendarDate(deadline),
       class: 'normal',
       isUrgent: false,
     };
@@ -137,5 +155,17 @@ export function getDateRange(view, currentDate) {
 export function isToday(date) {
   if (!date) return false;
   return moment(date).isSame(moment(), 'day');
+}
+
+/**
+ * Checks if the deadline falls on today's calendar date (UTC)
+ * Used for task deadlines so ISO date-only values match HTML date inputs
+ *
+ * @param {string|Date} deadline - Task deadline
+ * @returns {boolean}
+ */
+export function isDeadlineToday(deadline) {
+  if (!deadline) return false;
+  return moment.utc(deadline).isSame(moment.utc(), 'day');
 }
 

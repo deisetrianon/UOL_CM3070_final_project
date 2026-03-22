@@ -10,6 +10,15 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import config from './index.js';
 import User from '../models/User.js';
 
+const GOOGLE_OAUTH_UI_LOCALE = 'en-GB';
+
+const _googleAuthorizationParams = GoogleStrategy.prototype.authorizationParams;
+GoogleStrategy.prototype.authorizationParams = function (options) {
+  const params = _googleAuthorizationParams.call(this, options);
+  params.hl = options.hl || GOOGLE_OAUTH_UI_LOCALE;
+  return params;
+};
+
 passport.serializeUser((user, done) => {
   done(null, user.id || user._id);
 });
@@ -44,7 +53,8 @@ if (config.google.clientId && config.google.clientSecret) {
           'https://www.googleapis.com/auth/calendar.readonly'
         ],
         accessType: 'offline',
-        prompt: 'consent'
+        prompt: 'consent',
+        hl: GOOGLE_OAUTH_UI_LOCALE
       },
       async (accessToken, refreshToken, profile, done) => {
         try {

@@ -4,8 +4,10 @@ import {
   formatTime,
   formatDate,
   formatDeadline,
+  formatDeadlineCalendarDate,
   getDateRange,
   isToday,
+  isDeadlineToday,
 } from '../date.js';
 
 describe('Date Utilities', () => {
@@ -117,6 +119,31 @@ describe('Date Utilities', () => {
     });
   });
 
+  describe('formatDeadlineCalendarDate', () => {
+    it('should use UTC calendar date so it matches the date picker (not previous local day)', () => {
+      const iso = '2026-03-24T00:00:00.000Z';
+      expect(formatDeadlineCalendarDate(iso)).toBe('Mar 24, 2026');
+    });
+  });
+
+  describe('formatDeadline UTC calendar day (regression)', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-03-22T14:30:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should show Today for date-only midnight UTC, not Overdue after noon', () => {
+      const result = formatDeadline('2026-03-22T00:00:00.000Z');
+      expect(result.text).toBe('Today');
+      expect(result.class).toBe('today');
+      expect(result.isOverdue).toBeUndefined();
+    });
+  });
+
   describe('getDateRange', () => {
     it('should return month range', () => {
       const date = new Date('2024-01-15');
@@ -180,6 +207,26 @@ describe('Date Utilities', () => {
     it('should return false for null/undefined', () => {
       expect(isToday(null)).toBe(false);
       expect(isToday(undefined)).toBe(false);
+    });
+  });
+
+  describe('isDeadlineToday', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-03-22T14:30:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should treat UTC midnight deadline as today (not overdue after UTC noon)', () => {
+      expect(isDeadlineToday('2026-03-22T00:00:00.000Z')).toBe(true);
+    });
+
+    it('should return false for other UTC calendar days', () => {
+      expect(isDeadlineToday('2026-03-21T00:00:00.000Z')).toBe(false);
+      expect(isDeadlineToday('2026-03-23T00:00:00.000Z')).toBe(false);
     });
   });
 });

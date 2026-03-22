@@ -100,6 +100,7 @@ function CalendarPage() {
           allDay: event.isAllDay,
           resource: {
             type: event.isTask ? 'task' : 'calendar',
+            deadlineDate: event.deadlineDate || null,
             isGoogleMeet: event.isGoogleMeet,
             meetLink: event.meetLink,
             location: event.location,

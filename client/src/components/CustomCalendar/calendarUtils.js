@@ -5,6 +5,44 @@
  * @module components/CustomCalendar/calendarUtils
  */
 
+import moment from 'moment';
+
+/**
+ * Decides if an event should appear on a given calendar cell (local day)
+ * Tasks use UTC deadline calendar date to match the task cards
+ *
+ * @param {Object} event - Calendar event
+ * @param {import('moment').Moment} day - Calendar day column
+ * @returns {boolean}
+ */
+export function eventOccursOnCalendarDay(event, day) {
+  const dayMoment = moment.isMoment(day) ? day : moment(day);
+  const dayKey = dayMoment.format('YYYY-MM-DD');
+  if (event.resource?.type === 'task' && event.resource?.deadlineDate) {
+    return event.resource.deadlineDate === dayKey;
+  }
+  return moment(event.start).isSame(dayMoment, 'day');
+}
+
+/**
+ * Start/end moments for laying out an event in a day column 
+ *
+ * @param {Object} event
+ * @param {import('moment').Moment} day
+ * @returns {{ start: import('moment').Moment, end: import('moment').Moment }}
+ */
+export function getEventLayoutRange(event, day) {
+  if (event.resource?.type === 'task' && event.resource?.deadlineDate) {
+    const start = day.clone().hour(6).minute(0).second(0).millisecond(0);
+    const end = start.clone().add(1, 'hour');
+    return { start, end };
+  }
+  return {
+    start: moment(event.start),
+    end: moment(event.end),
+  };
+}
+
 /**
  * Gets the color style for a calendar event based on its type and properties.
  * 

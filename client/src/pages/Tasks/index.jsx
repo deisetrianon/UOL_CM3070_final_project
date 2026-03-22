@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useZenMode } from '../../contexts/ZenModeContext';
 import { useNotification } from '../../contexts/NotificationContext';
-import { isToday } from '../../utils/date';
+import { isDeadlineToday } from '../../utils/date';
 import { POMODORO, API_ENDPOINTS } from '../../constants';
 import { apiGet, apiPost, apiPatch, apiPut, apiDelete, getErrorMessage } from '../../utils/api';
 import Layout from '../../components/Layout';
@@ -39,7 +39,7 @@ const isPriorityTask = (task) => {
     priority === 'high' ||
     priority === 'urgent' ||
     task.isUrgent ||
-    isToday(task.deadline)
+    isDeadlineToday(task.deadline)
   );
 };
 
@@ -290,16 +290,12 @@ function Tasks() {
     let filtered = { ...tasks };
     
     if (activeFilter === 'today') {
-      const now = new Date();
       const filterByToday = (taskList) => {
         if (!taskList || !Array.isArray(taskList)) return [];
         return taskList.filter(task => {
           if (!task || !task.deadline) return false;
           try {
-            const deadlineDate = new Date(task.deadline);
-            if (isNaN(deadlineDate.getTime())) return false;
-            const diffDays = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
-            return diffDays === 0;
+            return isDeadlineToday(task.deadline);
           } catch (e) {
             return false;
           }

@@ -30,7 +30,8 @@ router.get('/google', (req, res, next) => {
       'https://www.googleapis.com/auth/calendar.readonly'
     ],
     accessType: 'offline',
-    prompt: 'consent'
+    prompt: 'consent',
+    hl: 'en-GB'
   })(req, res, next);
 });
 
